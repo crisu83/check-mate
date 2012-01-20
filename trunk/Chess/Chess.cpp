@@ -5,5 +5,7 @@
 
 int _tmain(int argc, _TCHAR* argv[])
 {
+	Position *position = new Position();
+
 	return 0;
 }
