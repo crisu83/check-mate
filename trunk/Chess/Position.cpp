@@ -100,7 +100,7 @@ void Position::initPos()
 /**
 	Renders the board.
 
-	@author Christoffer Niska
+	@author Christoffer Niska, Mikko Malmari
 	@return void
 */
 void Position::print() const 
@@ -188,6 +188,7 @@ void Position::print() const
 /**
 	Executes a move.
 
+	@author Christoffer Niska, Mikko Malmari
 	@param m the move
 	@return void
 */
@@ -209,3 +210,63 @@ void Position::execMove(const Move *m)
 		_board[x1][y1] = EMPTY;
 	}
 }
+
+/**
+	Generates all the legal moves.
+	
+	@author Christoffer Niska
+	@param moveList the list in which to store the moves
+	@return the number of legal moves
+*/
+int Position::genLegalMoves(Move *moveList)
+{
+	int x, y;
+	int moveCount = 0;
+	Piece *piece;
+
+	/*
+	for (x = 0; x < 8; x++)
+	{
+		for (y = 0; y < 8; y++)
+		{
+			piece = getPieceAt(x, y);
+
+			if (piece->getType() != EMPTY)
+			{
+				moveCount += piece->genLegalMoves(moveList);
+			}
+		}
+	}
+	*/
+
+	return moveCount;
+}
+
+/**
+	Returns the piece at the given coordinates.
+
+	@author Christoffer Niska
+	@param x the x-coordinate
+	@param y the y-coordinate
+	@return Piece * the piece or NULL if no piece was found
+*/
+Piece *Position::getPieceAt(int x, int y)
+{
+	int type;
+	Piece *piece;
+
+	type = _board[x][y];
+
+	if (type != EMPTY)
+	{
+		// Piece found.
+		piece = new Piece(type, x, y);
+		return piece;
+	}
+	else
+	{
+		// No piece.
+		return NULL;
+	}
+}
+
