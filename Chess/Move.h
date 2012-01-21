@@ -3,6 +3,7 @@
 // Max. number of legal moves in any position
 #define MAX_MOVES 256
 
+// Letters used for moves
 #define LETTERS "abcdefgh"
 
 // For promotions
@@ -24,6 +25,7 @@ private:
 
 public:
 	Move(void);
+	Move(int x1, int y1, int x2, int y2);
 	~Move(void);
 
  

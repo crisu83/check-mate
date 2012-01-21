@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Move.h"
+#include "Piece.h"
 
 #include <iostream>
 
@@ -63,5 +64,7 @@ public:
 	// ended (in either checkmate and stalemate).
 	//
 	int genLegalMoves(Move *moveList);
+
+	Piece *getPieceAt(int x, int y);
 };
 

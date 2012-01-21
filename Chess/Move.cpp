@@ -1,7 +1,11 @@
 #include "StdAfx.h"
 #include "Move.h"
 
+/**
+	Constructor.
 
+	@author Christoffer Niska
+*/
 Move::Move(void)
 {
 	_castleLong = false;
@@ -10,7 +14,28 @@ Move::Move(void)
 	_promoteTo = -1;
 }
 
+/**
+	Constructor.
 
+	@author Christoffer Niska
+	@param x1 the source x-coordinate
+	@param y1 the source y-coordinate
+	@param x2 the destination x-coordinate
+	@param y2 the destination y-coordinate
+*/
+Move::Move(int x1, int y1, int x2, int y2)
+{
+	Move();
+
+	_x1 = x1;
+	_y1 = y1;
+	_x2 = x2;
+	_y2 = y2;
+}
+
+/**
+	Destructor.
+*/
 Move::~Move(void)
 {
 }
@@ -83,7 +108,6 @@ void Move::strToMove(const char* str)
 	delete res;
 }
 
-
 /**
 	Prints the move as a human-readable string.
 
@@ -109,21 +133,41 @@ void Move::print() const
 	std::cout << str << std::endl; 
 }
 
+/**
+	Returns the source x-coordinate.
+
+	@return the coordinate
+*/
 int Move::getX1() const
 {
 	return _x1;
 }
 
+/**
+	Returns the source y-coordinate.
+
+	@return the coordinate
+*/
 int Move::getY1() const
 {
 	return _y1;
 }
 
+/**
+	Returns the destination x-coordinate.
+
+	@return the coordinate
+*/
 int Move::getX2() const
 {
 	return _x2;
 }
 
+/**
+	Returns the destination y-coordinate.
+
+	@return the coordinate
+*/
 int Move::getY2() const
 {
 	return _y2;
