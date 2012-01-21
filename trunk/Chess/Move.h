@@ -3,6 +3,8 @@
 // Max. number of legal moves in any position
 #define MAX_MOVES 256
 
+#define LETTERS "abcdefgh"
+
 // For promotions
 enum {
 	QUEEN, ROOK, BISHOP, KNIGHT
@@ -24,6 +26,7 @@ public:
 	Move(void);
 	~Move(void);
 
+ 
 	// TODO (1)
 	//
 	// Sets move from string description, e.g.
@@ -41,5 +44,10 @@ public:
 	// Prints move in ascii, e.g. "e2-e4". For testing.
 	//
 	void print() const;	
+
+	int getX1() const;
+	int getY1() const;
+	int getX2() const;
+	int getY2() const;
 };
 

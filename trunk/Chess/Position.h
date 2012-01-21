@@ -22,7 +22,7 @@ private:
 	bool _whiteCastleLongAllowed;
 	bool _blackCastleShortAllowed;
 	bool _blackCastleLongAllowed;
-	bool _enPassantOnLine;
+	int _enPassantOnLine;
 
 public:
 	Position(void);

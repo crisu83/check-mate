@@ -11,6 +11,8 @@
 #include <tchar.h>
 
 #include <iostream>
+#include <string.h>
+#include <process.h>
 
 #include "Position.h";
 
