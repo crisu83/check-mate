@@ -14,7 +14,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	int turn = 0;
 	int i, len, legalMoveCount;
 
-	Board *board = new Board();
+	Position *position = new Position();
 	Move *move = NULL;
 	//Move *moveList = new Move[MAX_MOVES];
 
@@ -25,11 +25,11 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		if (move != NULL)
 		{
-			board->execMove(move);
+			position->execMove(move);
 		}
 
 		// Render the board.
-		board->print();
+		position->render();
 
 		std::cout << std::endl;
 			
@@ -41,17 +41,12 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		std::cout << std::endl;
 
-		/*
-		legalMoveCount = board->genLegalMoves(moveList);
+		// todo: generate legal moves.
 
-		for (i = 0; i < legalMoveCount; i++)
-		{
-			moveList[i].print();
-		}
-		*/
+		std::cout << " Turn: " << position->getTurn() << std::endl;
 
 		std::cout << std::endl;
-		std::cout << " Turn: " << board->getTurn()<<std::endl;
+
 		std::cout << " Next move: ";
 		std::cin >> mv;
 

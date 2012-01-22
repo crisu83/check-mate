@@ -1,11 +1,11 @@
 #include "StdAfx.h"
 #include "Piece.h"
 
+/**
+	Constructor.
+ */
 Piece::Piece(void)
 {
-	_type = EMPTY;
-	_x = 0;
-	_y = 0;
 }
 
 /**
@@ -13,35 +13,88 @@ Piece::Piece(void)
 
 	@author Christoffer Niska
 	@param type the piece type
-	@param x the x-coordinate
-	@param y the y-coordinate
-*/
-Piece::Piece(int type, int x, int y)
+ */
+Piece::Piece(int type)
 {
+	Piece();
+
 	_type = type;
-	_x = x;
-	_y = y;
 }
 
 /**
 	Destructor.
 */
-Piece::~Piece(void)
+Piece::~Piece()
 {
 }
 
 /**
-	Generates the legal moves for the piece.
+	Renders the piece
 
 	@author Christoffer Niska
+	@return void
 */
-int Piece::genLegalMoves(Move *moveList)
+void Piece::render()
 {
-	int moveCount = 0;
+	char c;
 
-	// todo: implement
+	switch (_type)
+	{
+	case W_KING:
+		c = 'K';
+		break;
 
-	return moveCount;
+	case W_QUEEN:
+		c = 'Q';
+		break;
+
+	case W_ROOK:
+		c = 'R';
+		break;
+
+	case W_BISHOP:
+		c = 'B';
+		break;
+
+	case W_KNIGHT:
+		c = 'N';
+		break;
+
+	case W_PAWN:
+		c = 'P';
+		break;
+
+	case B_KING:
+		c = 'k';
+		break;
+
+	case B_QUEEN:
+		c = 'q';
+		break;
+
+	case B_ROOK:
+		c = 'r';
+		break;
+
+	case B_BISHOP:
+		c = 'b';
+		break;
+
+	case B_KNIGHT:
+		c = 'n';
+		break;
+
+	case B_PAWN:
+		c = 'p';
+		break;
+
+	case EMPTY:
+	default:
+		c = ' ';
+		break;
+	}
+
+	std::cout << c;
 }
 
 /**
@@ -49,7 +102,8 @@ int Piece::genLegalMoves(Move *moveList)
 
 	@return the type
 */
-int Piece::getType() const
+int Piece::getType()
 {
 	return _type;
 }
+
