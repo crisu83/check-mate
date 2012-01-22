@@ -14,7 +14,6 @@ enum {
 class Move
 {
 private:
-
 	int _x1, _y1;		// start square indexes
 	int _x2, _y2;		// end square indexes
 
@@ -27,7 +26,6 @@ public:
 	Move(void);
 	Move(int x1, int y1, int x2, int y2);
 	~Move(void);
-
  
 	// TODO (1)
 	//
@@ -47,6 +45,7 @@ public:
 	//
 	void print() const;	
 
+	// Setters and getters
 	int getX1() const;
 	int getY1() const;
 	int getX2() const;

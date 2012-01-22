@@ -3,27 +3,19 @@
 
 /**
 	Constructor.
+ */
+Board::Board(void)
+{
+}
+
+/**
+	Destructor.
 
 	@author Christoffer Niska
 */
-Board::Board(void)
-{
-	// Castling is allowed until king or rook is moved.
-	_whiteCastleShortAllowed = true;
-	_whiteCastleLongAllowed = true;
-	_blackCastleShortAllowed = true;
-	_blackCastleLongAllowed = true;
-
-	// Empty the board.
-	clear();
-
-	// Initialize the piece Boards.
-	initPos();
-}
-
-
 Board::~Board(void)
 {
+	// todo: free mem.
 }
 
 /**
@@ -31,7 +23,7 @@ Board::~Board(void)
 
 	@author Christoffer Niska
 	@return void
-*/
+ */
 void Board::clear() 
 {
 	int x, y;
@@ -40,7 +32,7 @@ void Board::clear()
 	{
 		for (y = 0; y < 8; y++)
 		{
-			_board[x][y] = EMPTY;
+			_squares[x][y] = new Square();
 		}
 	}
 }
@@ -48,20 +40,29 @@ void Board::clear()
 /**
 	Sets the initial positions for the pieces on the board.
 
-	  a b c d e f g h
-	8 R N B Q K B N R 8 - Black
-	7 P P P P P P P P 7
-	6 0 0 0 0 0 0 0 0 6
-	5 0 0 0 0 0 0 0 0 5
-	4 0 0 0 0 0 0 0 0 4
-	3 0 0 0 0 0 0 0 0 3
-	2 P P P P P P P P 2
-	1 R N B Q K B N R 1 - White
-	  a b c d e f g h 
+	    a   b   c   d   e   f   g   h
+	  +---+---+---+---+---+---+---+---+
+	8 | R | N | B | Q | K | B | N | R | 8 - Black
+	  +---+---+---+---+---+---+---+---+
+	7 | P | P | P | P | P | P | P | P | 7
+	  +---+---+---+---+---+---+---+---+
+	6 |   |   |   |   |   |   |   |   | 6
+	  +---+---+---+---+---+---+---+---+
+	5 |   |   |   |   |   |   |   |   | 5
+	  +---+---+---+---+---+---+---+---+
+	4 |   |   |   |   |   |   |   |   | 4
+	  +---+---+---+---+---+---+---+---+
+	3 |   |   |   |   |   |   |   |   | 3
+	  +---+---+---+---+---+---+---+---+
+	2 | P | P | P | P | P | P | P | P | 2
+	  +---+---+---+---+---+---+---+---+
+	1 | R | N | B | Q | K | B | N | R | 1 - White
+	  +---+---+---+---+---+---+---+---+
+	    a   b   c   d   e   f   g   h
 
-	@author Christoffer Niska
+	@author Christoffer Niska, Mikko Malmari
 	@return void
-*/
+ */
 void Board::initPos()
 {
 	int x;
@@ -69,32 +70,35 @@ void Board::initPos()
 	// Paws
 	for (x = 0; x < 8; x++)
 	{
-		_board[x][1] = B_PAWN;
-		_board[x][6] = W_PAWN;
+		setPieceAt(x, 1, new Piece(B_PAWN));
+		setPieceAt(x, 6, new Piece(W_PAWN));
 	}
 
 	// Rooks
-	_board[0][0] = _board[7][0] = B_ROOK;
-	_board[0][7] = _board[7][7] = W_ROOK;
+	setPieceAt(0, 0, new Piece(B_ROOK));
+	setPieceAt(7, 0, new Piece(B_ROOK));
+	setPieceAt(0, 7, new Piece(W_ROOK));
+	setPieceAt(7, 7, new Piece(W_ROOK));
 
 	// Knights
-	_board[1][0] = _board[6][0] = B_KNIGHT;
-	_board[1][7] = _board[6][7] = W_KNIGHT;
+	setPieceAt(1, 0, new Piece(B_KNIGHT));
+	setPieceAt(6, 0, new Piece(B_KNIGHT));
+	setPieceAt(1, 7, new Piece(W_KNIGHT));
+	setPieceAt(6, 7, new Piece(W_KNIGHT));
 
 	// Bishops
-	_board[2][0] = _board[5][0] = B_BISHOP;
-	_board[2][7] = _board[5][7] = W_BISHOP;
+	setPieceAt(2, 0, new Piece(B_BISHOP));
+	setPieceAt(5, 0, new Piece(B_BISHOP));
+	setPieceAt(2, 7, new Piece(W_BISHOP));
+	setPieceAt(5, 7, new Piece(W_BISHOP));
 
 	// Queens
-	_board[3][0] = B_QUEEN;
-	_board[3][7] = W_QUEEN;
+	setPieceAt(3, 0, new Piece(B_QUEEN));
+	setPieceAt(3, 7, new Piece(W_QUEEN));
 
 	// Kings
-	_board[4][0] = B_KING;
-	_board[4][7] = W_KING;
-
-	// White always starts the game.
-	_toMove = WHITE;
+	setPieceAt(4, 0, new Piece(B_KING));
+	setPieceAt(4, 7, new Piece(W_KING));
 }
 
 /**
@@ -103,90 +107,44 @@ void Board::initPos()
 	@author Christoffer Niska, Mikko Malmari
 	@return void
 */
-void Board::print() const 
+void Board::render()
 {
 	int x, y;
+	Square *square;
 
 	std::cout << std::endl;
-	std::cout << "   a b c d e f g h " << std::endl;
-	std::cout << "  +-+-+-+-+-+-+-+-+" << std::endl;
+	std::cout << "      a   b   c   d   e   f   g   h" << std::endl;
+	std::cout << "    +---+---+---+---+---+---+---+---+" << std::endl;
 
 	for (y = 0; y < 8; y++)
 	{
-		std::cout << " " << 8 - y << "|";
+		std::cout << "  " << 8 - y << " | ";
 
 		for (x = 0; x < 8; x++)
 		{
-			char c;
+			square = _squares[x][y];
 
-			switch (_board[x][y])
+			// We do not care about the case that no square was found
+			// because it is highly unlikely that it will happen.
+			if (square != NULL)
 			{
-			case W_KING:
-				c = 'K';
-				break;
-
-			case W_QUEEN:
-				c = 'Q';
-				break;
-
-			case W_ROOK:
-				c = 'R';
-				break;
-
-			case W_BISHOP:
-				c = 'B';
-				break;
-
-			case W_KNIGHT:
-				c = 'N';
-				break;
-
-			case W_PAWN:
-				c = 'P';
-				break;
-
-			case B_KING:
-				c = 'k';
-				break;
-
-			case B_QUEEN:
-				c = 'q';
-				break;
-
-			case B_ROOK:
-				c = 'r';
-				break;
-
-			case B_BISHOP:
-				c = 'b';
-				break;
-
-			case B_KNIGHT:
-				c = 'n';
-				break;
-
-			case B_PAWN:
-				c = 'p';
-				break;
-
-			case EMPTY:
-			default:
-				c = ' ';
-				break;
+				square->render();
 			}
 
-			std::cout << c << "|";
+			std::cout << " | ";
 		}
 
 		std::cout << 8 - y << std::endl;
-		std::cout << "  +-+-+-+-+-+-+-+-+" << std::endl;
+		std::cout << "    +---+---+---+---+---+---+---+---+" << std::endl;
 	}
 
-	std::cout << "   a b c d e f g h " << std::endl;
+	std::cout << "      a   b   c   d   e   f   g   h" << std::endl;
+
+	// todo: free mem.
 }
 
 /**
-	Executes a move.
+	Executes a move on the board.
 
 	@author Christoffer Niska, Mikko Malmari
 	@param m the move
@@ -194,73 +152,42 @@ void Board::print() const
 */
 void Board::execMove(const Move *m)
 {
-	int x1, y1, x2, y2;
-	int piece = EMPTY;
+	int x1, y1;
+	int x2, y2;
+	Piece *piece;
 
+	// Source coordinates
 	x1 = m->getX1();
 	y1 = m->getY1();
+	
+	// Destination coordinates
 	x2 = m->getX2();
 	y2 = m->getY2();
 
-	piece = _board[x1][y1];
+	piece = getPieceAt(x1, y1);
 
-	if (piece != EMPTY)
+	if (piece != NULL)
 	{
-		_board[x2][y2] = piece;
-		_board[x1][y1] = EMPTY;
+		// Manipulate the board.
+		setPieceAt(x2, y2, piece);
+		setPieceAt(x1, y1, NULL);
 	}
+
+	// todo: free mem.
 }
 
-/**
-	Generates all the legal moves.
-
-	@author Christoffer Niska
-	@param moveList the list in which to store the moves
-	@return the number of legal moves
-*/
-int Board::genLegalMoves(Move *moveList)
+Square *Board::getSquareAt(int x, int y)
 {
-	int x, y;
-	int moveCount = 0;
-	Piece *piece;
-
-	/*
-	for (x = 0; x < 8; x++)
+	// Validate the coordinates.
+	if (x >= 0 && x < 8 && y >= 0 && y < 8)
 	{
-	for (y = 0; y < 8; y++)
+		return _squares[x][y];
+	}
+	else
 	{
-	piece = getPieceAt(x, y);
-
-	if (piece->getType() != EMPTY)
-	{
-	moveCount += piece->genLegalMoves(moveList);
+		// Invalid coordinates.
+		return NULL;
 	}
-	}
-	}
-	*/
-
-	return moveCount;
-}
-
-/**
-	Returns the _toMove parameters std::string representative. 
-
-	@author Olli Koskinen
-	@param void
-	@return std::string as  "Black" or "White"
-*/
-std::string Board::getTurn() const
-{
-	if(_toMove == BLACK)
-	{
-		return "Black";
-	}
-	else if(_toMove == WHITE){
-		return "White";
-	}
-
-	//Something went terribly, terribly wrong.
-	return NULL;
 }
 
 /**
@@ -269,25 +196,47 @@ std::string Board::getTurn() const
 	@author Christoffer Niska
 	@param x the x-coordinate
 	@param y the y-coordinate
-	@return Piece * the piece or NULL if no piece was found
+	@return the piece or NULL if no piece was found
 */
 Piece *Board::getPieceAt(int x, int y)
 {
-	int type;
-	Piece *piece;
+	Square *square;
+	
+	square = getSquareAt(x, y);
 
-	type = _board[x][y];
-
-	if (type != EMPTY)
+	if (square != NULL)
 	{
-		// Piece found.
-		piece = new Piece(type, x, y);
-		return piece;
+		return square->getPiece();
 	}
 	else
 	{
-		// No piece.
 		return NULL;
 	}
+
+	// todo: free mem.
 }
+
+/**
+	Sets the piece at the given coordinates.
+
+	@author Christoffer Niska
+	@param x the x-coordinate
+	@param y the y-coordinate
+	@return void
+*/
+void Board::setPieceAt(int x, int y, Piece *piece)
+{
+	Square *square;
+
+	square = getSquareAt(x, y);
+
+	if (square != NULL)
+	{
+		square->setPiece(piece);
+	}
+
+	// todo: free mem.
+}
+
+
 

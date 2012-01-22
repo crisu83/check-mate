@@ -15,4 +15,8 @@
 #include <process.h>
 #include <iostream>
 
-#include "Board.h";
+#include "Move.h"
+#include "Piece.h"
+#include "Square.h"
+#include "Board.h"
+#include "Position.h"
