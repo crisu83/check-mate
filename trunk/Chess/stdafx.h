@@ -10,9 +10,9 @@
 #include <stdio.h>
 #include <tchar.h>
 
+#include <string>
 #include <string.h>
 #include <process.h>
 #include <iostream>
 
 #include "Board.h";
-

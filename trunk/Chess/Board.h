@@ -66,6 +66,8 @@ public:
 	//
 	int genLegalMoves(Move *moveList);
 
+	std::string getTurn(void) const;
+
 	Piece *getPieceAt(int x, int y);
 };
 
