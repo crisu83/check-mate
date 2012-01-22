@@ -5,7 +5,7 @@
 	Constructor.
 
 	@author Christoffer Niska
- */
+*/
 Board::Board(void)
 {
 	// Castling is allowed until king or rook is moved.
@@ -31,7 +31,7 @@ Board::~Board(void)
 
 	@author Christoffer Niska
 	@return void
- */
+*/
 void Board::clear() 
 {
 	int x, y;
@@ -61,7 +61,7 @@ void Board::clear()
 
 	@author Christoffer Niska
 	@return void
- */
+*/
 void Board::initPos()
 {
 	int x;
@@ -213,7 +213,7 @@ void Board::execMove(const Move *m)
 
 /**
 	Generates all the legal moves.
-	
+
 	@author Christoffer Niska
 	@param moveList the list in which to store the moves
 	@return the number of legal moves
@@ -227,19 +227,40 @@ int Board::genLegalMoves(Move *moveList)
 	/*
 	for (x = 0; x < 8; x++)
 	{
-		for (y = 0; y < 8; y++)
-		{
-			piece = getPieceAt(x, y);
+	for (y = 0; y < 8; y++)
+	{
+	piece = getPieceAt(x, y);
 
-			if (piece->getType() != EMPTY)
-			{
-				moveCount += piece->genLegalMoves(moveList);
-			}
-		}
+	if (piece->getType() != EMPTY)
+	{
+	moveCount += piece->genLegalMoves(moveList);
+	}
+	}
 	}
 	*/
 
 	return moveCount;
+}
+
+/**
+	Returns the _toMove parameters std::string representative. 
+
+	@author Olli Koskinen
+	@param void
+	@return std::string as  "Black" or "White"
+*/
+std::string Board::getTurn() const
+{
+	if(_toMove == BLACK)
+	{
+		return "Black";
+	}
+	else if(_toMove == WHITE){
+		return "White";
+	}
+
+	//Something went terribly, terribly wrong.
+	return NULL;
 }
 
 /**

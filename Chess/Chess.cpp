@@ -51,7 +51,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		*/
 
 		std::cout << std::endl;
-		
+		std::cout <<" Turn: " << board->getTurn()<<std::endl;
 		std::cout << " Next move: ";
 		std::cin >> mv;
 
