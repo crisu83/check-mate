@@ -16,7 +16,8 @@
 #include <iostream>
 
 #include "Move.h"
+#include "Position.h"
 #include "Piece.h"
 #include "Square.h"
 #include "Board.h"
-#include "Position.h"
+#include "Game.h"

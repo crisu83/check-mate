@@ -44,7 +44,7 @@ Move::~Move(void)
 	Interprents a human-readable move string.
 
 	@author Christoffer Niska, Mikko Malmari
-	@param str the move
+	@param str the move as a string
 	@return void
 */
 void Move::strToMove(const char* str)

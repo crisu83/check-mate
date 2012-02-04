@@ -42,9 +42,9 @@ void Board::clear()
 
 	    a   b   c   d   e   f   g   h
 	  +---+---+---+---+---+---+---+---+
-	8 | R | N | B | Q | K | B | N | R | 8 - Black
+	8 | r | n | b | q | k | b | n | r | 8 - Black
 	  +---+---+---+---+---+---+---+---+
-	7 | P | P | P | P | P | P | P | P | 7
+	7 | p | p | p | p | p | p | p | p | 7
 	  +---+---+---+---+---+---+---+---+
 	6 |   |   |   |   |   |   |   |   | 6
 	  +---+---+---+---+---+---+---+---+
@@ -65,6 +65,13 @@ void Board::clear()
  */
 void Board::initPos()
 {
+	/*
+	if (_position != NULL)
+	{		
+		
+	}
+	*/
+
 	int x;
 
 	// Paws
@@ -238,5 +245,8 @@ void Board::setPieceAt(int x, int y, Piece *piece)
 	// todo: free mem.
 }
 
-
+void Board::setPosition(Position *position)
+{
+	_position = position;
+}
 

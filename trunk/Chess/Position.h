@@ -6,7 +6,7 @@
 class Position
 {
 private:
-	Board *_board;
+	int _map[8][8];
 	int _toMove;
 	bool _whiteCastleShortAllowed;
 	bool _whiteCastleLongAllowed;
@@ -34,7 +34,7 @@ public:
 	//
 	// Print position in ASCII for testing purposes.
 	//
-	void render() const;
+	//void render() const;
 
 	// TODO (4)
 	//
@@ -42,7 +42,7 @@ public:
 	// that given move is legal - no need to check
 	// game rules.
 	//
-	void execMove(const Move *m);
+	//void execMove(const Move *m);
 
 	// TODO (5) - BIG ONE
 	//
@@ -56,6 +56,8 @@ public:
 
 	void endTurn();
 
-	std::string getTurn() const;
+	std::string getTurnName() const;
+
+	int *getMap();
 };
 
