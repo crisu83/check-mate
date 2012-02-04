@@ -8,16 +8,11 @@
  */
 Position::Position(void)
 {
-	_board = new Board();
-
 	// Castling is allowed until king or rook is moved.
 	_whiteCastleShortAllowed = true;
 	_whiteCastleLongAllowed = true;
 	_blackCastleShortAllowed = true;
 	_blackCastleLongAllowed = true;
-
-	// Empty the board.
-	_board->clear();
 
 	// Initialize the positions.
 	initPos();
@@ -38,7 +33,15 @@ Position::~Position(void)
  */
 void Position::clear() 
 {
-	_board->clear();
+	int x, y;
+
+	for (x = 0; x < 8; x++)
+	{
+		for (y = 0; y < 8; y++)
+		{
+			_map[x][y] = EMPTY;
+		}
+	}
 }
 
 /**
@@ -49,38 +52,40 @@ void Position::clear()
  */
 void Position::initPos()
 {
-	// Set the initial positions for the pieces on the board.
-	_board->initPos();
+	int x;
 
-	// White always starts the game.
-	_toMove = WHITE;
-}
+	// Paws
+	for (x = 0; x < 8; x++)
+	{
+		_map[x][1] = B_PAWN;
+		_map[x][6] = W_PAWN;
+	}
 
-/**
-	Renders the board.
+	// Rooks
+	_map[0][0] = B_ROOK;
+	_map[7][0] = B_ROOK;
+	_map[0][7] = W_ROOK;
+	_map[7][7] = W_ROOK;
 
-	@author Christoffer Niska, Mikko Malmari
-	@return void
-*/
-void Position::render() const 
-{
-	_board->render();
-}
+	// Knights
+	_map[1][0] = B_KNIGHT;
+	_map[6][0] = B_KNIGHT;
+	_map[1][7] = W_KNIGHT;
+	_map[6][7] = W_KNIGHT;
 
-/**
-	Executes a move.
+	// Bishops
+	_map[2][0] = B_BISHOP;
+	_map[5][0] = B_BISHOP;
+	_map[2][7] = W_BISHOP;
+	_map[5][7] = W_BISHOP;
 
-	@author Christoffer Niska, Mikko Malmari
-	@param m the move
-	@return void
-*/
-void Position::execMove(const Move *m)
-{
-	// Execute the move on the board.
-	_board->execMove(m);
+	// Queens
+	_map[3][0] = B_QUEEN;
+	_map[3][7] = W_QUEEN;
 
-	// Turn over the turn.
-	endTurn();
+	// Kings
+	_map[4][0] = B_KING;
+	_map[4][7] = W_KING;
 }
 
 /**
@@ -97,41 +102,7 @@ int Position::genLegalMoves(Move *moveList)
 	return moveCount;
 }
 
-/**
-	End the current turn turning over the turn to the other player.
-
-	@author Christoffer Niska
-	@return void
-*/
-void Position::endTurn()
+int *Position::getMap()
 {
-	if (_toMove == WHITE)
-	{
-		_toMove = BLACK;
-	}
-	else
-	{
-		_toMove = WHITE;
-	}
-}
-
-/**
-	Returns the _toMove parameters std::string representative. 
-
-	@author Olli Koskinen
-	@return "Black" or "White"
-*/
-std::string Position::getTurn() const
-{
-	if (_toMove == BLACK)
-	{
-		return "Black";
-	}
-	else if (_toMove == WHITE)
-	{
-		return "White";
-	}
-
-	//Something went terribly, terribly wrong.
-	return NULL;
+	return *_map;
 }

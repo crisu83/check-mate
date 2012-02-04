@@ -4,6 +4,7 @@ class Board
 {
 private:
 	Square *_squares[8][8];
+	Position *_position;
 
 public:
 	Board(void);
@@ -18,5 +19,6 @@ public:
 	std::string getTurn(void) const;
 
 	Piece *getPieceAt(int x, int y);
+	void setPosition(Position *position);
 };
 
