@@ -53,7 +53,6 @@ void Move::strToMove(const char* str)
 	char *res;
 	char c;
 	size_t i = 0, j;
-
 	// Copy and tokenize the move string.
 	strcpy(copy, str);
 	res = strtok(copy, "-");
