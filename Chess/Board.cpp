@@ -238,8 +238,8 @@ void Board::execMove(const Move *m)
 void Board::updateBitBoards(Move move, int type){
 	int sourceindex = move.getX1()+ (move.getY1() * 8);
 	int destindex = move.getX2() + (move.getY2() * 8);
-	_BitBoards[ type ] = _BitBoards[ type ] - _SquareBits[sourceindex];
-	_BitBoards[ type ] = _BitBoards[ type ] + _SquareBits[destindex];
+	_BitBoards[ type ]   -=   _SquareBits[sourceindex];
+	_BitBoards[ type ]	 +=   _SquareBits[destindex];
 }
 
 /**
