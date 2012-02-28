@@ -1,12 +1,17 @@
 #pragma once
 #define SQUARES 64
+#define BITBOARDS 15
 
 class Board
 {
 private:
 	Square *_squares[8][8];
-	__int64 SquareBits[64];
+	__int64 _SquareBits[SQUARES];
 	Position *_position;
+	__int64 _BitBoards[BITBOARDS];
+
+	//Private functions
+	void initBitboards();
 
 public:
 	Board(void);

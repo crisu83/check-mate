@@ -53,13 +53,14 @@ void Game::init(void)
 	@author Christoffer Niska
 	@return exit code
 */
+
+
 int Game::run(void)
 {
 	char *moveStr = new char[10];
 	Move *moveList = new Move[MAX_MOVES];
 
 	_running = true;
-
 	while (_running)
 	{
 		if (_curMove != NULL)

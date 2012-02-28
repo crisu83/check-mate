@@ -6,7 +6,8 @@
  */
 Board::Board(void)
 {
-	SquareBits = new __int64[SQUARE];
+	
+	initBitboards();
 }
 
 /**
@@ -37,6 +38,46 @@ void Board::clear()
 		}
 	}
 }
+
+
+/**
+	Initializes the bitboards with starting positions for every piece
+	for example: 
+
+		White Pawns
+	0 0 0 0 0 0 0 0
+	0 0 0 0 0 0 0 0
+	0 0 0 0 0 0 0 0
+	0 0 0 0 0 0 0 0		=> 0xFF00 in hex
+	0 0 0 0 0 0 0 0
+	0 0 0 0 0 0 0 0
+	1 1 1 1 1 1 1 1
+	0 0 0 0 0 0 0 0
+
+
+	@author Olli Koskinen, Arttu Nieminen	
+	@return void
+ */
+void Board::initBitboards(){
+
+	_BitBoards[ EMPTY	]	= 0x0000;  // Empty board
+	_BitBoards[ W_KING	]	= 0x10;
+	_BitBoards[ W_QUEEN ]	= 0x8;
+	_BitBoards[ W_ROOK	]	= 0x81;
+	_BitBoards[ W_BISHOP]	= 0x24;
+	_BitBoards[ W_KNIGHT]	= 0x42;
+	_BitBoards[ W_PAWN	]	= 0xFF00;
+	_BitBoards[ B_KING	]	= 0x1000000000000000;
+	_BitBoards[ B_QUEEN ]	= 0x800000000000000;
+	_BitBoards[ B_ROOK	]	= 0x8100000000000000;
+	_BitBoards[ B_BISHOP]	= 0x2400000000000000;
+	_BitBoards[ B_KNIGHT]	= 0x4200000000000000;
+	_BitBoards[ B_PAWN	]	= 0xFF000000000000;
+	_BitBoards[ W_PIECES]	= 0xFFFF;
+	_BitBoards[ B_PIECES]	= 0xFFFF000000000000;
+
+}
+
 
 /**
 	Sets the initial positions for the pieces on the board.
@@ -194,7 +235,7 @@ void Board::execMove(const Move *m)
 void Board::fillSquareBits(){
 
 	for(int i = 0; i< SQUARES; i++){
-		SquareBits[i] = 1LL << i;
+		_SquareBits[i] = 1LL << i;
 	}
 
 }
@@ -207,7 +248,7 @@ void Board::fillSquareBits(){
 	@return __int64 SquareBit representation
 */
 _int64 Board::posToSquare(int x, int y){
-	return SquareBits[8*y+x];
+	return _SquareBits[8*y+x];
 }
 
 /**
