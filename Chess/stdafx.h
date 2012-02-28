@@ -5,6 +5,8 @@
 
 #pragma once
 
+typedef unsigned long long UI64;
+
 #include "targetver.h"
 
 #include <stdio.h>
@@ -14,6 +16,7 @@
 #include <string.h>
 #include <process.h>
 #include <iostream>
+#include <vector>
 
 #include "Move.h"
 #include "Position.h"

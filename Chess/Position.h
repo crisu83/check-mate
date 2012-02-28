@@ -13,6 +13,7 @@ private:
 	bool _blackCastleShortAllowed;
 	bool _blackCastleLongAllowed;
 	int _enPassantOnLine;
+	std::vector<Move> legalMoves;
 
 public:
 	Position(void);

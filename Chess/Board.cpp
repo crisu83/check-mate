@@ -44,7 +44,7 @@ void Board::clear()
 	Initializes the bitboards with starting positions for every piece
 	for example: 
 
-		White Pawns
+	White Pawns
 	0 0 0 0 0 0 0 0
 	0 0 0 0 0 0 0 0
 	0 0 0 0 0 0 0 0
@@ -235,7 +235,7 @@ void Board::execMove(const Move *m)
 void Board::fillSquareBits(){
 
 	for(int i = 0; i< SQUARES; i++){
-		_SquareBits[i] = 1LL << i;
+		_SquareBits[i] = 1ULL << i;
 	}
 
 }
@@ -245,9 +245,9 @@ void Board::fillSquareBits(){
 	@author Olli Koskinen, Arttu Nieminen
 	@param x the x-coordinate
 	@param y the y-coordinate
-	@return __int64 SquareBit representation
+	@return UI64 SquareBit representation
 */
-_int64 Board::posToSquare(int x, int y){
+UI64 Board::posToSquare(int x, int y){
 	return _SquareBits[8*y+x];
 }
 
@@ -257,7 +257,7 @@ _int64 Board::posToSquare(int x, int y){
 	@param square the bit representation of move
 	@return void    ==    PLXFIXME
 */
-void Board::SquareBitToPos(__int64 square){
+void Board::SquareBitToPos(UI64 square){
 	int x , y;
 	x = square & 7;
 	y = square >> 3;

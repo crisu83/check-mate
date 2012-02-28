@@ -99,6 +99,7 @@ int Position::genLegalMoves(Move *moveList)
 {
 	int moveCount = 0;
 
+
 	return moveCount;
 }
 
