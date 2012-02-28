@@ -1,6 +1,7 @@
 #pragma once
 #define SQUARES 64
 #define BITBOARDS 20
+typedef unsigned long long UI64;
 
 class Board
 {
