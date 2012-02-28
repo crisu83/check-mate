@@ -6,6 +6,7 @@
  */
 Board::Board(void)
 {
+	SquareBits = new __int64[SQUARE];
 }
 
 /**
@@ -181,6 +182,45 @@ void Board::execMove(const Move *m)
 	}
 
 	// todo: free mem.
+}
+
+/**
+	Fills the SquareBits array with bits that represents the squares
+
+	@author Olli Koskinen, Arttu Nieminen
+	@return void
+*/
+
+void Board::fillSquareBits(){
+
+	for(int i = 0; i< SQUARES; i++){
+		SquareBits[i] = 1LL << i;
+	}
+
+}
+
+/**
+	Converts the x- and y-coordinates to a SquareBit representation
+	@author Olli Koskinen, Arttu Nieminen
+	@param x the x-coordinate
+	@param y the y-coordinate
+	@return __int64 SquareBit representation
+*/
+_int64 Board::posToSquare(int x, int y){
+	return SquareBits[8*y+x];
+}
+
+/**
+	Converts the SquareBit to a x,y coordinates
+	@author Olli Koskinen, Arttu Nieminen
+	@param square the bit representation of move
+	@return void    ==    PLXFIXME
+*/
+void Board::SquareBitToPos(__int64 square){
+	int x , y;
+	x = square & 7;
+	y = square >> 3;
+	//plx return meeeee!
 }
 
 Square *Board::getSquareAt(int x, int y)
