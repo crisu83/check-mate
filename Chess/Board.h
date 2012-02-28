@@ -26,12 +26,16 @@ public:
 	//TODO: Return something plx |
 	//							 V
 	void SquareBitToPos(UI64 square);
-
+	bool moveIsLegal(Move _curMove);
+	void Board::updateBitBoards(Move move, int type);
+	int Board::getPieceTypeAt(int x, int y);
+	
 	void setPieceAt(int x, int y, Piece *piece);
 	Square *getSquareAt(int x, int y);
 	std::string getTurn(void) const;
 
 	Piece *getPieceAt(int x, int y);
 	void setPosition(Position *position);
+
 };
 

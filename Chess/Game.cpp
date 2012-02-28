@@ -59,7 +59,7 @@ int Game::run(void)
 {
 	char *moveStr = new char[10];
 	Move *moveList = new Move[MAX_MOVES];
-
+	_turnNum = 0;
 	_running = true;
 	while (_running)
 	{
@@ -69,6 +69,7 @@ int Game::run(void)
 			endTurn();
 		}
 
+		
 		// Render the game.
 		render();
 
@@ -116,7 +117,7 @@ void Game::render(void)
 
 	std::cout << std::endl;
 			
-	if (_curMove != NULL)
+	if (_curMove != NULL && _turnNum != 0)
 	{
 		std::cout << " Last move: ";
 		_curMove->print();

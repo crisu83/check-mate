@@ -221,8 +221,21 @@ void Board::execMove(const Move *m)
 		setPieceAt(x2, y2, piece);
 		setPieceAt(x1, y1, NULL);
 	}
-
 	// todo: free mem.
+}
+
+/**
+	Updates the move to bitboards
+
+	@author Olli Koskinen, Arttu Nieminen
+	@return void
+*/
+
+void Board::updateBitBoards(Move move, int type){
+	int sourceindex = move.getX1()+ (move.getY1() * 8);
+	int destindex = move.getX2() + (move.getY2() * 8);
+	_BitBoards[ type ] = _BitBoards[ type ] - _SquareBits[sourceindex];
+	_BitBoards[ type ] = _BitBoards[ type ] + _SquareBits[destindex];
 }
 
 /**
@@ -242,6 +255,7 @@ void Board::fillSquareBits(){
 
 /**
 	Converts the x- and y-coordinates to a SquareBit representation
+
 	@author Olli Koskinen, Arttu Nieminen
 	@param x the x-coordinate
 	@param y the y-coordinate
@@ -253,6 +267,7 @@ UI64 Board::posToSquare(int x, int y){
 
 /**
 	Converts the SquareBit to a x,y coordinates
+
 	@author Olli Koskinen, Arttu Nieminen
 	@param square the bit representation of move
 	@return void    ==    PLXFIXME
@@ -262,6 +277,26 @@ void Board::SquareBitToPos(UI64 square){
 	x = square & 7;
 	y = square >> 3;
 	//plx return meeeee!
+}
+
+/**
+	Checks if the move made by user is legal. 
+	Changes the move to bitboard presentation and then ANDs it against the legal bitboards
+
+	@author Olli Koskinen, Arttu Nieminen
+	@param square the bit representation of move
+	@return true if the move is legal
+*/
+bool Board::moveIsLegal(Move _curMove){
+
+	if(getPieceAt(_curMove.getX1(),_curMove.getY1())-> getType() == 0){
+		return false;
+	}
+
+	//Check legal moves plx
+
+	updateBitBoards(_curMove, getPieceAt(_curMove.getX1(),_curMove.getY1())-> getType());
+	return true;
 }
 
 Square *Board::getSquareAt(int x, int y)
@@ -303,6 +338,31 @@ Piece *Board::getPieceAt(int x, int y)
 
 	// todo: free mem.
 }
+
+
+/**
+	Returns the piece at the given coordinates.
+
+	@author Christoffer Niska, Olli Koskinen, Arttu Nieminen
+	@param x the x-coordinate
+	@param y the y-coordinate
+	@return integer representing the piece
+*//*
+int Board::getPieceTypeAt(int x, int y)
+{
+	Square *square;
+	
+	square = getSquareAt(x, y);
+
+	if (square != NULL)
+	{
+		return square->getPiece()->getType();
+	}
+	return 0;
+	// todo: free mem.
+}*/
+
+
 
 /**
 	Sets the piece at the given coordinates.
