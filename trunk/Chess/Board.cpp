@@ -66,18 +66,18 @@ void Board::initBitboards(){
 	_BitBoards[ W_ROOK	]	= 0x81;
 	_BitBoards[ W_BISHOP]	= 0x24;
 	_BitBoards[ W_KNIGHT]	= 0x42;
-	_BitBoards[ W_PAWN	]	= 0xFF00;
+	_BitBoards[ W_PAWN	]	= 0xff00;
 	_BitBoards[ B_KING	]	= 0x1000000000000000;
 	_BitBoards[ B_QUEEN ]	= 0x800000000000000;
 	_BitBoards[ B_ROOK	]	= 0x8100000000000000;
 	_BitBoards[ B_BISHOP]	= 0x2400000000000000;
 	_BitBoards[ B_KNIGHT]	= 0x4200000000000000;
-	_BitBoards[ B_PAWN	]	= 0xFF000000000000;
-	_BitBoards[ W_PIECES]	= 0xFFFF;
-	_BitBoards[ B_PIECES]	= 0xFFFF000000000000;
+	_BitBoards[ B_PAWN	]	= 0xff000000000000;
+	_BitBoards[ W_PIECES]	= 0xffff;
+	_BitBoards[ B_PIECES]	= 0xffff000000000000;
 	_BitBoards[ A_FILE  ]	= 0x0101010101010101;
 	_BitBoards[ H_FILE  ]	= 0x8080808080808080;
-	_BitBoards[FIRST_RANK]	= 0x00000000000000FF;
+	_BitBoards[FIRST_RANK]	= 0x00000000000000ff;
 	_BitBoards[EIGHT_RANK]	= 0xFF00000000000000;
 	_BitBoards[EMPTYSQUARES]= ~(_BitBoards[ W_PIECES ] | _BitBoards[ B_PIECES ]);
 }
@@ -236,10 +236,18 @@ void Board::execMove(const Move *m)
 */
 
 void Board::updateBitBoards(Move move, int type){
+	//Debug info: 
+	if(debug)
+		std::cout<<"Bitboards [ type ] = "<<_BitBoards[ type ]<<"\n"; 
+
+	//Fixme
 	int sourceindex = move.getX1()+ (move.getY1() * 8);
 	int destindex = move.getX2() + (move.getY2() * 8);
 	_BitBoards[ type ]   -=   _SquareBits[sourceindex];
 	_BitBoards[ type ]	 +=   _SquareBits[destindex];
+
+	if(debug)
+		std::cout<<"Bitboards [ type ] = "<<_BitBoards[ type ]<<"\n"; 
 }
 
 /**

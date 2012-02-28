@@ -69,7 +69,8 @@ int Game::run(void)
 			endTurn();
 		}
 
-		
+		//Check if the move is legal and prompt the user if not
+		do{
 		// Render the game.
 		render();
 
@@ -81,6 +82,8 @@ int Game::run(void)
 		// Process the move.
 		_curMove = new Move();
 		_curMove->strToMove(moveStr);
+
+		}while(!_board->moveIsLegal(*_curMove));
 
 		_turnNum++;
 	}
@@ -110,7 +113,8 @@ void Game::update(void)
 void Game::render(void)
 {
 	// Empty the screen.
-	system("cls");
+	if(!debug)
+		system("cls");
 
 	// Render the board.
 	_board->render();

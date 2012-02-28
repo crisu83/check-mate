@@ -5,7 +5,7 @@
 
 #pragma once
 
-typedef unsigned long long UI64;
+#define debug true
 
 #include "targetver.h"
 
