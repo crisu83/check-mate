@@ -1,6 +1,6 @@
 #pragma once
 #define SQUARES 64
-#define BITBOARDS 15
+#define BITBOARDS 20
 
 class Board
 {
