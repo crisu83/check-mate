@@ -75,7 +75,11 @@ void Board::initBitboards(){
 	_BitBoards[ B_PAWN	]	= 0xFF000000000000;
 	_BitBoards[ W_PIECES]	= 0xFFFF;
 	_BitBoards[ B_PIECES]	= 0xFFFF000000000000;
-
+	_BitBoards[ A_FILE  ]	= 0x0101010101010101;
+	_BitBoards[ H_FILE  ]	= 0x8080808080808080;
+	_BitBoards[FIRST_RANK]	= 0x00000000000000FF;
+	_BitBoards[EIGHT_RANK]	= 0xFF00000000000000;
+	_BitBoards[EMPTYSQUARES]= ~(_BitBoards[ W_PIECES ] | _BitBoards[ B_PIECES ]);
 }
 
 
