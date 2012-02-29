@@ -75,10 +75,6 @@ void Board::initBitboards(){
 	_BitBoards[ B_PAWN	]	= 0xff000000000000;
 	_BitBoards[ W_PIECES]	= 0xffff;
 	_BitBoards[ B_PIECES]	= 0xffff000000000000;
-	_BitBoards[ A_FILE  ]	= 0x0101010101010101;
-	_BitBoards[ H_FILE  ]	= 0x8080808080808080;
-	_BitBoards[FIRST_RANK]	= 0x00000000000000ff;
-	_BitBoards[EIGHT_RANK]	= 0xFF00000000000000;
 	_BitBoards[EMPTYSQUARES]= ~(_BitBoards[ W_PIECES ] | _BitBoards[ B_PIECES ]);
 }
 
@@ -403,3 +399,98 @@ void Board::setPosition(Position *position)
 	_position = position;
 }
 
+
+/****
+	FUNCTIONS FOR MOVE GENERATION
+	
+
+
+	
+*/
+
+/***
+	
+	PAWN MOVES
+
+
+*/
+
+// Returns all single push targets for white pawns
+UI64 wSinglePushTargets(UI64 BitBoards[]){
+	return (BitBoards[W_PAWN] << 8) & BitBoards[ EMPTYSQUARES ];
+}
+
+// Returns all double push targets for white pawns
+UI64 wDoublepushtargets(UI64 BitBoards[]){
+	UI64 rank4 = 0x00000000FF000000; // rank 4 for so we can determine if doublepush possible
+	UI64 singlepushes = (wSinglePushTargets(BitBoards + W_PAWN ) & BitBoards[ EMPTYSQUARES ]);
+	return (singlepushes << 8) & BitBoards[ EMPTYSQUARES ] & rank4;
+}
+
+// Returns all single push targets for black pawns
+UI64 bSinglePushTargets(UI64 BitBoards[]){
+	return (BitBoards[ B_PAWN ] >> 8) & BitBoards[ EMPTYSQUARES ];
+}
+
+// Returns all double push targets for black pawns
+UI64 bDoublepushtargets(UI64 BitBoards[]){
+	UI64 rank5 = 0xFF00000000; 
+	UI64 singlepushes = (bSinglePushTargets(BitBoards + B_PAWN )) & BitBoards[ EMPTYSQUARES ];
+	return (singlepushes >> 8) & BitBoards[ EMPTYSQUARES ] & rank5;
+}
+
+/**
+	White Pawn Attacks 
+	
+*/
+
+// Returns all possible white pawn attacks
+UI64 wPawnAttacks(UI64 BitBoards[]) {
+   return (((BitBoards[ W_PAWN ] << 9) & ~A_FILE) | ((BitBoards[ W_PAWN ] << 7)& ~H_FILE)) & BitBoards[ B_PIECES ];
+}
+
+// Returns all possible white pawn double attacks
+UI64 wPawnDblAttacks(UI64 BitBoards[]) {
+   return (((BitBoards[ W_PAWN ] << 9)& ~A_FILE) & ((BitBoards[ W_PAWN ] << 7)& ~A_FILE)) & BitBoards[ B_PIECES ];
+}
+
+// Returns all white pawn single attacks
+UI64 wPawnSingleAttacks(UI64 BitBoards[]) {
+   return (((BitBoards[ W_PAWN ] << 9)& ~A_FILE) ^ ((BitBoards[ W_PAWN ] << 7)& ~H_FILE)) & BitBoards[ B_PIECES ];
+}
+
+/** wPawnEastAttacks
+
+ white pawns       white pawns << 9  &       notAFile     ==   wPawnEastAttacks	 &	black pieces	==	east captures
+0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0      0 1 1 1 1 1 1 1      0 0 0 0 0 0 0 0		1 1 1 1 1 1 1 1    	0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0      0 1 1 1 1 1 1 1      0 0 0 0 0 0 0 0       0 0 0 0 0 0 0 0		0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0      0 1 1 1 1 1 1 1      0 0 0 0 0 0 0 0       0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0      0 1 1 1 1 1 1 1      0 0 0 0 0 0 0 0       0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0     1 0 0 1 0 0 0 0      0 1 1 1 1 1 1 1      0 0 0 1 0 0 0 0       0 0 0 1 0 0 0 0     0 0 0 1 0 0 0 0
+0 0 1 0 0 0 0 0     0 1 1 0 1 0 1 1      0 1 1 1 1 1 1 1      0 1 1 0 1 0 1 1       0 0 0 0 0 0 1 0     0 0 0 0 0 0 1 0
+1 1 0 1 0 1 1 1     0 0 0 0 0 0 0 0      0 1 1 1 1 1 1 1      0 0 0 0 0 0 0 0       0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0      0 1 1 1 1 1 1 1      0 0 0 0 0 0 0 0       0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0
+
+
+	wPawnWestAttacks same as the east with << 7 and notHFile
+	wPawnAttacks is these two combined
+
+*/
+/**
+	Black Pawn Attacks 
+	
+*/
+// Returns all possible black pawn attacks
+UI64 bPawnAttacks(UI64 BitBoards[]) {
+   return (((BitBoards[ B_PAWN ] >> 7)& ~A_FILE) | ((BitBoards[ B_PAWN ] >> 9) & ~H_FILE)) & BitBoards[ W_PIECES ];
+}
+
+// Returns all possible black pawn double attacks
+UI64 bPawnDblAttacks(UI64 BitBoards[]) {
+   return (((BitBoards[ B_PAWN ] >> 7)& ~A_FILE) & ((BitBoards[ B_PAWN ] >> 9)& ~H_FILE)) & BitBoards[ W_PIECES ];
+}
+
+// Returns all possible black pawn single attacks
+UI64 bPawnSingleAttacks(UI64 BitBoards[]) {
+   return (((BitBoards[ B_PAWN ] >> 7)& ~A_FILE) ^ ((BitBoards[ B_PAWN ] >> 9)& ~H_FILE)) & BitBoards[ W_PIECES ];
+}
