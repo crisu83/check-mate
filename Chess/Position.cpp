@@ -600,8 +600,8 @@ king					 king << 1			|    	king >> 1			==
 	@param Bitboard of king
 	@return All king moves
  */
- UI64 Position::kingMoves(UI64 king) {
+ UI64 Position::kingMoves(UI64 king, UI64 ownpieces) {
    UI64 moves = ((king << 1)& ~A_FILE) | ((king >> 1) & ~H_FILE);
-   moves  = ((king << 8) | (king >> 8)) | moves;
+   moves  = (((king << 8) | (king >> 8)) | moves) & ownpieces;
    return moves;
 }
