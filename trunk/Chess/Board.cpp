@@ -238,11 +238,21 @@ void Board::updateBitBoards(Move move, int type){
 	if(debug)
 		std::cout<<"Bitboards [ type ] = "<<_BitBoards[ type ]<<"\n"; 
 
-	//Fixme
-	int sourceindex = SQUARES - ( move.getX1() + ((move.getY1()+1) * 8));
-	int destindex   =SQUARES  - ( move.getX2() + ((move.getY2()+1) * 8));
-	_BitBoards[ type ]   =  _BitBoards[ type ]  &  ~_SquareBits[sourceindex];
-	_BitBoards[ type ]	 =  _BitBoards[ type ]  |   _SquareBits[destindex];
+	int sourceIndex = SQUARES -  ((move.getX1()+1) + (8 * move.getY1()));
+	int destIndex	= SQUARES -  ((move.getX2()+1) + (8 * move.getY2()));
+
+	_BitBoards[ type ] &=  ~_SquareBits[ sourceIndex ];
+	_BitBoards[ type ] |=   _SquareBits[ destIndex   ];
+
+	//Update the all the white/black pieces according to turn
+	if(type <= 6){
+		_BitBoards[ W_PIECES ] = W_PAWN | W_ROOK | W_KNIGHT | W_BISHOP | W_QUEEN | W_KING;
+	}
+	else
+		_BitBoards[ B_PIECES ] = B_PAWN | B_ROOK | B_KNIGHT | B_BISHOP | B_QUEEN | B_KING;
+
+
+	_BitBoards[ EMPTYSQUARES ]= ~(_BitBoards[ W_PIECES ] | _BitBoards[ B_PIECES ]);
 
 	if(debug)
 		std::cout<<"Bitboards [ type ] = "<<_BitBoards[ type ]<<"\n"; 
