@@ -494,3 +494,96 @@ UI64 bPawnDblAttacks(UI64 BitBoards[]) {
 UI64 bPawnSingleAttacks(UI64 BitBoards[]) {
    return (((BitBoards[ B_PAWN ] >> 7)& ~A_FILE) ^ ((BitBoards[ B_PAWN ] >> 9)& ~H_FILE)) & BitBoards[ W_PIECES ];
 }
+
+/**
+	MOVES FOR KNIGHTS
+
+*/
+
+
+/**
+	Knight moves
+
+*/
+
+// whites
+
+/**
+White Knight North-North-East
+wKnoNoEa
+
+White knights		wknights << 17   & 		~A_FILE		 ==	
+0 0 0 0 0 0 0 0		0 0 0 0 0 0 0 0		0 1 1 1 1 1 1 1		0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0     0 1 1 1 1 1 1 1     0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0     0 1 1 1 1 1 1 1     0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0     1 0 0 1 0 0 0 0     0 1 1 1 1 1 1 1     0 0 0 1 0 0 0 0
+0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0     0 1 1 1 1 1 1 1     0 0 0 0 0 0 0 0
+0 0 1 0 0 0 0 1     0 0 0 0 0 0 0 0     0 1 1 1 1 1 1 1     0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0     0 1 1 1 1 1 1 1     0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0     0 1 1 1 1 1 1 1     0 0 0 0 0 0 0 0
+
+same principle for every other movement too
+*/
+UI64 KnoNoEa(UI64 knight){
+	return (knight << 17) & ~A_FILE;
+}
+
+/**
+Knight North-East-East
+KnoEaEa
+
+
+
+~A_FILE		 &		~B_FILE	 		 ==
+0 1 1 1 1 1 1 1		1 0 1 1 1 1 1 1		0 0 1 1 1 1 1 1
+0 1 1 1 1 1 1 1     1 0 1 1 1 1 1 1     0 0 1 1 1 1 1 1
+0 1 1 1 1 1 1 1     1 0 1 1 1 1 1 1     0 0 1 1 1 1 1 1
+0 1 1 1 1 1 1 1     1 0 1 1 1 1 1 1     0 0 1 1 1 1 1 1
+0 1 1 1 1 1 1 1     1 0 1 1 1 1 1 1     0 0 1 1 1 1 1 1
+0 1 1 1 1 1 1 1     1 0 1 1 1 1 1 1     0 0 1 1 1 1 1 1
+0 1 1 1 1 1 1 1     1 0 1 1 1 1 1 1     0 0 1 1 1 1 1 1
+0 1 1 1 1 1 1 1     1 0 1 1 1 1 1 1     0 0 1 1 1 1 1 1
+
+Because of Mr. DeMorgan it's same as ~(A_FILE | B_FILE).
+
+knights				knights << 10    & 	~(A_FILE | B_FILE)
+0 0 0 0 0 0 0 0		0 0 0 0 0 0 0 0			0 0 1 1 1 1 1 1
+0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0         0 0 1 1 1 1 1 1
+0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0         0 0 1 1 1 1 1 1
+0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0         0 0 1 1 1 1 1 1
+0 0 0 0 0 0 0 0     0 1 0 0 1 0 0 0         0 0 1 1 1 1 1 1
+0 0 1 0 0 0 0 1     0 0 0 0 0 0 0 0         0 0 1 1 1 1 1 1
+0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0         0 0 1 1 1 1 1 1
+0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0         0 0 1 1 1 1 1 1
+
+
+*/
+
+
+UI64 KnoEaEa(UI64 knight){
+	return (knight << 10) & ~(A_FILE | B_FILE);
+}
+
+UI64 KsoEaEa(UI64 knight){
+	return (knight >> 6) & ~(A_FILE | B_FILE);
+}
+
+UI64 KsoSoEa(UI64 knight){
+	return (knight >> 17) & ~A_FILE;
+}
+
+UI64 KnoNoWe(UI64 knight){
+	return (knight << 15) & ~H_FILE;
+}
+
+UI64 KnoWeWe(UI64 knight){
+	return (knight << 6) & ~(G_FILE | H_FILE);
+}
+
+UI64 KsoWeWe(UI64 knight){
+	return (knight >> 10) & ~(G_FILE | H_FILE);
+}
+
+UI64 KsoSoWe(UI64 knight) {
+	return (knight >> 17) & ~H_FILE;
+}

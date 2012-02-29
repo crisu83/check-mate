@@ -41,7 +41,15 @@ private:
 	UI64 bPawnAttacks(UI64 BitBoards[]);
 	UI64 bPawnDblAttacks(UI64 BitBoards[]);
 	UI64 bPawnSingleAttacks(UI64 BitBoards[]);
-
+	//for knights
+	UI64 KnoNoEa(UI64 knight);
+	UI64 KnoEaEa(UI64 knight);
+	UI64 KsoEaEa(UI64 knight);
+	UI64 KsoSoEa(UI64 knight);
+	UI64 KnoNoWe(UI64 knight);
+	UI64 KnoWeWe(UI64 knight);
+	UI64 KsoWeWe(UI64 knight);
+	UI64 KsoSoWe(UI64 knight);
 
 public:
 	Board(void);
