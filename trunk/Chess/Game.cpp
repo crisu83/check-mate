@@ -148,7 +148,7 @@ void Game::render(void)
 */
 void Game::endTurn()
 {
-	_toMove == WHITE ? BLACK : WHITE;
+	_toMove = _toMove == WHITE ? BLACK : WHITE;
 }
 
 /**
