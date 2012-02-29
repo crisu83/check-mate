@@ -45,6 +45,8 @@ private:
 	UI64 KsoSoWe(UI64 knight);
 	UI64 AllWhiteKnightMoves(UI64 BitBoards[]);
 	UI64 AllBlackKnightMoves(UI64 BitBoards[]);
+	//king
+	UI64 kingMoves(UI64 king);
 
 
 
