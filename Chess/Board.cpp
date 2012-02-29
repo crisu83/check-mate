@@ -60,6 +60,8 @@ void Board::clear()
  */
 void Board::initBitboards(){
 
+	fillSquareBits();
+
 	_BitBoards[ EMPTY	]	= 0x0000;  // Empty board
 	_BitBoards[ W_KING	]	= 0x10;
 	_BitBoards[ W_QUEEN ]	= 0x8;
@@ -237,10 +239,10 @@ void Board::updateBitBoards(Move move, int type){
 		std::cout<<"Bitboards [ type ] = "<<_BitBoards[ type ]<<"\n"; 
 
 	//Fixme
-	int sourceindex = move.getX1()+ (move.getY1() * 8);
-	int destindex = move.getX2() + (move.getY2() * 8);
-	_BitBoards[ type ]   -=   _SquareBits[sourceindex];
-	_BitBoards[ type ]	 +=   _SquareBits[destindex];
+	int sourceindex = SQUARES - ( move.getX1() + ((move.getY1()+1) * 8));
+	int destindex   =SQUARES  - ( move.getX2() + ((move.getY2()+1) * 8));
+	_BitBoards[ type ]   =  _BitBoards[ type ]  &  ~_SquareBits[sourceindex];
+	_BitBoards[ type ]	 =  _BitBoards[ type ]  |   _SquareBits[destindex];
 
 	if(debug)
 		std::cout<<"Bitboards [ type ] = "<<_BitBoards[ type ]<<"\n"; 
