@@ -22,16 +22,18 @@ private:
 	*/
 
 	//for pawns
-	UI64 wSinglepushtargets(UI64 BitBoards[]);
-	UI64 wDoublepushtargets(UI64 BitBoards[]);
-	UI64 bSinglepushtargets(UI64 BitBoards[]);
-	UI64 bDoublepushtargets(UI64 BitBoards[]);
-	UI64 wPawnAttacks(UI64 BitBoards[]);
-	UI64 wPawnDblAttacks(UI64 BitBoards[]);
-	UI64 wPawnSingleAttacks(UI64 BitBoards[]);
-	UI64 bPawnAttacks(UI64 BitBoards[]);
-	UI64 bPawnDblAttacks(UI64 BitBoards[]);
-	UI64 bPawnSingleAttacks(UI64 BitBoards[]);
+	UI64 wSinglePushTargets(UI64 w_pawns, UI64 emptysquares);
+	UI64 wDoublePushTargets(UI64 w_pawn, UI64 emptysquares);
+	UI64 bSinglePushTargets(UI64 w_pawn, UI64 emptysquares);
+	UI64 bDoublePushTargets(UI64 b_pawn, UI64 emptysquares);
+	UI64 wPawnAttacks(UI64 w_pawn, UI64 b_pieces);
+	UI64 wPawnDblAttacks(UI64 w_pawn,  UI64 b_pieces);
+	UI64 wPawnSingleAttacks(UI64 w_pawn,  UI64 b_pieces);
+	UI64 bPawnAttacks(UI64 b_pawn, UI64 w_pieces);
+	UI64 bPawnDblAttacks(UI64 b_pawn, UI64 w_pieces);
+	UI64 bPawnSingleAttacks(UI64 b_pawn, UI64 w_pieces);
+	UI64 wAllPawnMoves(UI64 BitBoards[]);
+	UI64 bAllPawnMoves(UI64 BitBoards[]);
 	//for knights
 	UI64 KnoNoEa(UI64 knight);
 	UI64 KnoEaEa(UI64 knight);
