@@ -46,7 +46,7 @@ private:
 	UI64 AllWhiteKnightMoves(UI64 BitBoards[]);
 	UI64 AllBlackKnightMoves(UI64 BitBoards[]);
 	//king
-	UI64 kingMoves(UI64 king);
+	UI64 kingMoves(UI64 king, UI64 ownpieces);
 
 
 
