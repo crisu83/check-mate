@@ -77,7 +77,7 @@ void Move::strToMove(const char* str)
 
 			// y-coord
 			c = res[1];
-			_y1 = 8 - atoi(&c);
+			_y1 = atoi(&c) - 1;
 		}
 		// destination
 		else
@@ -95,7 +95,7 @@ void Move::strToMove(const char* str)
 
 			// y-coord
 			c = res[1];
-			_y2 = 8 - atoi(&c);
+			_y2 = atoi(&c) - 1;
 		}
 
 		res = strtok(NULL, "-");
@@ -121,11 +121,12 @@ void Move::print() const
 
 	if (!_castleLong && !_castleShort && !_enPassant && _promoteTo == -1)
 	{
+
 		str[0] = LETTERS[_x1];
-		str[1] = '0' + (8 - _y1); // amazing logic!
-		str[2] = '-';
+		str[1] = '0' + (_y1 +1 ); // amazing logic! Modified by Olli, The +1 is because we subtracted 1 
+		str[2] = '-';			  //from the y coord for better indexin with arrays
 		str[3] = LETTERS[_x2];
-		str[4] = '0' + (8 - _y2); // amazing logic again!
+		str[4] = '0' + (_y2 + 1); // amazing logic again!
 		str[5] = '\0';
 	}
 

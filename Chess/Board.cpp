@@ -124,38 +124,38 @@ void Board::initPos()
 
 	int x;
 
-	// Paws
+	// Pawns
 	for (x = 0; x < 8; x++)
 	{
-		setPieceAt(x, 1, new Piece(B_PAWN));
-		setPieceAt(x, 6, new Piece(W_PAWN));
+		setPieceAt(x, 1, new Piece(W_PAWN));
+		setPieceAt(x, 6, new Piece(B_PAWN));
 	}
 
 	// Rooks
-	setPieceAt(0, 0, new Piece(B_ROOK));
-	setPieceAt(7, 0, new Piece(B_ROOK));
-	setPieceAt(0, 7, new Piece(W_ROOK));
-	setPieceAt(7, 7, new Piece(W_ROOK));
+	setPieceAt(0, 0, new Piece(W_ROOK));
+	setPieceAt(7, 0, new Piece(W_ROOK));
+	setPieceAt(0, 7, new Piece(B_ROOK));
+	setPieceAt(7, 7, new Piece(B_ROOK));
 
 	// Knights
-	setPieceAt(1, 0, new Piece(B_KNIGHT));
-	setPieceAt(6, 0, new Piece(B_KNIGHT));
-	setPieceAt(1, 7, new Piece(W_KNIGHT));
-	setPieceAt(6, 7, new Piece(W_KNIGHT));
+	setPieceAt(1, 0, new Piece(W_KNIGHT));
+	setPieceAt(6, 0, new Piece(W_KNIGHT));
+	setPieceAt(1, 7, new Piece(B_KNIGHT));
+	setPieceAt(6, 7, new Piece(B_KNIGHT));
 
 	// Bishops
-	setPieceAt(2, 0, new Piece(B_BISHOP));
-	setPieceAt(5, 0, new Piece(B_BISHOP));
-	setPieceAt(2, 7, new Piece(W_BISHOP));
-	setPieceAt(5, 7, new Piece(W_BISHOP));
+	setPieceAt(2, 0, new Piece(W_BISHOP));
+	setPieceAt(5, 0, new Piece(W_BISHOP));
+	setPieceAt(2, 7, new Piece(B_BISHOP));
+	setPieceAt(5, 7, new Piece(B_BISHOP));
 
 	// Queens
-	setPieceAt(3, 0, new Piece(B_QUEEN));
-	setPieceAt(3, 7, new Piece(W_QUEEN));
+	setPieceAt(3, 0, new Piece(W_QUEEN));
+	setPieceAt(3, 7, new Piece(B_QUEEN));
 
 	// Kings
-	setPieceAt(4, 0, new Piece(B_KING));
-	setPieceAt(4, 7, new Piece(W_KING));
+	setPieceAt(4, 0, new Piece(W_KING));
+	setPieceAt(4, 7, new Piece(B_KING));
 }
 
 /**
@@ -179,7 +179,7 @@ void Board::render()
 
 		for (x = 0; x < 8; x++)
 		{
-			square = _squares[x][y];
+			square = _squares[x][7-y];
 
 			// We do not care about the case that no square was found
 			// because it is highly unlikely that it will happen.
@@ -240,21 +240,14 @@ void Board::execMove(const Move *m)
 	@return pointer to move vector
 */
 void Board::BitBoardToMoves(){
-
+	clear();
 	//All the bitboards for pieces
 	for(int i = 1; i <= B_PAWN; i++){
 		for(int j = 0; j < SQUARES; j++){
-
 			if((_BitBoards[i] & _SquareBits[ j ]) ==  _SquareBits[ j ] ){
-				int x = (SQUARES + j) & 7;
-				int y = (SQUARES + j)  >> 3; 
-				setPieceAt(x+1,y, new Piece(i));
-			}
-			else{
-				int x = (SQUARES + j) & 7;
-				int y = (SQUARES + j) >> 3; 
-
-				setPieceAt(x+1,y, NULL);
+				int x =  j & 7;
+				int y =  j >> 3; 
+				setPieceAt(x,y, new Piece(i));
 			}
 		}
 	}
@@ -272,14 +265,18 @@ void Board::updateBitBoards(Move move, int type){
 		std::cout<<"Bitboards [ type ] = "<<_BitBoards[ type ]<<"\n"; 
 
 	//Find the index for the squareBits array from the coords.
-	int sourceIndex = SQUARES -  ((move.getX1()+1) + (8 * move.getY1()));
-	int destIndex	= SQUARES -  ((move.getX2()+1) + (8 * move.getY2()));
+	int sourceIndex =	(move.getX1()) + (move.getY1()<<3);
+	int destIndex	=	(move.getX2()) + (move.getY2()<<3);
 
+	if(debug)
+		std::cout<<"source "<<sourceIndex<<" dest "<<destIndex<<"\n";
+
+	//Delete the piece we are going to move and then add it to a new place
 	_BitBoards[ type ] &=  ~_SquareBits[ sourceIndex ];
 	_BitBoards[ type ] |=   _SquareBits[ destIndex   ];
 
 	//Update the all the white/black pieces according to turn
-
+	//TODO: not counting attacks
 	_BitBoards[ W_PIECES ] = W_PAWN | W_ROOK | W_KNIGHT | W_BISHOP | W_QUEEN | W_KING;
 	_BitBoards[ B_PIECES ] = B_PAWN | B_ROOK | B_KNIGHT | B_BISHOP | B_QUEEN | B_KING;
 
@@ -392,28 +389,6 @@ Piece *Board::getPieceAt(int x, int y)
 	// todo: free mem.
 }
 
-
-/**
-	Returns the piece at the given coordinates.
-
-	@author Christoffer Niska, Olli Koskinen, Arttu Nieminen
-	@param x the x-coordinate
-	@param y the y-coordinate
-	@return integer representing the piece
-*//*
-int Board::getPieceTypeAt(int x, int y)
-{
-	Square *square;
-	
-	square = getSquareAt(x, y);
-
-	if (square != NULL)
-	{
-		return square->getPiece()->getType();
-	}
-	return 0;
-	// todo: free mem.
-}*/
 
 
 
