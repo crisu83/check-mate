@@ -1,7 +1,6 @@
 #pragma once
 
 
-
 //some constants
 #define SQUARES 64
 #define BITBOARDS 16
@@ -23,7 +22,6 @@ private:
 	UI64 _SquareBits[SQUARES];
 	Position *_position;
 	UI64 _BitBoards[BITBOARDS];
-
 	//Private functions
 	void initBitboards();
 
@@ -42,12 +40,14 @@ public:
 	//							 V
 	void SquareBitToPos(UI64 square);
 	bool moveIsLegal(Move _curMove);
-	void Board::updateBitBoards(Move move, int type);
-	int Board::getPieceTypeAt(int x, int y);
-	
+	void updateBitBoards(Move move, int type);
+	int  getPieceTypeAt(int x, int y);
+	UI64 getBitBoard( int type );
 	void setPieceAt(int x, int y, Piece *piece);
 	Square *getSquareAt(int x, int y);
 	std::string getTurn(void) const;
+
+	void BitBoardToMoves();
 
 	Piece *getPieceAt(int x, int y);
 	void setPosition(Position *position);

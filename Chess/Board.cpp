@@ -81,6 +81,12 @@ void Board::initBitboards(){
 }
 
 
+UI64 Board::getBitBoard( int type ){
+	return _BitBoards[ type ];
+}
+
+
+
 /**
 	Sets the initial positions for the pieces on the board.
 
@@ -226,18 +232,46 @@ void Board::execMove(const Move *m)
 	// todo: free mem.
 }
 
+
+/**
+	Transforms bitboards to Move objects
+
+	@author Olli Koskinen, Arttu Nieminen
+	@return pointer to move vector
+*/
+void Board::BitBoardToMoves(){
+
+	//All the bitboards for pieces
+	for(int i = 1; i <= B_PAWN; i++){
+		for(int j = 0; j < SQUARES; j++){
+
+			if((_BitBoards[i] & _SquareBits[ j ]) ==  _SquareBits[ j ] ){
+				int x = (SQUARES + j) & 7;
+				int y = (SQUARES + j)  >> 3; 
+				setPieceAt(x+1,y, new Piece(i));
+			}
+			else{
+				int x = (SQUARES + j) & 7;
+				int y = (SQUARES + j) >> 3; 
+
+				setPieceAt(x+1,y, NULL);
+			}
+		}
+	}
+}
+
 /**
 	Updates the move to bitboards
 
 	@author Olli Koskinen, Arttu Nieminen
 	@return void
 */
-
 void Board::updateBitBoards(Move move, int type){
 	//Debug info: 
 	if(debug)
 		std::cout<<"Bitboards [ type ] = "<<_BitBoards[ type ]<<"\n"; 
 
+	//Find the index for the squareBits array from the coords.
 	int sourceIndex = SQUARES -  ((move.getX1()+1) + (8 * move.getY1()));
 	int destIndex	= SQUARES -  ((move.getX2()+1) + (8 * move.getY2()));
 
@@ -245,17 +279,16 @@ void Board::updateBitBoards(Move move, int type){
 	_BitBoards[ type ] |=   _SquareBits[ destIndex   ];
 
 	//Update the all the white/black pieces according to turn
-	if(type <= 6){
-		_BitBoards[ W_PIECES ] = W_PAWN | W_ROOK | W_KNIGHT | W_BISHOP | W_QUEEN | W_KING;
-	}
-	else
-		_BitBoards[ B_PIECES ] = B_PAWN | B_ROOK | B_KNIGHT | B_BISHOP | B_QUEEN | B_KING;
 
+	_BitBoards[ W_PIECES ] = W_PAWN | W_ROOK | W_KNIGHT | W_BISHOP | W_QUEEN | W_KING;
+	_BitBoards[ B_PIECES ] = B_PAWN | B_ROOK | B_KNIGHT | B_BISHOP | B_QUEEN | B_KING;
 
 	_BitBoards[ EMPTYSQUARES ]= ~(_BitBoards[ W_PIECES ] | _BitBoards[ B_PIECES ]);
 
 	if(debug)
 		std::cout<<"Bitboards [ type ] = "<<_BitBoards[ type ]<<"\n"; 
+
+	BitBoardToMoves();
 }
 
 /**

@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "Game.h"
+#include <bitset>
 
 /**
 	Constructor.
@@ -63,11 +64,11 @@ int Game::run(void)
 	_running = true;
 	while (_running)
 	{
-		if (_curMove != NULL)
+		/*if (_curMove != NULL)
 		{
 			_board->execMove(_curMove);
 			endTurn();
-		}
+		}*/
 
 		//Check if the move is legal and prompt the user if not
 		do{
@@ -75,7 +76,6 @@ int Game::run(void)
 		render();
 
 		std::cin >> moveStr;
-
 		// Wait for a keypress.
 		getchar();
 
@@ -84,6 +84,8 @@ int Game::run(void)
 		_curMove->strToMove(moveStr);
 
 		}while(!_board->moveIsLegal(*_curMove));
+
+		endTurn();
 
 		_turnNum++;
 	}
@@ -131,7 +133,7 @@ void Game::render(void)
 
 	// todo: generate legal moves.
 
-	std::cout << " Turn: " << getTurnName() << std::endl;
+	std::cout << " Turn "<<_turnNum<<" : " << getTurnName() << std::endl;
 
 	std::cout << std::endl;
 
