@@ -1,4 +1,6 @@
 #pragma once
+#include "stdafx.h"
+
 
 #define WHITE 0
 #define BLACK 1
@@ -14,6 +16,35 @@ private:
 	bool _blackCastleLongAllowed;
 	int _enPassantOnLine;
 	std::vector<Move> legalMoves;
+
+	/**
+		functions for move generation
+	*/
+
+	//for pawns
+	UI64 wSinglepushtargets(UI64 BitBoards[]);
+	UI64 wDoublepushtargets(UI64 BitBoards[]);
+	UI64 bSinglepushtargets(UI64 BitBoards[]);
+	UI64 bDoublepushtargets(UI64 BitBoards[]);
+	UI64 wPawnAttacks(UI64 BitBoards[]);
+	UI64 wPawnDblAttacks(UI64 BitBoards[]);
+	UI64 wPawnSingleAttacks(UI64 BitBoards[]);
+	UI64 bPawnAttacks(UI64 BitBoards[]);
+	UI64 bPawnDblAttacks(UI64 BitBoards[]);
+	UI64 bPawnSingleAttacks(UI64 BitBoards[]);
+	//for knights
+	UI64 KnoNoEa(UI64 knight);
+	UI64 KnoEaEa(UI64 knight);
+	UI64 KsoEaEa(UI64 knight);
+	UI64 KsoSoEa(UI64 knight);
+	UI64 KnoNoWe(UI64 knight);
+	UI64 KnoWeWe(UI64 knight);
+	UI64 KsoWeWe(UI64 knight);
+	UI64 KsoSoWe(UI64 knight);
+	UI64 AllWhiteKnightMoves(UI64 BitBoards[]);
+	UI64 AllBlackKnightMoves(UI64 BitBoards[]);
+
+
 
 public:
 	Position(void);
