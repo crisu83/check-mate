@@ -128,48 +128,48 @@ int *Position::getMap()
 	Finds all single push targets for white pawns
 
 	@author Arttu Nieminen, Olli Koskinen
-	@param BitBoards array
+	@param White pawns and empty squares
 	@return all single push targets for white pawns
 */
-UI64 wSinglePushTargets(UI64 BitBoards[]){
-	return (BitBoards[W_PAWN] << 8) & BitBoards[ EMPTYSQUARES ];
+UI64 Position::wSinglePushTargets(UI64 w_pawn, UI64 emptysquares){
+	return (w_pawn << 8) & emptysquares;
 }
 
 /**
 	Finds all double push targets for white pawns
 
 	@author Arttu Nieminen, Olli Koskinen
-	@param BitBoards array
+	@param White pawns and empty squares
 	@return all double push targets for white pawns
 */
-UI64 wDoublepushtargets(UI64 BitBoards[]){
+UI64 Position::wDoublePushTargets(UI64 w_pawn, UI64 emptysquares){
 	UI64 rank4 = 0x00000000FF000000; // rank 4 for so we can determine if doublepush possible
-	UI64 singlepushes = (wSinglePushTargets(BitBoards + W_PAWN ) & BitBoards[ EMPTYSQUARES ]);
-	return (singlepushes << 8) & BitBoards[ EMPTYSQUARES ] & rank4;
+	UI64 singlepushes = wSinglePushTargets(w_pawn, emptysquares);
+	return ((singlepushes << 8) & emptysquares) & rank4;
 }
 
 /**
 	Finds all single push targets for black pawns
 
 	@author Arttu Nieminen, Olli Koskinen
-	@param BitBoards array
+	@param Black pawns and empty squares
 	@return all single push targets for black pawns
 */
-UI64 bSinglePushTargets(UI64 BitBoards[]){
-	return (BitBoards[ B_PAWN ] >> 8) & BitBoards[ EMPTYSQUARES ];
+UI64 Position::bSinglePushTargets(UI64 b_pawn, UI64 emptysquares){
+	return (b_pawn >> 8) & emptysquares;
 }
 
 /**
 	Finds all double push targets for black pawns
 
 	@author Arttu Nieminen, Olli Koskinen
-	@param BitBoards array
+	@param Black pawns and empty squares
 	@return all double push targets for black pawns
 */
-UI64 bDoublepushtargets(UI64 BitBoards[]){
+UI64 Position::bDoublePushTargets(UI64 b_pawn, UI64 emptysquares){
 	UI64 rank5 = 0xFF00000000; 
-	UI64 singlepushes = (bSinglePushTargets(BitBoards + B_PAWN )) & BitBoards[ EMPTYSQUARES ];
-	return (singlepushes >> 8) & BitBoards[ EMPTYSQUARES ] & rank5;
+	UI64 singlepushes = bSinglePushTargets(b_pawn, emptysquares);
+	return ((singlepushes >> 8) & emptysquares) & rank5;
 }
 
 /**
@@ -181,33 +181,33 @@ UI64 bDoublepushtargets(UI64 BitBoards[]){
 	Finds all possible white pawn attacks
 
 	@author Arttu Nieminen, Olli Koskinen
-	@param BitBoards array
+	@param White pawns and black pieces
 	@return all possible white pawn attacks
 */
-UI64 wPawnAttacks(UI64 BitBoards[]) {
-   return (((BitBoards[ W_PAWN ] << 9) & ~A_FILE) | ((BitBoards[ W_PAWN ] << 7)& ~H_FILE)) & BitBoards[ B_PIECES ];
+UI64 Position::wPawnAttacks(UI64 w_pawn, UI64 b_pieces) {
+   return (((w_pawn << 9) & ~A_FILE) | ((w_pawn << 7)& ~H_FILE)) & b_pieces;
 }
 
 /**
 	Finds all possible white pawn double attacks
 
 	@author Arttu Nieminen, Olli Koskinen
-	@param BitBoards array
+	@param White pawns and black pieces
 	@return all possible white pawn double attacks
 */
-UI64 wPawnDblAttacks(UI64 BitBoards[]) {
-   return (((BitBoards[ W_PAWN ] << 9)& ~A_FILE) & ((BitBoards[ W_PAWN ] << 7)& ~A_FILE)) & BitBoards[ B_PIECES ];
+UI64 Position::wPawnDblAttacks(UI64 w_pawn,  UI64 b_pieces) {
+   return (((w_pawn << 9)& ~A_FILE) & ((w_pawn << 7)& ~A_FILE)) & b_pieces;
 }
 
 /**
 	Finds all white pawn single attacks
 
 	@author Arttu Nieminen, Olli Koskinen
-	@param BitBoards array
+	@param White pawns and black pieces
 	@return all white pawn single attacks
 */
-UI64 wPawnSingleAttacks(UI64 BitBoards[]) {
-   return (((BitBoards[ W_PAWN ] << 9)& ~A_FILE) ^ ((BitBoards[ W_PAWN ] << 7)& ~H_FILE)) & BitBoards[ B_PIECES ];
+UI64 Position::wPawnSingleAttacks(UI64 w_pawn,  UI64 b_pieces) {
+   return (((w_pawn << 9)& ~A_FILE) ^ ((w_pawn << 7)& ~H_FILE)) & b_pieces;
 }
 
 
@@ -237,34 +237,61 @@ UI64 wPawnSingleAttacks(UI64 BitBoards[]) {
 	Finds all possible black pawn attacks
 
 	@author Arttu Nieminen, Olli Koskinen
-	@param BitBoards array
+	@param Black pawns and white pieces
 	@return all possible black pawn attacks
 */
-UI64 bPawnAttacks(UI64 BitBoards[]) {
-   return (((BitBoards[ B_PAWN ] >> 7)& ~A_FILE) | ((BitBoards[ B_PAWN ] >> 9) & ~H_FILE)) & BitBoards[ W_PIECES ];
+UI64 Position::bPawnAttacks(UI64 b_pawn, UI64 w_pieces) {
+   return (((b_pawn >> 7)& ~A_FILE) | ((b_pawn >> 9) & ~H_FILE)) & w_pieces;
 }
 
 /**
 	Finds all possible black pawn double attacks
 
 	@author Arttu Nieminen, Olli Koskinen
-	@param BitBoards array
+	@param Black pawns and white pieces
 	@return all possible black pawn double attacks
 */
-UI64 bPawnDblAttacks(UI64 BitBoards[]) {
-   return (((BitBoards[ B_PAWN ] >> 7)& ~A_FILE) & ((BitBoards[ B_PAWN ] >> 9)& ~H_FILE)) & BitBoards[ W_PIECES ];
+UI64 Position::bPawnDblAttacks(UI64 b_pawn, UI64 w_pieces) {
+   return (((b_pawn >> 7)& ~A_FILE) & ((b_pawn >> 9)& ~H_FILE)) & w_pieces;
 }
 
 /**
 	Finds all possible black pawn single attacks
 
 	@author Arttu Nieminen, Olli Koskinen
-	@param BitBoards array
+	@param Black pawns and white pieces
 	@return all possible black pawn single attacks
 */
-UI64 bPawnSingleAttacks(UI64 BitBoards[]) {
-   return (((BitBoards[ B_PAWN ] >> 7)& ~A_FILE) ^ ((BitBoards[ B_PAWN ] >> 9)& ~H_FILE)) & BitBoards[ W_PIECES ];
+UI64 Position::bPawnSingleAttacks(UI64 b_pawn, UI64 w_pieces) {
+   return (((b_pawn >> 7)& ~A_FILE) ^ ((b_pawn >> 9)& ~H_FILE)) & w_pieces;
 }
+
+/**
+	Finds all possible white pawn moves
+
+	@author Arttu Nieminen, Olli Koskinen
+	@param Black pawns and white pieces
+	@return all possible white pawn moves
+*/
+UI64 Position::wAllPawnMoves(UI64 BitBoards[]){
+	UI64 single = wSinglePushTargets(BitBoards[ W_PAWN ], BitBoards[ EMPTYSQUARES ]);
+	UI64 dbl = wDoublePushTargets(BitBoards[ W_PAWN ], BitBoards[ EMPTYSQUARES ]);
+	return wPawnAttacks(BitBoards[ W_PAWN ], BitBoards[ B_PIECES ]) | single | dbl;
+}
+
+/**
+	Finds all possible black pawn moves
+
+	@author Arttu Nieminen, Olli Koskinen
+	@param Black pawns and white pieces
+	@return all possible black pawn moves
+*/
+UI64 Position::bAllPawnMoves(UI64 BitBoards[]){
+	UI64 single = bSinglePushTargets(BitBoards[ B_PAWN ], BitBoards[ EMPTYSQUARES ]);
+	UI64 dbl = bDoublePushTargets(BitBoards[ B_PAWN ], BitBoards[ EMPTYSQUARES ]);
+	return bPawnAttacks(BitBoards[ B_PAWN ], BitBoards[ W_PIECES ]) | single | dbl;
+}
+
 
 /**
 	MOVES FOR KNIGHTS
@@ -290,7 +317,7 @@ White knights		wknights << 17   & 		~A_FILE		 ==
 	@param BitBoard of knights
 	@return all Knight North-North-East Moves
 */
-UI64 KnoNoEa(UI64 knight){
+UI64 Position::KnoNoEa(UI64 knight){
 	return (knight << 17) & ~A_FILE;
 }
 
@@ -328,7 +355,7 @@ knights				knights << 10    & 	~(A_FILE | B_FILE)		==
 */
 
 
-UI64 KnoEaEa(UI64 knight){
+UI64 Position::KnoEaEa(UI64 knight){
 	return (knight << 10) & ~(A_FILE | B_FILE);
 }
 
@@ -366,7 +393,7 @@ knights				knights >> 6    & 	~(A_FILE | B_FILE)		==
 	@return all Knight South-East-East Moves
 */
 
-UI64 KsoEaEa(UI64 knight){
+UI64 Position::KsoEaEa(UI64 knight){
 	return (knight >> 6) & ~(A_FILE | B_FILE);
 }
 
@@ -390,7 +417,7 @@ knights				knights >> 15   & 		~A_FILE		 ==
 	@return all Knight South-South-East Moves
 */
 
-UI64 KsoSoEa(UI64 knight){
+UI64 Position::KsoSoEa(UI64 knight){
 	return (knight >> 15) & ~A_FILE;
 }
 
@@ -414,7 +441,7 @@ knights				knights << 15   & 		~H_FILE		 ==
 	@return all Knight North-North-West Moves
 */
 
-UI64 KnoNoWe(UI64 knight){
+UI64 Position::KnoNoWe(UI64 knight){
 	return (knight << 15) & ~H_FILE;
 }
 
@@ -449,7 +476,7 @@ knights				knights << 6   & 	~(G_FILE | H_FILE) ==
 	@return all Knight North-West-West Moves
 */
 
-UI64 KnoWeWe(UI64 knight){
+UI64 Position::KnoWeWe(UI64 knight){
 	return (knight << 6) & ~(G_FILE | H_FILE);
 }
 
@@ -483,7 +510,7 @@ knights				knights >> 10    & 	~(G_FILE | H_FILE) ==
 	@param BitBoard of knights
 	@return all Knight South-West-West Moves
 */
-UI64 KsoWeWe(UI64 knight){
+UI64 Position::KsoWeWe(UI64 knight){
 	return (knight >> 10) & ~(G_FILE | H_FILE);
 }
 
@@ -506,7 +533,7 @@ knights				knights >> 17   & 		~H_FILE		 ==
 	@param BitBoard of knights
 	@return all Knight South-South-West Moves
 */
-UI64 KsoSoWe(UI64 knight) {
+UI64 Position::KsoSoWe(UI64 knight) {
 	return (knight >> 17) & ~H_FILE;
 }
 
@@ -516,7 +543,7 @@ UI64 KsoSoWe(UI64 knight) {
 	@param BitBoards array
 	@return White Knight Moves
 */
-UI64 AllWhiteKnightMoves(UI64 BitBoards[]){
+UI64 Position::AllWhiteKnightMoves(UI64 BitBoards[]){
 	UI64 knight = BitBoards[ W_KNIGHT ];
 	UI64 pseudolegal = (KnoNoEa(knight) | KnoEaEa(knight) | KsoEaEa( knight) | KsoSoEa(knight) | KnoNoWe(knight) | KnoWeWe(knight) | KsoWeWe(knight) | KsoSoWe(knight));
 	return pseudolegal & ~BitBoards[ W_PIECES ];
@@ -528,8 +555,9 @@ UI64 AllWhiteKnightMoves(UI64 BitBoards[]){
 	@param BitBoards array
 	@return Black Knight Moves
 */
-UI64 AllBlackKnightMoves(UI64 BitBoards[]){
+UI64 Position::AllBlackKnightMoves(UI64 BitBoards[]){
 	UI64 knight = BitBoards[ B_KNIGHT ];
 	UI64 pseudolegal = (KnoNoEa(knight) | KnoEaEa(knight) | KsoEaEa( knight) | KsoSoEa(knight) | KnoNoWe(knight) | KnoWeWe(knight) | KsoWeWe(knight) | KsoSoWe(knight));
 	return pseudolegal & ~BitBoards[ B_PIECES ];
 }
+
