@@ -53,6 +53,7 @@ void Position::clear()
 void Position::initPos()
 {
 	int x;
+	_toMove = WHITE;
 
 	// Paws
 	for (x = 0; x < 8; x++)
@@ -134,35 +135,40 @@ We can use the same logic for all pieces(except for king & queen).
 */
 std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 {
+	moveVector.clear();
 
 	int count = 0;
 
-	if(_toMove == WHITE){
+	if(this->_toMove == WHITE){
 
 		//pawn moves
 		UI64 w_pawn = BitBoards[ W_PAWN ];
 		while((w_pawn & -w_pawn) != BitBoards[ EMPTY ]){ //while we have pawns to go through
 			std::vector<UI64> tempMove;
-			tempMove.at(0) = w_pawn & -w_pawn; //LS1B
-			tempMove.at(1) = wAllPawnMoves(moveVector.at(count)[0], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]); //all its moves
-			moveVector.at(count) = tempMove;
+			tempMove.insert(tempMove.end(), w_pawn & -w_pawn); //LS1B
+			tempMove.insert(tempMove.end(), wAllPawnMoves(w_pawn & -w_pawn, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]));
+			moveVector.insert(moveVector.end(), tempMove);
 			count++;
 			w_pawn = w_pawn &  (w_pawn-1); //reset the LS1B so we can get the next pawn
 		}
-		/*
+		
 		//knight moves
 		UI64 w_knight = BitBoards[ W_KNIGHT ];
 		while((w_knight & -w_knight) != BitBoards[ EMPTY ]){ //while we have knights to go through
-			moveVector.at(count)[0] = w_knight & -w_knight; //LS1B
-			moveVector.at(count)[1] = AllWhiteKnightMoves(moveVector.at(count)[0], BitBoards[ W_PIECES ]); //all its moves
+			std::vector<UI64> tempMove;
+			tempMove.insert(tempMove.end(), w_knight & -w_knight); //LS1B
+			tempMove.insert(tempMove.end(), AllWhiteKnightMoves(w_knight & -w_knight, BitBoards[ W_PIECES ])); //all its moves
+			moveVector.insert(moveVector.end(), tempMove);
 			count++;
 			w_knight = w_knight &  (w_knight-1); //reset the LS1B so we can get the next knight
 		}
 
 		//king moves
-		moveVector.at(count)[0] = BitBoards[ W_KING ];
-		moveVector.at(count)[1] = kingMoves(BitBoards[ W_KING ], BitBoards[ W_PIECES ]);
+		std::vector<UI64> tempMove;
+		tempMove.insert(tempMove.end(), BitBoards[ W_KING ]);
+		tempMove.insert(tempMove.end(),kingMoves(BitBoards[ W_KING ], BitBoards[ W_PIECES ]));
 		count++;
+		moveVector.insert(moveVector.end(), tempMove);
 
 
 	}else if(_toMove == BLACK){
@@ -170,33 +176,46 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 		//pawn moves
 		UI64 b_pawn = BitBoards[ B_PAWN ];
 		while((b_pawn & -b_pawn) != BitBoards[ EMPTY ]){ //while we have pawns to go through
-			moveVector.at(count)[0] = b_pawn & -b_pawn; //LS1B
-			moveVector.at(count)[1] = bAllPawnMoves(moveVector.at(count)[0], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]); //all its moves
+			std::vector<UI64> tempMove;
+			tempMove.insert(tempMove.end(), b_pawn & -b_pawn); //LS1B
+			tempMove.insert(tempMove.end(),bAllPawnMoves(b_pawn & -b_pawn, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ])); //all its moves
 			count++;
 			b_pawn = b_pawn &  (b_pawn-1); //reset the LS1B so we can get the next pawn
+			moveVector.insert(moveVector.end(), tempMove);
 		}
 
 		//knight moves
 		UI64 b_knight = BitBoards[ B_KNIGHT ];
 		while((b_knight & -b_knight) != BitBoards[ EMPTY ]){ //while we have knights to go through
-			moveVector.at(count)[0] = b_knight & -b_knight; //LS1B
-			moveVector.at(count)[1] = AllBlackKnightMoves(moveVector.at(count)[0], BitBoards[ B_PIECES ]); //all its moves
+			std::vector<UI64> tempMove;
+			tempMove.insert(tempMove.end(), b_knight & -b_knight); //LS1B
+			tempMove.insert(tempMove.end(),AllBlackKnightMoves(b_knight & -b_knight, BitBoards[ B_PIECES ])); //all its moves
 			count++;
 			b_knight = b_knight &  (b_knight-1); //reset the LS1B so we can get the next knight
+			moveVector.insert(moveVector.end(), tempMove);
 		}
 
 		//king moves
-		moveVector.at(count)[0] = BitBoards[ B_KING ];
-		moveVector.at(count)[1] = kingMoves(BitBoards[ B_KING ], BitBoards[ B_PIECES ]);
+		std::vector<UI64> tempMove;
+		tempMove.insert(tempMove.end(),BitBoards[ B_KING ]);
+		tempMove.insert(tempMove.end(),kingMoves(BitBoards[ B_KING ], BitBoards[ B_PIECES ]));
 		count++;
-		*/
-		return moveVector;
+		moveVector.insert(moveVector.end(), tempMove);
 	}
+			return moveVector;
 }
 
 int *Position::getMap()
 {
 	return *_map;
+}
+
+void Position::setToMove(int i){
+	Position::_toMove = i;
+}
+
+int Position::getToMove(){
+	return _toMove;
 }
 
 

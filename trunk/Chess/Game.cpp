@@ -41,11 +41,12 @@ void Game::init(void)
 
 	// Empty the board.
 	_board->clear();
-	//_board->setPosition(_position);
+	_board->setPosition(_position);
 	_board->initPos();
 
 	// White always starts the game.
 	_toMove = WHITE;
+	_position->setToMove(_toMove);
 }
 
 /**
@@ -143,12 +144,13 @@ void Game::render(void)
 /**
 	End the current turn turning over the turn to the other player.
 
-	@author Christoffer Niska
+	@author Christoffer Niska, Olli Koskinen
 	@return void
 */
 void Game::endTurn()
 {
 	_toMove = _toMove == WHITE ? BLACK : WHITE;
+	_position->setToMove(_toMove);
 }
 
 /**

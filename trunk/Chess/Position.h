@@ -91,6 +91,8 @@ public:
 	//
 	std::vector<std::vector<UI64>> genLegalMoves(UI64 BitBoards[]);
 
+	void setToMove(int i);
+	int  getToMove();
 	void endTurn();
 
 	std::string getTurnName() const;
