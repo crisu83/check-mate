@@ -134,24 +134,28 @@ We can use the same logic for all pieces(except for king & queen).
 */
 std::vector<UI64[2]> Position::genLegalMoves(UI64 BitBoards[])
 {
+
 	int count = 0;
 	std::vector<UI64[2]> moveVector;
 
 	if(_toMove == WHITE){
+
 		//pawn moves
-		while((BitBoards[ W_PAWN ] & -BitBoards[ W_PAWN ]) != BitBoards[ EMPTY ]){ //while we have pawns to go through
-			moveVector.at(count)[0] = BitBoards[ W_PAWN ] & -BitBoards[ W_PAWN ]; //LS1B
+		UI64 w_pawn = BitBoards[ W_PAWN ];
+		while((w_pawn & -w_pawn) != BitBoards[ EMPTY ]){ //while we have pawns to go through
+			moveVector.at(count)[0] = w_pawn & -w_pawn; //LS1B
 			moveVector.at(count)[1] = wAllPawnMoves(moveVector.at(count)[0], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]); //all its moves
 			count++;
-			BitBoards[ W_PAWN ] = BitBoards[ W_PAWN ] &  (BitBoards[ W_PAWN ]-1); //reset the LS1B so we can get the next pawn
+			w_pawn = w_pawn &  (w_pawn-1); //reset the LS1B so we can get the next pawn
 		}
 		
 		//knight moves
-		while((BitBoards[ W_KNIGHT ] & -BitBoards[ W_KNIGHT ]) != BitBoards[ EMPTY ]){ //while we have knights to go through
-			moveVector.at(count)[0] = BitBoards[ W_KNIGHT ] & -BitBoards[ W_KNIGHT ]; //LS1B
+		UI64 w_knight = BitBoards[ W_KNIGHT ];
+		while((w_knight & -w_knight) != BitBoards[ EMPTY ]){ //while we have knights to go through
+			moveVector.at(count)[0] = w_knight & -w_knight; //LS1B
 			moveVector.at(count)[1] = AllWhiteKnightMoves(moveVector.at(count)[0], BitBoards[ W_PIECES ]); //all its moves
 			count++;
-			BitBoards[ W_KNIGHT ] = BitBoards[ W_KNIGHT ] &  (BitBoards[ W_KNIGHT ]-1); //reset the LS1B so we can get the next knight
+			w_knight = w_knight &  (w_knight-1); //reset the LS1B so we can get the next knight
 		}
 
 		//king moves
@@ -161,20 +165,23 @@ std::vector<UI64[2]> Position::genLegalMoves(UI64 BitBoards[])
 
 
 	}else if(_toMove == BLACK){
+
 		//pawn moves
-		while((BitBoards[ B_PAWN ] & -BitBoards[ B_PAWN ]) != BitBoards[ EMPTY ]){ //while we have pawns to go through
-			moveVector.at(count)[0] = BitBoards[ B_PAWN ] & -BitBoards[ B_PAWN ]; //LS1B
+		UI64 b_pawn = BitBoards[ B_PAWN ];
+		while((b_pawn & -b_pawn) != BitBoards[ EMPTY ]){ //while we have pawns to go through
+			moveVector.at(count)[0] = b_pawn & -b_pawn; //LS1B
 			moveVector.at(count)[1] = bAllPawnMoves(moveVector.at(count)[0], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]); //all its moves
 			count++;
-			BitBoards[ B_PAWN ] = BitBoards[ B_PAWN ] &  (BitBoards[ B_PAWN ]-1); //reset the LS1B so we can get the next pawn
+			b_pawn = b_pawn &  (b_pawn-1); //reset the LS1B so we can get the next pawn
 		}
 
 		//knight moves
-		while((BitBoards[ B_KNIGHT ] & -BitBoards[ B_KNIGHT ]) != BitBoards[ EMPTY ]){ //while we have knights to go through
-			moveVector.at(count)[0] = BitBoards[ B_KNIGHT ] & -BitBoards[ B_KNIGHT ]; //LS1B
+		UI64 b_knight = BitBoards[ B_KNIGHT ];
+		while((b_knight & -b_knight) != BitBoards[ EMPTY ]){ //while we have knights to go through
+			moveVector.at(count)[0] = b_knight & -b_knight; //LS1B
 			moveVector.at(count)[1] = AllBlackKnightMoves(moveVector.at(count)[0], BitBoards[ B_PIECES ]); //all its moves
 			count++;
-			BitBoards[ B_KNIGHT ] = BitBoards[ B_KNIGHT ] &  (BitBoards[ B_KNIGHT ]-1); //reset the LS1B so we can get the next knight
+			b_knight = b_knight &  (b_knight-1); //reset the LS1B so we can get the next knight
 		}
 
 		//king moves
