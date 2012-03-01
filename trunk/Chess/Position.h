@@ -16,6 +16,7 @@ private:
 	bool _blackCastleLongAllowed;
 	int _enPassantOnLine;
 	std::vector<Move> legalMoves;
+	std::vector<UI64[2]> moveVector;
 
 	/**
 		functions for move generation
@@ -88,7 +89,7 @@ public:
 	// means there are no legal moves; the game has
 	// ended (in either checkmate and stalemate).
 	//
-	std::vector<UI64[2]> genLegalMoves(UI64 BitBoards[]);
+	void genLegalMoves(UI64 BitBoards[]);
 
 	void endTurn();
 

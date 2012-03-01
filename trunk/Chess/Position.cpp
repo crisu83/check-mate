@@ -132,11 +132,10 @@ We can use the same logic for all pieces(except for king & queen).
 	@param moveList the list in which to store the moves
 	@return the number of legal moves
 */
-std::vector<UI64[2]> Position::genLegalMoves(UI64 BitBoards[])
+void Position::genLegalMoves(UI64 BitBoards[])
 {
 
 	int count = 0;
-	std::vector<UI64[2]> moveVector;
 
 	if(_toMove == WHITE){
 
@@ -189,13 +188,6 @@ std::vector<UI64[2]> Position::genLegalMoves(UI64 BitBoards[])
 		moveVector.at(count)[1] = kingMoves(BitBoards[ B_KING ], BitBoards[ B_PIECES ]);
 		count++;
 	}
-
-
-
-
-
-
-	return moveVector;
 }
 
 int *Position::getMap()
@@ -699,4 +691,40 @@ king					 king << 1			|    	king >> 1			==
    UI64 moves = ((king << 1)& ~A_FILE) | ((king >> 1) & ~H_FILE);
    moves  = (((king << 8) | (king >> 8)) | moves) & ~ownpieces;
    return moves;
+}
+
+ /**
+	Rooks East moves
+
+ 	@author Arttu Nieminen, Olli Koskinen
+	@param Bitboard of rooks, emptysquares
+	@return All rook east moves
+ */
+ UI64 rEast(UI64 rooks, UI64 emptysquares) {
+   emptysquares  = emptysquares & ~A_FILE;
+   rooks |= emptysquares & (rooks << 1); 
+   rooks |= emptysquares & (rooks << 1); 
+   rooks |= emptysquares & (rooks << 1); 
+   rooks |= emptysquares & (rooks << 1); 
+   rooks |= emptysquares & (rooks << 1); 
+   rooks |= emptysquares & (rooks << 1); 
+   return ~A_FILE & (rooks << 1);
+}
+
+  /**
+	Rooks West moves
+
+ 	@author Arttu Nieminen, Olli Koskinen
+	@param Bitboard of rooks, emptysquares
+	@return All rook West moves
+ */
+ UI64 rWest(UI64 rooks, UI64 emptysquares) {
+   emptysquares  = emptysquares & ~H_FILE;
+   rooks |= emptysquares & (rooks >> 1); 
+   rooks |= emptysquares & (rooks >> 1); 
+   rooks |= emptysquares & (rooks >> 1); 
+   rooks |= emptysquares & (rooks >> 1); 
+   rooks |= emptysquares & (rooks >> 1); 
+   rooks |= emptysquares & (rooks >> 1); 
+   return ~H_FILE & (rooks >> 1);
 }
