@@ -168,7 +168,7 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 		while((w_rook & -w_rook) != BitBoards[ EMPTY ]){
 			std::vector<UI64> tempMove;
 			tempMove.insert(tempMove.end(), w_rook & -w_rook);
-			tempMove.insert(tempMove.end(), wAllRookMoves(w_rook & -w_rook, BitBoards[ EMPTYSQUARES ]));
+			tempMove.insert(tempMove.end(), AllRookMoves(w_rook & -w_rook, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]));
 			moveVector.insert(moveVector.end(), tempMove);
 			count++;
 			w_rook = w_rook & (w_rook-1);
@@ -204,6 +204,16 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			count++;
 			b_knight = b_knight &  (b_knight-1); //reset the LS1B so we can get the next knight
 			moveVector.insert(moveVector.end(), tempMove);
+		}
+		//rook moves
+		UI64 b_rook = BitBoards[ B_ROOK ];
+		while((b_rook & -b_rook) != BitBoards[ EMPTY ]){
+			std::vector<UI64> tempMove;
+			tempMove.insert(tempMove.end(), b_rook & -b_rook);
+			tempMove.insert(tempMove.end(), AllRookMoves(b_rook & -b_rook, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]));
+			moveVector.insert(moveVector.end(), tempMove);
+			count++;
+			b_rook = b_rook & (b_rook-1);
 		}
 
 		//king moves
@@ -814,7 +824,7 @@ king					 king << 1			|    	king >> 1			==
    return (rooks >> 8);
 }
 
-UI64 Position::wAllRookMoves(UI64 rooks, UI64 emptysquares){
-	return rWest(rooks, emptysquares) | rEast(rooks, emptysquares) | rNorth(rooks, emptysquares) | rSouth(rooks, emptysquares);
+UI64 Position::AllRookMoves(UI64 rooks, UI64 emptysquares, UI64 ownpieces){
+	return (rWest(rooks, emptysquares) | rEast(rooks, emptysquares) | rNorth(rooks, emptysquares) | rSouth(rooks, emptysquares)) & ~ownpieces;
 }
 
