@@ -290,12 +290,25 @@ UI64 Position::bDoublePushTargets(UI64 b_pawn, UI64 emptysquares){
 /**
 	Finds all possible white pawn attacks
 
+
+
+ white pawns       white pawns << 9  &       notAFile     (w_pawn << 9) & ~A_FILE)	 &	black pieces	==
+0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0      0 1 1 1 1 1 1 1      0 0 0 0 0 0 0 0		1 1 1 1 1 1 1 1    	0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0      0 1 1 1 1 1 1 1      0 0 0 0 0 0 0 0       0 0 0 0 0 0 0 0		0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0      0 1 1 1 1 1 1 1      0 0 0 0 0 0 0 0       0 0 0 0 0 0 1 0     0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0     0 0 0 0 0 1 0 0      0 1 1 1 1 1 1 1      0 0 0 0 0 1 0 0       0 0 0 0 0 0 0 0     0 0 0 0 0 1 0 0 
+0 0 0 0 1 0 0 0     0 0 0 0 0 0 0 0      0 1 1 1 1 1 1 1      0 0 0 0 0 0 0 0       0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0      0 1 1 1 1 1 1 1      0 0 0 0 0 0 0 0       0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0      0 1 1 1 1 1 1 1      0 0 0 0 0 0 0 0       0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0      0 1 1 1 1 1 1 1      0 0 0 0 0 0 0 0       0 0 0 0 0 0 0 0     0 0 0 0 0 0 0 0
+
+
 	@author Arttu Nieminen, Olli Koskinen
 	@param White pawns and black pieces
 	@return all possible white pawn attacks
 */
 UI64 Position::wPawnAttacks(UI64 w_pawn, UI64 b_pieces) {
-   return (((w_pawn << 9) & ~A_FILE) | ((w_pawn << 7)& ~H_FILE)) & b_pieces;
+	return ((w_pawn << 9) & ~A_FILE) | ((w_pawn << 7) & ~H_FILE);
 }
 
 /**
@@ -306,7 +319,7 @@ UI64 Position::wPawnAttacks(UI64 w_pawn, UI64 b_pieces) {
 	@return all possible white pawn double attacks
 */
 UI64 Position::wPawnDblAttacks(UI64 w_pawn,  UI64 b_pieces) {
-   return (((w_pawn << 9)& ~A_FILE) & ((w_pawn << 7)& ~A_FILE)) & b_pieces;
+   return (((w_pawn << 9)& ~A_FILE) & ((w_pawn << 7)& ~A_FILE));
 }
 
 /**
@@ -317,7 +330,7 @@ UI64 Position::wPawnDblAttacks(UI64 w_pawn,  UI64 b_pieces) {
 	@return all white pawn single attacks
 */
 UI64 Position::wPawnSingleAttacks(UI64 w_pawn,  UI64 b_pieces) {
-   return (((w_pawn << 9)& ~A_FILE) ^ ((w_pawn << 7)& ~H_FILE)) & b_pieces;
+   return (((w_pawn << 9)& ~A_FILE) ^ ((w_pawn << 7)& ~H_FILE));
 }
 
 
@@ -351,7 +364,7 @@ UI64 Position::wPawnSingleAttacks(UI64 w_pawn,  UI64 b_pieces) {
 	@return all possible black pawn attacks
 */
 UI64 Position::bPawnAttacks(UI64 b_pawn, UI64 w_pieces) {
-   return (((b_pawn >> 7)& ~A_FILE) | ((b_pawn >> 9) & ~H_FILE)) & w_pieces;
+   return ((((b_pawn >> 7)& ~A_FILE)) | ((b_pawn >> 9) & ~H_FILE));
 }
 
 /**
@@ -362,7 +375,7 @@ UI64 Position::bPawnAttacks(UI64 b_pawn, UI64 w_pieces) {
 	@return all possible black pawn double attacks
 */
 UI64 Position::bPawnDblAttacks(UI64 b_pawn, UI64 w_pieces) {
-   return (((b_pawn >> 7)& ~A_FILE) & ((b_pawn >> 9)& ~H_FILE)) & w_pieces;
+   return (((b_pawn >> 7)& ~A_FILE) & ((b_pawn >> 9)& ~H_FILE));
 }
 
 /**
@@ -373,7 +386,7 @@ UI64 Position::bPawnDblAttacks(UI64 b_pawn, UI64 w_pieces) {
 	@return all possible black pawn single attacks
 */
 UI64 Position::bPawnSingleAttacks(UI64 b_pawn, UI64 w_pieces) {
-   return (((b_pawn >> 7)& ~A_FILE) ^ ((b_pawn >> 9)& ~H_FILE)) & w_pieces;
+   return (((b_pawn >> 7)& ~A_FILE) ^ ((b_pawn >> 9)& ~H_FILE));
 }
 
 /**
@@ -384,9 +397,10 @@ UI64 Position::bPawnSingleAttacks(UI64 b_pawn, UI64 w_pieces) {
 	@return all possible white pawn moves
 */
 UI64 Position::wAllPawnMoves(UI64 w_pawn, UI64 emptysquares, UI64 b_pieces){
-	UI64 single = wSinglePushTargets(w_pawn, emptysquares);
-	UI64 dbl = wDoublePushTargets(w_pawn, emptysquares);
-	return wPawnAttacks(w_pawn, b_pieces) | single | dbl;
+	UI64 pushes = (wPawnAttacks(w_pawn, b_pieces) & ~b_pieces & ~emptysquares);
+	pushes |= wSinglePushTargets(w_pawn, emptysquares);
+	pushes |= wDoublePushTargets(w_pawn, emptysquares);
+	return pushes;
 }
 
 /**
@@ -397,9 +411,10 @@ UI64 Position::wAllPawnMoves(UI64 w_pawn, UI64 emptysquares, UI64 b_pieces){
 	@return all possible black pawn moves
 */
 UI64 Position::bAllPawnMoves(UI64 b_pawn, UI64 emptysquares, UI64 w_pieces){
-	UI64 single = bSinglePushTargets(b_pawn, emptysquares);
-	UI64 dbl = bDoublePushTargets(b_pawn, emptysquares);
-	return bPawnAttacks(b_pawn, w_pieces) | single | dbl;
+	UI64 pushes = (bPawnAttacks(b_pawn, w_pieces) & ~w_pieces & ~emptysquares);
+	pushes |= bSinglePushTargets(b_pawn, emptysquares);
+	pushes |= bDoublePushTargets(b_pawn, emptysquares);
+	return pushes;
 }
 
 
@@ -711,9 +726,11 @@ king					 king << 1			|    	king >> 1			==
 	@return All king moves
  */
  UI64 Position::kingMoves(UI64 king, UI64 ownpieces) {
-   UI64 moves = ((king << 1)& ~A_FILE) | ((king >> 1) & ~H_FILE);
-   moves  = (((king << 8) | (king >> 8)) | moves) & ~ownpieces;
-   return moves;
+   UI64 moves = ((king << 1)& ~A_FILE) | ((king >> 1) & ~H_FILE);//right-left
+   moves  = (((king << 8) | (king >> 8)) | moves); //up-down
+   moves |= ((((king >> 7)& ~A_FILE)) | ((king >> 9) & ~H_FILE));//diagonal down
+   moves |= ((king << 9) & ~A_FILE) | ((king << 7) & ~H_FILE); //diagonal up
+   return moves & ~ownpieces;
 }
 
  /**
