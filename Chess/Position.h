@@ -48,6 +48,13 @@ private:
 	UI64 AllBlackKnightMoves(UI64 b_knight, UI64 b_pieces);
 	//king
 	UI64 kingMoves(UI64 king, UI64 ownpieces);
+	//rook
+	UI64 wAllRookMoves(UI64 rooks, UI64 emptysquares);
+	UI64 rEast(UI64 rooks, UI64 emptysquares);
+	UI64 rWest(UI64 rooks, UI64 emptysquares);
+	UI64 rNorth(UI64 rooks, UI64 emptysquares);
+	UI64 rSouth(UI64 rooks, UI64 emptysquares);
+
 
 
 
