@@ -49,7 +49,7 @@ private:
 	//king
 	UI64 kingMoves(UI64 king, UI64 ownpieces);
 	//rook
-	UI64 wAllRookMoves(UI64 rooks, UI64 emptysquares);
+	UI64 AllRookMoves(UI64 rooks, UI64 emptysquares, UI64 ownpieces);
 	UI64 rEast(UI64 rooks, UI64 emptysquares);
 	UI64 rWest(UI64 rooks, UI64 emptysquares);
 	UI64 rNorth(UI64 rooks, UI64 emptysquares);
