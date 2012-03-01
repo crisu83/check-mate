@@ -24,6 +24,7 @@ private:
 	UI64 _BitBoards[BITBOARDS];
 	//Private functions
 	void initBitboards();
+	std::vector<UI64[2]> moves;
 
 
 public:

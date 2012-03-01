@@ -373,10 +373,24 @@ bool Board::moveIsLegal(Move _curMove){
 		return false;
 	}
 
-	//Check legal moves plx
+	int sourceIndex =	(_curMove.getX1()) + (_curMove.getY1()<<3);
+	int destIndex	=	(_curMove.getX2()) + (_curMove.getY2()<<3); 
 
-	updateBitBoards(_curMove, getPieceAt(_curMove.getX1(),_curMove.getY1())-> getType());
-	return true;
+	std::vector<std::vector<UI64>> move = _position->genLegalMoves(_BitBoards);
+
+	for(int i = 0; i <move.size(); i++){
+		UI64 source		  = move.at(i).at(0);
+		UI64 destinations = move.at(i).at(1);
+
+		if( (source & _SquareBits[sourceIndex]) == _SquareBits[sourceIndex] ){
+			if( (destinations &  _SquareBits[ destIndex ]) == _SquareBits[destIndex] ){
+				updateBitBoards(_curMove, getPieceAt(_curMove.getX1(),_curMove.getY1())-> getType());
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 
 Square *Board::getSquareAt(int x, int y)
