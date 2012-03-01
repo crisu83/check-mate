@@ -165,14 +165,13 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 
 		//rook moves
 		UI64 w_rook = BitBoards[ W_ROOK ];
-		while((w_rook & -w_rook) != BitBoards[ EMPTY ]){ //while we have rooks to go through
+		while((w_rook & -w_rook) != BitBoards[ EMPTY ]){
 			std::vector<UI64> tempMove;
-			UI64 lsb = w_rook & -w_rook;
-			tempMove.insert(tempMove.end(), lsb);
-			tempMove.insert(tempMove.end(), wAllRookMoves((lsb), BitBoards[ EMPTYSQUARES ]));
+			tempMove.insert(tempMove.end(), w_rook & -w_rook);
+			tempMove.insert(tempMove.end(), wAllRookMoves(w_rook & -w_rook, BitBoards[ EMPTYSQUARES ]));
 			moveVector.insert(moveVector.end(), tempMove);
 			count++;
-			w_rook = w_rook &  (w_rook-1); //reset the LS1B so we can get the next rook
+			w_rook = w_rook & (w_rook-1);
 		}
 
 		//king moves
@@ -181,7 +180,7 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 		tempMove.insert(tempMove.end(),kingMoves(BitBoards[ W_KING ], BitBoards[ W_PIECES ]));
 		count++;
 		moveVector.insert(moveVector.end(), tempMove);
-
+		
 
 	}else if(_toMove == BLACK){
 
@@ -752,7 +751,7 @@ king					 king << 1			|    	king >> 1			==
 	@param Bitboard of rooks, emptysquares
 	@return All rook east moves
  */
- UI64 rEast(UI64 rooks, UI64 emptysquares) {
+ UI64 Position::rEast(UI64 rooks, UI64 emptysquares) {
    emptysquares  = emptysquares & ~A_FILE;
    rooks |= emptysquares & (rooks << 1); 
    rooks |= emptysquares & (rooks << 1); 
@@ -770,7 +769,7 @@ king					 king << 1			|    	king >> 1			==
 	@param Bitboard of rooks, emptysquares
 	@return All rook West moves
  */
- UI64 rWest(UI64 rooks, UI64 emptysquares) {
+ UI64 Position::rWest(UI64 rooks, UI64 emptysquares) {
    emptysquares  = emptysquares & ~H_FILE;
    rooks |= emptysquares & (rooks >> 1); 
    rooks |= emptysquares & (rooks >> 1); 
@@ -788,7 +787,7 @@ king					 king << 1			|    	king >> 1			==
 	@param Bitboard of rooks, emptysquares
 	@return All rook north moves
  */
- UI64 rNorth(UI64 rooks, UI64 emptysquares) {
+ UI64 Position::rNorth(UI64 rooks, UI64 emptysquares) {
    rooks |= emptysquares & (rooks << 8); 
    rooks |= emptysquares & (rooks << 8); 
    rooks |= emptysquares & (rooks << 8); 
@@ -805,7 +804,7 @@ king					 king << 1			|    	king >> 1			==
 	@param Bitboard of rooks, emptysquares
 	@return All rook South moves
  */
- UI64 rSouth(UI64 rooks, UI64 emptysquares) {
+ UI64 Position::rSouth(UI64 rooks, UI64 emptysquares) {
    rooks |= emptysquares & (rooks >> 8); 
    rooks |= emptysquares & (rooks >> 8); 
    rooks |= emptysquares & (rooks >> 8); 
@@ -815,11 +814,7 @@ king					 king << 1			|    	king >> 1			==
    return (rooks >> 8);
 }
 
-
-UI64 wAllRookMoves(UI64 rooks, UI64 emptysquares) {
-	UI64 moves = rWest(rooks, emptysquares);
-		moves |= rWest(rooks, emptysquares);
-		moves |= rNorth(rooks, emptysquares); 
-		moves |= rSouth(rooks, emptysquares);
-   return moves;
+UI64 Position::wAllRookMoves(UI64 rooks, UI64 emptysquares){
+	return rWest(rooks, emptysquares) | rEast(rooks, emptysquares) | rNorth(rooks, emptysquares) | rSouth(rooks, emptysquares);
 }
+
