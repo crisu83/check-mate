@@ -32,8 +32,8 @@ private:
 	UI64 bPawnAttacks(UI64 b_pawn, UI64 w_pieces);
 	UI64 bPawnDblAttacks(UI64 b_pawn, UI64 w_pieces);
 	UI64 bPawnSingleAttacks(UI64 b_pawn, UI64 w_pieces);
-	UI64 wAllPawnMoves(UI64 BitBoards[]);
-	UI64 bAllPawnMoves(UI64 BitBoards[]);
+	UI64 wAllPawnMoves(UI64 w_pawn, UI64 emptysquares, UI64 b_pieces);
+	UI64 bAllPawnMoves(UI64 b_pawn, UI64 emptysquares, UI64 w_pieces);
 	//for knights
 	UI64 KnoNoEa(UI64 knight);
 	UI64 KnoEaEa(UI64 knight);
@@ -43,8 +43,8 @@ private:
 	UI64 KnoWeWe(UI64 knight);
 	UI64 KsoWeWe(UI64 knight);
 	UI64 KsoSoWe(UI64 knight);
-	UI64 AllWhiteKnightMoves(UI64 BitBoards[]);
-	UI64 AllBlackKnightMoves(UI64 BitBoards[]);
+	UI64 AllWhiteKnightMoves(UI64 w_knight, UI64 w_pieces);
+	UI64 AllBlackKnightMoves(UI64 b_knight, UI64 b_pieces);
 	//king
 	UI64 kingMoves(UI64 king, UI64 ownpieces);
 
@@ -88,7 +88,7 @@ public:
 	// means there are no legal moves; the game has
 	// ended (in either checkmate and stalemate).
 	//
-	int genLegalMoves(Move *moveList);
+	std::vector<UI64[2]> genLegalMoves(UI64 BitBoards[]);
 
 	void endTurn();
 
