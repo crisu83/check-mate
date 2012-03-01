@@ -75,8 +75,8 @@ void Board::initBitboards(){
 	_BitBoards[ B_BISHOP]	= 0x2400000000000000;
 	_BitBoards[ B_KNIGHT]	= 0x4200000000000000;
 	_BitBoards[ B_PAWN	]	= 0xff000000000000;
-	_BitBoards[ W_PIECES]	= 0xffff;
-	_BitBoards[ B_PIECES]	= 0xffff000000000000;
+	_BitBoards[ W_PIECES ]  = _BitBoards[ W_PAWN ] | _BitBoards[ W_ROOK ]  |_BitBoards[ W_KNIGHT ] |_BitBoards[ W_BISHOP ]  | _BitBoards[ W_QUEEN ]  | _BitBoards[ W_KING ];
+	_BitBoards[ B_PIECES ]  = _BitBoards[ B_PAWN ] | _BitBoards[ B_ROOK ]  |_BitBoards[ B_KNIGHT ] |_BitBoards[ B_BISHOP ]  | _BitBoards[ B_QUEEN ]  | _BitBoards[ B_KING ];
 	_BitBoards[EMPTYSQUARES]= ~(_BitBoards[ W_PIECES ] | _BitBoards[ B_PIECES ]);
 }
 
@@ -271,16 +271,46 @@ void Board::updateBitBoards(Move move, int type){
 	if(debug)
 		std::cout<<"source "<<sourceIndex<<" dest "<<destIndex<<"\n";
 
-	//Delete the piece we are going to move and then add it to a new place
-	_BitBoards[ type ] &=  ~_SquareBits[ sourceIndex ];
-	_BitBoards[ type ] |=   _SquareBits[ destIndex   ];
+	//Account for the attacks
+	//If clause == If the type is one of the Whites, then we look from black pieces
+	//And if the type is one of the blacks, then we look from white pieces
+	//Then we binary AND it with the destination bit from the squareBits and see if the result is the same as squareBits dest
+	int enemyPieces = ( type <= W_PAWN && type > EMPTY ) ? B_PIECES : W_PIECES;
+	int ourPieces	= ( type <= W_PAWN && type > EMPTY ) ? W_PIECES : B_PIECES;
+
+	if( (_BitBoards[ enemyPieces ]  &  _SquareBits[ destIndex ]) == _SquareBits[ destIndex ] ){
+
+		_BitBoards[ enemyPieces ]  &=  ~_SquareBits[  destIndex  ];  // Remove the enemy piece from pieces
+		_BitBoards[	   type		]  &=  ~_SquareBits[ sourceIndex ];  // Remove our piece from the source
+		_BitBoards[  ourPieces	]  &=  ~_SquareBits[ sourceIndex ];	 // remove our piece from pieces
+		_BitBoards[    type     ]  |=   _SquareBits[  destIndex  ];  // add our piece to destination
+
+
+		int i	= (type <= W_PAWN &&  type > EMPTY) ? B_KING : W_KING;
+		int end = (type <= W_PAWN &&  type > EMPTY) ? B_PAWN : W_PAWN;
+
+		for( i; i <= end; i++){
+			if(( _BitBoards[ i ] & _SquareBits[ destIndex ]) == _SquareBits[destIndex ] ){
+				_BitBoards[ i ]  &=  ~_SquareBits[destIndex ];
+			}
+		}
+
+	}else{
+		//We move without distractions
+		//Delete the piece we are going to move and then add it to a new place
+		_BitBoards[ type ] &=  ~_SquareBits[ sourceIndex ];
+		_BitBoards[ type ] |=   _SquareBits[ destIndex   ];
+	}
 
 	//Update the all the white/black pieces according to turn
-	//TODO: not counting attacks
-	_BitBoards[ W_PIECES ] = W_PAWN | W_ROOK | W_KNIGHT | W_BISHOP | W_QUEEN | W_KING;
-	_BitBoards[ B_PIECES ] = B_PAWN | B_ROOK | B_KNIGHT | B_BISHOP | B_QUEEN | B_KING;
+	_BitBoards[ W_PIECES ]  = _BitBoards[ W_PAWN ] | _BitBoards[ W_ROOK ] 
+	| _BitBoards[ W_KNIGHT ] | _BitBoards[ W_BISHOP ]  | _BitBoards[ W_QUEEN ]  | _BitBoards[ W_KING ];
 
-	_BitBoards[ EMPTYSQUARES ]= ~(_BitBoards[ W_PIECES ] | _BitBoards[ B_PIECES ]);
+	_BitBoards[ B_PIECES ]  = _BitBoards[ B_PAWN ] | _BitBoards[ B_ROOK ] 
+	| _BitBoards[ B_KNIGHT ] | _BitBoards[ B_BISHOP ]  | _BitBoards[ B_QUEEN ]  | _BitBoards[ B_KING ];
+
+
+	_BitBoards[ EMPTYSQUARES ]= ~( _BitBoards[ W_PIECES ] | _BitBoards[ B_PIECES ] );
 
 	if(debug)
 		std::cout<<"Bitboards [ type ] = "<<_BitBoards[ type ]<<"\n"; 
