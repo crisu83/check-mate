@@ -132,7 +132,7 @@ We can use the same logic for all pieces(except for king & queen).
 	@param moveList the list in which to store the moves
 	@return the number of legal moves
 */
-void Position::genLegalMoves(UI64 BitBoards[])
+std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 {
 
 	int count = 0;
@@ -142,12 +142,14 @@ void Position::genLegalMoves(UI64 BitBoards[])
 		//pawn moves
 		UI64 w_pawn = BitBoards[ W_PAWN ];
 		while((w_pawn & -w_pawn) != BitBoards[ EMPTY ]){ //while we have pawns to go through
-			moveVector.at(count)[0] = w_pawn & -w_pawn; //LS1B
-			moveVector.at(count)[1] = wAllPawnMoves(moveVector.at(count)[0], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]); //all its moves
+			std::vector<UI64> tempMove;
+			tempMove.at(0) = w_pawn & -w_pawn; //LS1B
+			tempMove.at(1) = wAllPawnMoves(moveVector.at(count)[0], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]); //all its moves
+			moveVector.at(count) = tempMove;
 			count++;
 			w_pawn = w_pawn &  (w_pawn-1); //reset the LS1B so we can get the next pawn
 		}
-		
+		/*
 		//knight moves
 		UI64 w_knight = BitBoards[ W_KNIGHT ];
 		while((w_knight & -w_knight) != BitBoards[ EMPTY ]){ //while we have knights to go through
@@ -187,6 +189,8 @@ void Position::genLegalMoves(UI64 BitBoards[])
 		moveVector.at(count)[0] = BitBoards[ B_KING ];
 		moveVector.at(count)[1] = kingMoves(BitBoards[ B_KING ], BitBoards[ B_PIECES ]);
 		count++;
+		*/
+		return moveVector;
 	}
 }
 
