@@ -163,6 +163,18 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			w_knight = w_knight &  (w_knight-1); //reset the LS1B so we can get the next knight
 		}
 
+		//rook moves
+		UI64 w_rook = BitBoards[ W_ROOK ];
+		while((w_rook & -w_rook) != BitBoards[ EMPTY ]){ //while we have rooks to go through
+			std::vector<UI64> tempMove;
+			UI64 lsb = w_rook & -w_rook;
+			tempMove.insert(tempMove.end(), lsb);
+			tempMove.insert(tempMove.end(), wAllRookMoves((lsb), BitBoards[ EMPTYSQUARES ]));
+			moveVector.insert(moveVector.end(), tempMove);
+			count++;
+			w_rook = w_rook &  (w_rook-1); //reset the LS1B so we can get the next rook
+		}
+
 		//king moves
 		std::vector<UI64> tempMove;
 		tempMove.insert(tempMove.end(), BitBoards[ W_KING ]);
@@ -767,4 +779,47 @@ king					 king << 1			|    	king >> 1			==
    rooks |= emptysquares & (rooks >> 1); 
    rooks |= emptysquares & (rooks >> 1); 
    return ~H_FILE & (rooks >> 1);
+}
+
+  /**
+	Rooks North moves
+
+ 	@author Arttu Nieminen, Olli Koskinen
+	@param Bitboard of rooks, emptysquares
+	@return All rook north moves
+ */
+ UI64 rNorth(UI64 rooks, UI64 emptysquares) {
+   rooks |= emptysquares & (rooks << 8); 
+   rooks |= emptysquares & (rooks << 8); 
+   rooks |= emptysquares & (rooks << 8); 
+   rooks |= emptysquares & (rooks << 8); 
+   rooks |= emptysquares & (rooks << 8); 
+   rooks |= emptysquares & (rooks << 8); 
+   return (rooks << 8);
+}
+
+  /**
+	Rooks South moves
+
+ 	@author Arttu Nieminen, Olli Koskinen
+	@param Bitboard of rooks, emptysquares
+	@return All rook South moves
+ */
+ UI64 rSouth(UI64 rooks, UI64 emptysquares) {
+   rooks |= emptysquares & (rooks >> 8); 
+   rooks |= emptysquares & (rooks >> 8); 
+   rooks |= emptysquares & (rooks >> 8); 
+   rooks |= emptysquares & (rooks >> 8); 
+   rooks |= emptysquares & (rooks >> 8); 
+   rooks |= emptysquares & (rooks >> 8); 
+   return (rooks >> 8);
+}
+
+
+UI64 wAllRookMoves(UI64 rooks, UI64 emptysquares) {
+	UI64 moves = rWest(rooks, emptysquares);
+		moves |= rWest(rooks, emptysquares);
+		moves |= rNorth(rooks, emptysquares); 
+		moves |= rSouth(rooks, emptysquares);
+   return moves;
 }
