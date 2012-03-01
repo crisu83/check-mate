@@ -90,17 +90,105 @@ void Position::initPos()
 
 /**
 	Generates all the legal moves.
+
+Lets find the first pawn 			Get the intersection with 			And Tadaa! We have the least significant 1 bit
+from pawns bitboard					its 2's complement
+
+
+w_pawn					&				-w_pawn			==		 		LS1B
+0 0 0 0 0 0 0 0						  1 1 1 1 1 1 1 1					0 0 0 0 0 0 0 0		
+0 0 0 0 0 0 0 0                       1 1 1 1 1 1 1 1                   0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0                       1 1 1 1 1 1 1 1                   0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0                       1 1 1 1 1 1 1 1                   0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0                       1 1 1 1 1 1 1 1                   0 0 0 0 0 0 0 0
+0 0 1 0 0 0 0 0                       1 1 0 1 1 1 1 1                   0 0 0 0 0 0 0 0
+1 1 0 1 0 1 1 1                       1 0 1 0 1 0 0 0                   1 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0                       1 1 1 1 1 1 1 1                   0 0 0 0 0 0 0 0
+
+Then we can get the moves for the first pawn
+
+LS1B							b_pieces							wAllPawnMoves(LS1B, emptysquares, b_pieces)
+0 0 0 0 0 0 0 0					1 1 1 1 1 1 1 1						0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0                 1 1 1 1 1 1 1 1                     0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0                 0 0 0 0 0 0 0 0                     0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0                 0 0 0 0 0 0 0 0                     0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0                 0 0 0 0 0 0 0 0                     1 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0                 0 0 0 0 0 0 0 0                     1 0 0 0 0 0 0 0
+1 0 0 0 0 0 0 0                 0 0 0 0 0 0 0 0                     0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0                 0 0 0 0 0 0 0 0                     0 0 0 0 0 0 0 0
+
+now we know the moves for the first pawn
+LS1B -> wAllPawnMoves(LS1B, emptysquares, b_pieces)
+
+We can reset the LS1B from w_pawns with
+w_pawn &  (w_pawn-1) ==  w_pawn_with_reset_LS1B
+
+And then get the moves for second pawn.
+
+We can use the same logic for all pieces(except for king & queen).
+
 	
-	@author Christoffer Niska
+	@author Arttu Nieminen, Olli Koskinen, Christoffer Niska
 	@param moveList the list in which to store the moves
 	@return the number of legal moves
 */
-int Position::genLegalMoves(Move *moveList)
+std::vector<UI64[2]> Position::genLegalMoves(UI64 BitBoards[])
 {
-	int moveCount = 0;
+	int count = 0;
+	std::vector<UI64[2]> moveVector;
+
+	if(_toMove == WHITE){
+		//pawn moves
+		while((BitBoards[ W_PAWN ] & -BitBoards[ W_PAWN ]) != BitBoards[ EMPTY ]){ //while we have pawns to go through
+			moveVector.at(count)[0] = BitBoards[ W_PAWN ] & -BitBoards[ W_PAWN ]; //LS1B
+			moveVector.at(count)[1] = wAllPawnMoves(moveVector.at(count)[0], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]); //all its moves
+			count++;
+			BitBoards[ W_PAWN ] = BitBoards[ W_PAWN ] &  (BitBoards[ W_PAWN ]-1); //reset the LS1B so we can get the next pawn
+		}
+		
+		//knight moves
+		while((BitBoards[ W_KNIGHT ] & -BitBoards[ W_KNIGHT ]) != BitBoards[ EMPTY ]){ //while we have knights to go through
+			moveVector.at(count)[0] = BitBoards[ W_KNIGHT ] & -BitBoards[ W_KNIGHT ]; //LS1B
+			moveVector.at(count)[1] = AllWhiteKnightMoves(moveVector.at(count)[0], BitBoards[ W_PIECES ]); //all its moves
+			count++;
+			BitBoards[ W_KNIGHT ] = BitBoards[ W_KNIGHT ] &  (BitBoards[ W_KNIGHT ]-1); //reset the LS1B so we can get the next knight
+		}
+
+		//king moves
+		moveVector.at(count)[0] = BitBoards[ W_KING ];
+		moveVector.at(count)[1] = kingMoves(BitBoards[ W_KING ], BitBoards[ W_PIECES ]);
+		count++;
 
 
-	return moveCount;
+	}else if(_toMove == BLACK){
+		//pawn moves
+		while((BitBoards[ B_PAWN ] & -BitBoards[ B_PAWN ]) != BitBoards[ EMPTY ]){ //while we have pawns to go through
+			moveVector.at(count)[0] = BitBoards[ B_PAWN ] & -BitBoards[ B_PAWN ]; //LS1B
+			moveVector.at(count)[1] = bAllPawnMoves(moveVector.at(count)[0], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]); //all its moves
+			count++;
+			BitBoards[ B_PAWN ] = BitBoards[ B_PAWN ] &  (BitBoards[ B_PAWN ]-1); //reset the LS1B so we can get the next pawn
+		}
+
+		//knight moves
+		while((BitBoards[ B_KNIGHT ] & -BitBoards[ B_KNIGHT ]) != BitBoards[ EMPTY ]){ //while we have knights to go through
+			moveVector.at(count)[0] = BitBoards[ B_KNIGHT ] & -BitBoards[ B_KNIGHT ]; //LS1B
+			moveVector.at(count)[1] = AllBlackKnightMoves(moveVector.at(count)[0], BitBoards[ B_PIECES ]); //all its moves
+			count++;
+			BitBoards[ B_KNIGHT ] = BitBoards[ B_KNIGHT ] &  (BitBoards[ B_KNIGHT ]-1); //reset the LS1B so we can get the next knight
+		}
+
+		//king moves
+		moveVector.at(count)[0] = BitBoards[ B_KING ];
+		moveVector.at(count)[1] = kingMoves(BitBoards[ B_KING ], BitBoards[ B_PIECES ]);
+		count++;
+	}
+
+
+
+
+
+
+	return moveVector;
 }
 
 int *Position::getMap()
@@ -273,10 +361,10 @@ UI64 Position::bPawnSingleAttacks(UI64 b_pawn, UI64 w_pieces) {
 	@param Black pawns and white pieces
 	@return all possible white pawn moves
 */
-UI64 Position::wAllPawnMoves(UI64 BitBoards[]){
-	UI64 single = wSinglePushTargets(BitBoards[ W_PAWN ], BitBoards[ EMPTYSQUARES ]);
-	UI64 dbl = wDoublePushTargets(BitBoards[ W_PAWN ], BitBoards[ EMPTYSQUARES ]);
-	return wPawnAttacks(BitBoards[ W_PAWN ], BitBoards[ B_PIECES ]) | single | dbl;
+UI64 Position::wAllPawnMoves(UI64 w_pawn, UI64 emptysquares, UI64 b_pieces){
+	UI64 single = wSinglePushTargets(w_pawn, emptysquares);
+	UI64 dbl = wDoublePushTargets(w_pawn, emptysquares);
+	return wPawnAttacks(w_pawn, b_pieces) | single | dbl;
 }
 
 /**
@@ -286,10 +374,10 @@ UI64 Position::wAllPawnMoves(UI64 BitBoards[]){
 	@param Black pawns and white pieces
 	@return all possible black pawn moves
 */
-UI64 Position::bAllPawnMoves(UI64 BitBoards[]){
-	UI64 single = bSinglePushTargets(BitBoards[ B_PAWN ], BitBoards[ EMPTYSQUARES ]);
-	UI64 dbl = bDoublePushTargets(BitBoards[ B_PAWN ], BitBoards[ EMPTYSQUARES ]);
-	return bPawnAttacks(BitBoards[ B_PAWN ], BitBoards[ W_PIECES ]) | single | dbl;
+UI64 Position::bAllPawnMoves(UI64 b_pawn, UI64 emptysquares, UI64 w_pieces){
+	UI64 single = bSinglePushTargets(b_pawn, emptysquares);
+	UI64 dbl = bDoublePushTargets(b_pawn, emptysquares);
+	return bPawnAttacks(b_pawn, w_pieces) | single | dbl;
 }
 
 
@@ -543,10 +631,10 @@ UI64 Position::KsoSoWe(UI64 knight) {
 	@param BitBoards array
 	@return White Knight Moves
 */
-UI64 Position::AllWhiteKnightMoves(UI64 BitBoards[]){
-	UI64 knight = BitBoards[ W_KNIGHT ];
+UI64 Position::AllWhiteKnightMoves(UI64 w_knight, UI64 w_pieces){
+	UI64 knight = w_knight;
 	UI64 pseudolegal = (KnoNoEa(knight) | KnoEaEa(knight) | KsoEaEa( knight) | KsoSoEa(knight) | KnoNoWe(knight) | KnoWeWe(knight) | KsoWeWe(knight) | KsoSoWe(knight));
-	return pseudolegal & ~BitBoards[ W_PIECES ];
+	return pseudolegal & ~w_pieces;
 }
 
 /**
@@ -555,10 +643,10 @@ UI64 Position::AllWhiteKnightMoves(UI64 BitBoards[]){
 	@param BitBoards array
 	@return Black Knight Moves
 */
-UI64 Position::AllBlackKnightMoves(UI64 BitBoards[]){
-	UI64 knight = BitBoards[ B_KNIGHT ];
+UI64 Position::AllBlackKnightMoves(UI64 b_knight, UI64 b_pieces){
+	UI64 knight = b_knight;
 	UI64 pseudolegal = (KnoNoEa(knight) | KnoEaEa(knight) | KsoEaEa( knight) | KsoSoEa(knight) | KnoNoWe(knight) | KnoWeWe(knight) | KsoWeWe(knight) | KsoSoWe(knight));
-	return pseudolegal & ~BitBoards[ B_PIECES ];
+	return pseudolegal & ~b_pieces;
 }
 
  /**
