@@ -126,7 +126,7 @@ w_pawn &  (w_pawn-1) ==  w_pawn_with_reset_LS1B
 
 And then get the moves for second pawn.
 
-We can use the same logic for all pieces(except for king & queen).
+We can use the same logic for all pieces(except for king).
 
 	
 	@author Arttu Nieminen, Olli Koskinen, Christoffer Niska
@@ -174,6 +174,28 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			w_rook = w_rook & (w_rook-1);
 		}
 
+		//bishop moves
+		UI64 w_bishop = BitBoards[ W_BISHOP ];
+		while((w_bishop & -w_bishop) != BitBoards[ EMPTY ]){
+			std::vector<UI64> tempMove;
+			tempMove.insert(tempMove.end(), w_bishop & -w_bishop);
+			tempMove.insert(tempMove.end(), AllBishopMoves(w_bishop & -w_bishop, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]));
+			moveVector.insert(moveVector.end(), tempMove);
+			count++;
+			w_bishop = w_bishop & (w_bishop-1);
+		}
+
+		//queen moves
+		UI64 w_queen = BitBoards[ W_QUEEN ];
+		while((w_queen & -w_queen) != BitBoards[ EMPTY ]){
+			std::vector<UI64> tempMove;
+			tempMove.insert(tempMove.end(), w_queen & -w_queen);
+			tempMove.insert(tempMove.end(), queenMoves(w_queen & -w_queen, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]));
+			moveVector.insert(moveVector.end(), tempMove);
+			count++;
+			w_queen = w_queen & (w_queen-1);
+		}
+
 		//king moves
 		std::vector<UI64> tempMove;
 		tempMove.insert(tempMove.end(), BitBoards[ W_KING ]);
@@ -214,6 +236,27 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			moveVector.insert(moveVector.end(), tempMove);
 			count++;
 			b_rook = b_rook & (b_rook-1);
+		}
+		//bishop moves
+		UI64 b_bishop = BitBoards[ B_BISHOP ];
+		while((b_bishop & -b_bishop) != BitBoards[ EMPTY ]){
+			std::vector<UI64> tempMove;
+			tempMove.insert(tempMove.end(), b_bishop & -b_bishop);
+			tempMove.insert(tempMove.end(), AllBishopMoves(b_bishop & -b_bishop, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]));
+			moveVector.insert(moveVector.end(), tempMove);
+			count++;
+			b_bishop = b_bishop & (b_bishop-1);
+		}
+
+		//queen moves
+		UI64 b_queen = BitBoards[ B_QUEEN ];
+		while((b_queen & -b_queen) != BitBoards[ EMPTY ]){
+			std::vector<UI64> tempMove;
+			tempMove.insert(tempMove.end(), b_queen & -b_queen);
+			tempMove.insert(tempMove.end(), queenMoves(b_queen & -b_queen, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]));
+			moveVector.insert(moveVector.end(), tempMove);
+			count++;
+			b_queen = b_queen & (b_queen-1);
 		}
 
 		//king moves
@@ -828,3 +871,84 @@ UI64 Position::AllRookMoves(UI64 rooks, UI64 emptysquares, UI64 ownpieces){
 	return (rWest(rooks, emptysquares) | rEast(rooks, emptysquares) | rNorth(rooks, emptysquares) | rSouth(rooks, emptysquares)) & ~ownpieces;
 }
 
+/**
+	Bishop North East moves
+
+ 	@author Arttu Nieminen, Olli Koskinen
+	@param Bitboard of bishops, emptysquares
+	@return All bishop north east moves
+ */
+ UI64 Position::bishopNorthEast(UI64 bishop, UI64 emptysquares) {
+   emptysquares  = emptysquares & ~A_FILE;
+   bishop |= emptysquares & (bishop << 9); 
+   bishop |= emptysquares & (bishop << 9); 
+   bishop |= emptysquares & (bishop << 9); 
+   bishop |= emptysquares & (bishop << 9); 
+   bishop |= emptysquares & (bishop << 9); 
+   bishop |= emptysquares & (bishop << 9); 
+   return ~A_FILE & (bishop << 9);
+}
+
+ /**
+	Bishop North West moves
+
+ 	@author Arttu Nieminen, Olli Koskinen
+	@param Bitboard of bishops, emptysquares
+	@return All bishops West moves
+ */
+ UI64 Position::bishopNorthWest(UI64 bishop, UI64 emptysquares) {
+   emptysquares  = emptysquares & ~H_FILE;
+   bishop |= emptysquares & (bishop << 7); 
+   bishop |= emptysquares & (bishop << 7); 
+   bishop |= emptysquares & (bishop << 7); 
+   bishop |= emptysquares & (bishop << 7); 
+   bishop |= emptysquares & (bishop << 7); 
+   bishop |= emptysquares & (bishop << 7); 
+   return ~H_FILE & (bishop << 7);
+}
+
+/**
+	Rooks South West moves
+
+ 	@author Arttu Nieminen, Olli Koskinen
+	@param Bitboard of rooks, emptysquares
+	@return All bishops South West moves
+ */
+ UI64 Position::bishopSouthWest(UI64 bishop, UI64 emptysquares) {
+   emptysquares  = emptysquares & ~H_FILE;
+   bishop |= emptysquares & (bishop >> 9); 
+   bishop |= emptysquares & (bishop >> 9); 
+   bishop |= emptysquares & (bishop >> 9); 
+   bishop |= emptysquares & (bishop >> 9); 
+   bishop |= emptysquares & (bishop >> 9); 
+   bishop |= emptysquares & (bishop >> 9); 
+   return ~H_FILE & (bishop >> 9);
+}
+
+
+ /**
+	Rooks South East moves
+
+ 	@author Arttu Nieminen, Olli Koskinen
+	@param Bitboard of bishops, emptysquares
+	@return All bishops South East moves
+ */
+ UI64 Position::bishopSouthEast(UI64 bishop, UI64 emptysquares) {
+   emptysquares  = emptysquares & ~H_FILE;
+   bishop |= emptysquares & (bishop >> 7); 
+   bishop |= emptysquares & (bishop >> 7); 
+   bishop |= emptysquares & (bishop >> 7); 
+   bishop |= emptysquares & (bishop >> 7); 
+   bishop |= emptysquares & (bishop >> 7); 
+   bishop |= emptysquares & (bishop >> 7); 
+   return ~A_FILE & (bishop >> 7);
+}
+
+
+UI64 Position::AllBishopMoves(UI64 bishop, UI64 emptysquares, UI64 ownpieces){
+	return (bishopNorthEast(bishop, emptysquares) | bishopNorthWest(bishop, emptysquares) | bishopSouthEast(bishop, emptysquares) | bishopSouthWest(bishop, emptysquares))& ~ownpieces;
+}
+
+UI64 Position::queenMoves(UI64 queen, UI64 emptysquares, UI64 ownpieces){
+	return AllRookMoves(queen, emptysquares, ownpieces) | AllBishopMoves(queen, emptysquares, ownpieces);
+}

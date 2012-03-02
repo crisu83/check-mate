@@ -54,7 +54,14 @@ private:
 	UI64 rWest(UI64 rooks, UI64 emptysquares);
 	UI64 rNorth(UI64 rooks, UI64 emptysquares);
 	UI64 rSouth(UI64 rooks, UI64 emptysquares);
-
+	//bishop
+	UI64 bishopNorthEast(UI64 bishop, UI64 emptysquares);
+	UI64 bishopNorthWest(UI64 bishop, UI64 emptysquares);
+	UI64 bishopSouthEast(UI64 bishop, UI64 emptysquares);
+	UI64 bishopSouthWest(UI64 bishop, UI64 emptysquares);
+	UI64 AllBishopMoves(UI64 bishop, UI64 emptysquares, UI64 ownpieces);
+	//queen
+	UI64 queenMoves(UI64 queen, UI64 emptysquares, UI64 ownpieces);
 
 
 
