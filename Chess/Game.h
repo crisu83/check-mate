@@ -23,5 +23,6 @@ public:
 	void render();
 	void endTurn();
 	std::string getTurnName() const;
+	void printAllPossibleMoves();
 };
 

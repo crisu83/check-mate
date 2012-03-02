@@ -7,7 +7,7 @@
 
 typedef unsigned long long UI64;
 
-#define debug true
+#define debug false
 
 #include "targetver.h"
 

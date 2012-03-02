@@ -63,16 +63,12 @@ int Game::run(void)
 	Move *moveList = new Move[MAX_MOVES];
 	_turnNum = 0;
 	_running = true;
+
 	while (_running)
 	{
-		/*if (_curMove != NULL)
-		{
-			_board->execMove(_curMove);
-			endTurn();
-		}*/
-
 		//Check if the move is legal and prompt the user if not
-		do{
+		while(!_board->moveIsLegal(_curMove)){
+
 		// Render the game.
 		render();
 
@@ -84,10 +80,12 @@ int Game::run(void)
 		_curMove = new Move();
 		_curMove->strToMove(moveStr);
 
-		}while(!_board->moveIsLegal(*_curMove));
+		}
+
+		delete _curMove;
+		_curMove = NULL;
 
 		endTurn();
-
 		_turnNum++;
 	}
 
@@ -122,23 +120,18 @@ void Game::render(void)
 	// Render the board.
 	_board->render();
 
-	std::cout << std::endl;
-			
+	printAllPossibleMoves();
+
 	if (_curMove != NULL && _turnNum != 0)
 	{
-		std::cout << " Last move: ";
+		std::cout << "Last move: ";
 		_curMove->print();
 	}
 
-	std::cout << std::endl;
 
-	// todo: generate legal moves.
+	std::cout << "Turn "<<_turnNum<<" : " << getTurnName() << std::endl;
 
-	std::cout << " Turn "<<_turnNum<<" : " << getTurnName() << std::endl;
-
-	std::cout << std::endl;
-
-	std::cout << " Next move: ";
+	std::cout << "Next move: ";
 }
 
 /**
@@ -152,6 +145,27 @@ void Game::endTurn()
 	_toMove = _toMove == WHITE ? BLACK : WHITE;
 	_position->setToMove(_toMove);
 }
+
+
+/**
+	Prints in human readable form all the possible moves we have generated
+
+	@author Olli Koskinen, Arttu Nieminen
+	@return void
+*/
+void Game::printAllPossibleMoves(){
+	std::cout<<std::endl;
+	std::vector<std::string> str = _board->getMoveStrings();
+	int counter = 0;
+	for(int i = 0; i < str.size(); i++){
+		counter++;
+		std::cout<<str.at(i)<<",";
+		if(counter == 11)
+			std::cout<<std::endl, counter = 0;
+	}
+	std::cout<<std::endl;
+}
+
 
 /**
 	Returns the _toMove parameters std::string representative. 

@@ -40,7 +40,7 @@ public:
 	//TODO: Return something plx |
 	//							 V
 	void SquareBitToPos(UI64 square);
-	bool moveIsLegal(Move _curMove);
+	bool moveIsLegal(Move* _curMove);
 	void updateBitBoards(Move move, int type);
 	int  getPieceTypeAt(int x, int y);
 	UI64 getBitBoard( int type );
@@ -52,6 +52,9 @@ public:
 
 	Piece *getPieceAt(int x, int y);
 	void setPosition(Position *position);
+	std::vector<std::vector<UI64>> getLegalMoves();
+	std::vector<std::string> getMoveStrings();
+	std::string movesAsString(int x1, int y1, int x2, int y2);
 
 };
 
