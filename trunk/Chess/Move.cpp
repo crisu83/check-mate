@@ -110,7 +110,7 @@ void Move::strToMove(const char* str)
 /**
 	Prints the move as a human-readable string.
 
-	@author Christoffer Niska, Mikko Malmari
+	@author Christoffer Niska, Mikko Malmari, Olli Koskinen
 	@retrun void
 */
 void Move::print() const

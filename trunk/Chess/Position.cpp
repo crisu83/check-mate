@@ -129,7 +129,7 @@ And then get the moves for second pawn.
 We can use the same logic for all pieces(except for king).
 
 	
-	@author Arttu Nieminen, Olli Koskinen, Christoffer Niska
+	@author Arttu Nieminen, Olli Koskinen
 	@param moveList the list in which to store the moves
 	@return the number of legal moves
 */

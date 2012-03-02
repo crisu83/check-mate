@@ -367,14 +367,18 @@ void Board::SquareBitToPos(UI64 square){
 	@param square the bit representation of move
 	@return true if the move is legal
 */
-bool Board::moveIsLegal(Move _curMove){
-
-	if(getPieceAt(_curMove.getX1(),_curMove.getY1())-> getType() == 0){
+bool Board::moveIsLegal(Move *_curMove){
+	
+	if(_curMove == NULL){
 		return false;
 	}
 
-	int sourceIndex =	(_curMove.getX1()) + (_curMove.getY1()<<3);
-	int destIndex	=	(_curMove.getX2()) + (_curMove.getY2()<<3); 
+	if(getPieceAt(_curMove->getX1(),_curMove->getY1())-> getType() == 0){
+		return false;
+	}
+
+	int sourceIndex =	(_curMove->getX1()) + (_curMove->getY1()<<3);
+	int destIndex	=	(_curMove->getX2()) + (_curMove->getY2()<<3); 
 
 	std::vector<std::vector<UI64>> move = _position->genLegalMoves(_BitBoards);
 
@@ -384,7 +388,7 @@ bool Board::moveIsLegal(Move _curMove){
 
 		if( (source & _SquareBits[sourceIndex]) == _SquareBits[sourceIndex] ){
 			if( (destinations &  _SquareBits[ destIndex ]) == _SquareBits[destIndex] ){
-				updateBitBoards(_curMove, getPieceAt(_curMove.getX1(),_curMove.getY1())-> getType());
+				updateBitBoards(*_curMove, getPieceAt(_curMove->getX1(),_curMove->getY1())-> getType());
 				return true;
 			}
 		}
@@ -392,6 +396,78 @@ bool Board::moveIsLegal(Move _curMove){
 
 	return false;
 }
+
+/**
+	Gets the all the possible moves for current player in a vector<vector<UI64>> iterable format.
+	
+	@Author Olli Koskinen, Arttu Nieminen
+	@return vector<vector<UI64>> the moves
+
+*/
+std::vector<std::vector<UI64>> Board::getLegalMoves(){
+	return _position->genLegalMoves(_BitBoards);
+}
+
+/**
+	Gets the all the possible moves for current player in a vector<vector<UI64>> iterable format.
+	
+	@Author Olli Koskinen, Arttu Nieminen
+	@return vector<vector<UI64>> the moves
+
+*/
+std::vector<std::string> Board::getMoveStrings(){
+	std::vector<std::string> strVector;
+	std::string str;
+	std::vector<std::vector<UI64>> bitboards = getLegalMoves();
+	bool pointIsSet = false;
+
+	int x = 0,
+		y = 0,
+		x2 = 0,
+		y2 = 0;
+
+	//For each source piece we look every possible move in list
+	for(int i = 0; i <= bitboards.size()-1; i++){
+
+		UI64 source		  = bitboards.at(i).at(0);
+		UI64 destinations = bitboards.at(i).at(1);
+
+		for(int j = 0; j < SQUARES - 1; j++){
+			if((source & _SquareBits[ j ]) ==  _SquareBits[ j ] ){
+				int x =  j & 7;
+				int y =  j >> 3; 
+
+				for(int k = 0; k < SQUARES - 1; k++){
+					if ((destinations & _SquareBits[ k ]) ==  _SquareBits[ k ] ){
+
+						int x2 =  k & 7;
+						int y2 =  k >> 3; 
+
+						strVector.insert(strVector.end(), movesAsString(x,y,x2,y2)), pointIsSet = false;
+					}
+				}
+			}
+		}
+	}
+	return strVector;
+}
+/**
+	Prints the move as a human-readable string from given two points.
+
+	@author Christoffer Niska, Mikko Malmari, Olli Koskinen, Arttu Nieminen
+	@retrun std::string
+*/
+std::string Board::movesAsString(int x1, int y1, int x2, int y2){
+
+	std::string str;
+	str += LETTERS[x1];
+	str += '0' + (y1 +1 ); // amazing logic! Modified by Olli, The +1 is because we subtracted 1 
+	str += '-';			  //from the y coord for better indexin with arrays
+	str += LETTERS[x2];
+	str += '0' + (y2 + 1); // amazing logic again! And a gain, same as above.
+	return str;
+}
+
 
 Square *Board::getSquareAt(int x, int y)
 {
