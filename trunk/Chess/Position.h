@@ -49,9 +49,8 @@ private:
 	//king
 	UI64 wKingMoves(UI64 king, UI64 ownpieces, UI64 BitBoards[]);
 	UI64 bKingMoves(UI64 king, UI64 ownpieces, UI64 BitBoards[]);
-	UI64 bCheckEnemyAttacks(UI64 ownpiece, UI64 BitBoards[]);
+	UI64 bCheckEnemyAttacks(UI64 ownpiece, UI64 BitBoards[]); //to get the squares into whick king can't move because of enemy check
 	UI64 wCheckEnemyAttacks(UI64 ownpiece, UI64 BitBoards[]);
-	//to check if enemy attacks our piece
 	//rook
 	UI64 AllRookMoves(UI64 rooks, UI64 emptysquares, UI64 ownpieces);
 	UI64 rEast(UI64 rooks, UI64 emptysquares);
@@ -69,7 +68,12 @@ private:
 	//isCheck-functions
 	bool wIsCheck(UI64 BitBoards[]);
 	bool bIsCheck(UI64 BitBoards[]);
+	bool wIsPinned(UI64 ownpiece, UI64 BitBoards[]);
+	bool bIsPinned(UI64 ownpiece, UI64 BitBoards[]);
+	UI64 wMovesForPinned(UI64 ownpiece, UI64 moves, UI64 BitBoards[]);
+	UI64 bMovesForPinned(UI64 ownpiece, UI64 moves, UI64 BitBoards[]);
 
+	
 public:
 	Position(void);
 	~Position(void);
