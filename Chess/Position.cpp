@@ -145,10 +145,12 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			UI64 w_pawn = BitBoards[ W_PAWN ];
 			while((w_pawn & -w_pawn) != BitBoards[ EMPTY ]){ //while we have pawns to go through
 				std::vector<UI64> tempMove;
-				tempMove.insert(tempMove.end(), w_pawn & -w_pawn); //LS1B
-				tempMove.insert(tempMove.end(), wAllPawnMoves(w_pawn & -w_pawn, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]));
-				moveVector.insert(moveVector.end(), tempMove);
-				count++;
+				if(wIsPinned(w_pawn & -w_pawn, BitBoards) == false){
+					tempMove.insert(tempMove.end(), w_pawn & -w_pawn); //LS1B
+					tempMove.insert(tempMove.end(), wAllPawnMoves(w_pawn & -w_pawn, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]));
+					moveVector.insert(moveVector.end(), tempMove);
+					count++;
+				}
 				w_pawn = w_pawn &  (w_pawn-1); //reset the LS1B so we can get the next pawn
 			}
 		
@@ -156,10 +158,12 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			UI64 w_knight = BitBoards[ W_KNIGHT ];
 			while((w_knight & -w_knight) != BitBoards[ EMPTY ]){ //while we have knights to go through
 				std::vector<UI64> tempMove;
-				tempMove.insert(tempMove.end(), w_knight & -w_knight); //LS1B
-				tempMove.insert(tempMove.end(), AllWhiteKnightMoves(w_knight & -w_knight, BitBoards[ W_PIECES ])); //all its moves
-				moveVector.insert(moveVector.end(), tempMove);
-				count++;
+				if(wIsPinned(w_knight & -w_knight, BitBoards) == false){
+					tempMove.insert(tempMove.end(), w_knight & -w_knight); //LS1B
+					tempMove.insert(tempMove.end(), AllWhiteKnightMoves(w_knight & -w_knight, BitBoards[ W_PIECES ])); //all its moves
+					moveVector.insert(moveVector.end(), tempMove);
+					count++;
+				}
 				w_knight = w_knight &  (w_knight-1); //reset the LS1B so we can get the next knight
 			}
 
@@ -167,10 +171,17 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			UI64 w_rook = BitBoards[ W_ROOK ];
 			while((w_rook & -w_rook) != BitBoards[ EMPTY ]){
 				std::vector<UI64> tempMove;
-				tempMove.insert(tempMove.end(), w_rook & -w_rook);
-				tempMove.insert(tempMove.end(), AllRookMoves(w_rook & -w_rook, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]));
-				moveVector.insert(moveVector.end(), tempMove);
-				count++;
+				if(wIsPinned(w_rook & -w_rook, BitBoards) == false){
+					tempMove.insert(tempMove.end(), w_rook & -w_rook);
+					tempMove.insert(tempMove.end(), AllRookMoves(w_rook & -w_rook, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]));
+					moveVector.insert(moveVector.end(), tempMove);
+					count++;
+				}else{
+					tempMove.insert(tempMove.end(), w_rook & -w_rook);
+					tempMove.insert(tempMove.end(), wMovesForPinned(w_rook & -w_rook, AllRookMoves(w_rook & -w_rook, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]), BitBoards));
+					moveVector.insert(moveVector.end(), tempMove);
+					count++;
+				}
 				w_rook = w_rook & (w_rook-1);
 			}
 
@@ -178,10 +189,17 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			UI64 w_bishop = BitBoards[ W_BISHOP ];
 			while((w_bishop & -w_bishop) != BitBoards[ EMPTY ]){
 				std::vector<UI64> tempMove;
-				tempMove.insert(tempMove.end(), w_bishop & -w_bishop);
-				tempMove.insert(tempMove.end(), AllBishopMoves(w_bishop & -w_bishop, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]));
-				moveVector.insert(moveVector.end(), tempMove);
-				count++;
+				if(wIsPinned(w_bishop & -w_bishop, BitBoards) == false){
+					tempMove.insert(tempMove.end(), w_bishop & -w_bishop);
+					tempMove.insert(tempMove.end(), AllBishopMoves(w_bishop & -w_bishop, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]));
+					moveVector.insert(moveVector.end(), tempMove);
+					count++;
+				}else{
+					tempMove.insert(tempMove.end(), w_bishop & -w_bishop);
+					tempMove.insert(tempMove.end(), wMovesForPinned(w_bishop & -w_bishop, AllBishopMoves(w_bishop & -w_bishop, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]), BitBoards));
+					moveVector.insert(moveVector.end(), tempMove);
+					count++;
+				}
 				w_bishop = w_bishop & (w_bishop-1);
 			}
 
@@ -189,10 +207,17 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			UI64 w_queen = BitBoards[ W_QUEEN ];
 			while((w_queen & -w_queen) != BitBoards[ EMPTY ]){
 				std::vector<UI64> tempMove;
-				tempMove.insert(tempMove.end(), w_queen & -w_queen);
-				tempMove.insert(tempMove.end(), queenMoves(w_queen & -w_queen, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]));
-				moveVector.insert(moveVector.end(), tempMove);
-				count++;
+				if(wIsPinned(w_queen & -w_queen, BitBoards) == false){
+					tempMove.insert(tempMove.end(), w_queen & -w_queen);
+					tempMove.insert(tempMove.end(), queenMoves(w_queen & -w_queen, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]));
+					moveVector.insert(moveVector.end(), tempMove);
+					count++;
+				}else{
+					tempMove.insert(tempMove.end(), w_queen & -w_queen);
+					tempMove.insert(tempMove.end(), wMovesForPinned(w_queen & -w_queen, queenMoves(w_queen & -w_queen, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]), BitBoards));
+					moveVector.insert(moveVector.end(), tempMove);
+					count++;
+				}
 				w_queen = w_queen & (w_queen-1);
 			}
 
@@ -231,20 +256,34 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			UI64 b_rook = BitBoards[ B_ROOK ];
 			while((b_rook & -b_rook) != BitBoards[ EMPTY ]){
 				std::vector<UI64> tempMove;
-				tempMove.insert(tempMove.end(), b_rook & -b_rook);
-				tempMove.insert(tempMove.end(), AllRookMoves(b_rook & -b_rook, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]));
-				moveVector.insert(moveVector.end(), tempMove);
-				count++;
+				if(wIsPinned(b_rook & -b_rook, BitBoards) == false){
+					tempMove.insert(tempMove.end(), b_rook & -b_rook);
+					tempMove.insert(tempMove.end(), AllRookMoves(b_rook & -b_rook, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]));
+					moveVector.insert(moveVector.end(), tempMove);
+					count++;
+				}else{
+					tempMove.insert(tempMove.end(), b_rook & -b_rook);
+					tempMove.insert(tempMove.end(), wMovesForPinned(b_rook & -b_rook, AllRookMoves(b_rook & -b_rook, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]), BitBoards));
+					moveVector.insert(moveVector.end(), tempMove);
+					count++;
+				}
 				b_rook = b_rook & (b_rook-1);
 			}
 			//bishop moves
 			UI64 b_bishop = BitBoards[ B_BISHOP ];
 			while((b_bishop & -b_bishop) != BitBoards[ EMPTY ]){
 				std::vector<UI64> tempMove;
-				tempMove.insert(tempMove.end(), b_bishop & -b_bishop);
-				tempMove.insert(tempMove.end(), AllBishopMoves(b_bishop & -b_bishop, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]));
-				moveVector.insert(moveVector.end(), tempMove);
-				count++;
+				if(wIsPinned(b_bishop & -b_bishop, BitBoards) == false){
+					tempMove.insert(tempMove.end(), b_bishop & -b_bishop);
+					tempMove.insert(tempMove.end(), AllBishopMoves(b_bishop & -b_bishop, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]));
+					moveVector.insert(moveVector.end(), tempMove);
+					count++;
+				}else{
+					tempMove.insert(tempMove.end(), b_bishop & -b_bishop);
+					tempMove.insert(tempMove.end(), wMovesForPinned(b_bishop & -b_bishop, AllRookMoves(b_bishop & -b_bishop, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]), BitBoards));
+					moveVector.insert(moveVector.end(), tempMove);
+					count++;
+				}
 				b_bishop = b_bishop & (b_bishop-1);
 			}
 
@@ -252,10 +291,17 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			UI64 b_queen = BitBoards[ B_QUEEN ];
 			while((b_queen & -b_queen) != BitBoards[ EMPTY ]){
 				std::vector<UI64> tempMove;
-				tempMove.insert(tempMove.end(), b_queen & -b_queen);
-				tempMove.insert(tempMove.end(), queenMoves(b_queen & -b_queen, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]));
-				moveVector.insert(moveVector.end(), tempMove);
-				count++;
+				if(wIsPinned(b_queen & -b_queen, BitBoards) == false){
+					tempMove.insert(tempMove.end(), b_queen & -b_queen);
+					tempMove.insert(tempMove.end(), queenMoves(b_queen & -b_queen, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]));
+					moveVector.insert(moveVector.end(), tempMove);
+					count++;
+				}else{
+					tempMove.insert(tempMove.end(), b_queen & -b_queen);
+					tempMove.insert(tempMove.end(), wMovesForPinned(b_queen & -b_queen, AllRookMoves(b_queen & -b_queen, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]), BitBoards));
+					moveVector.insert(moveVector.end(), tempMove);
+					count++;
+				}
 				b_queen = b_queen & (b_queen-1);
 			}
 
@@ -1067,5 +1113,141 @@ UI64 Position::wCheckEnemyAttacks(UI64 ownpiece, UI64 BitBoards[]){
 	UI64 kingattacks =  wKingMoves(ownpiece, BitBoards[ W_PIECES ], BitBoards);
 	attacks |= queenMoves(BitBoards[ B_QUEEN ], (BitBoards[ EMPTYSQUARES ]), (BitBoards[ B_PIECES ]& ~kingattacks));
 	return attacks;
+}
+/**
+	Function for checking if White Piece is pinned
+
+	@author Arttu Nieminen, Olli Koskinen
+	@param ownpiece,Bitboards
+	@return true if piece is in pin
+
+*/
+bool Position::wIsPinned(UI64 ownpiece, UI64 BitBoards[]){
+	UI64 attacks = bPawnAttacks(BitBoards[ B_PAWN ], BitBoards[ B_PIECES ]);
+	attacks |= AllBlackKnightMoves(BitBoards[ B_KNIGHT ], BitBoards[ B_PIECES ]);
+	attacks |= AllRookMoves(BitBoards[ B_ROOK ], BitBoards[ EMPTYSQUARES ] | ownpiece, BitBoards[ B_PIECES ]);
+	attacks |= AllBishopMoves(BitBoards[ B_BISHOP ], BitBoards[ EMPTYSQUARES ] | ownpiece, BitBoards[ B_PIECES ]);
+	attacks |= queenMoves(BitBoards[ B_QUEEN ], (BitBoards[ EMPTYSQUARES ] | ownpiece), BitBoards[ B_PIECES ]);
+	if((attacks & BitBoards[ W_KING ]) != BitBoards[ EMPTY ]){
+		return true;
+	}else{
+		return false;
+	}
+}
+/**
+	Function for checking if Black Piece is pinned
+
+	
+board					BishopMoves				QueenMoves			The Bishop is in absolute pin, so we can't move it
+0 0 0 0 0 0 0 0			0 0 0 0 0 0 0 1			0 0 1 1 1 0 0 0	
+0 0 0 q 0 0 0 0         1 0 0 0 0 0 1 0         1 1 1 q 1 1 1 1
+0 0 0 0 0 0 0 0         0 1 0 0 0 1 0 0         0 0 1 1 1 0 0 0
+0 0 0 0 0 0 0 0         0 0 1 0 1 0 0 0         0 1 0 1 0 1 0 0
+0 0 0 B 0 0 0 0         0 0 0 B 0 0 0 0         1 0 0 1 0 0 1 0
+0 0 0 K 0 0 0 0         0 0 1 0 1 0 0 0         0 0 0 0 0 0 0 1
+0 0 0 0 0 0 0 0         0 1 0 0 0 1 0 0         0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0         1 0 0 0 0 0 1 0         0 0 0 0 0 0 0 0
+
+if we check queenmoves without the bishop we would find that it's a check
+
+queen moves without bishop (we get here				 if queenmoves without the bishop
+if we get queenmoves with 							 makes check, the piece is in pin
+param emptysquares & ~bishop)
+
+0 0 1 1 1 0 0 0										
+1 1 1 q 1 1 1 1
+0 0 1 1 1 0 0 0
+0 1 0 1 0 1 0 0
+1 0 0 1 0 0 1 0
+0 0 0 1 0 0 0 1
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+
+This way we can get if piece is in a pin, but not whether it's absolute or partial pin
+
+Example of a partial pin							pseudo-legal bishop moves		legal bishop moves
+Bishop can move towards queen but nowhere else		
+0 0 0 0 0 0 0 0										0 0 0 0 0 0 0 0					0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0                                     0 0 0 0 0 0 0 0                 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0                                     0 0 0 0 0 0 0 1                 0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0                                     0 0 0 0 0 0 1 0                 0 0 0 0 0 0 0 0
+0 q 0 0 0 0 0 0                                     0 1 0 0 0 1 0 0                 0 1 0 0 0 0 0 0
+0 0 0 0 0 0 0 0                                     0 0 1 0 1 0 0 0                 0 0 1 0 0 0 0 0
+0 0 0 B 0 0 0 0                                     0 0 0 B 0 0 0 0                 0 0 0 B 0 0 0 0
+0 0 0 0 K 0 0 0                                     0 0 1 0 K 0 0 0                 0 0 0 0 K 0 0 0
+
+let's get the moves for straight movements and for diagonal(we have to worry only for bishop & rook moves)
+											
+											we can then AND both with pinned pieces movements
+											
+North&South				Diagonal			Diagonal & Bishopmoves
+0 1 0 0 0 0 0 0			0 0 0 0 0 1 0 0		0 0 0 0 0 0 0 0
+0 1 0 0 0 0 0 0         0 0 0 0 1 0 0 0     0 0 0 0 0 0 0 0
+0 1 0 0 0 0 0 0         0 0 0 1 0 0 0 0     0 0 0 0 0 0 0 0
+0 1 0 0 0 0 0 0         1 0 1 0 0 0 0 0     0 0 0 0 0 0 0 0
+0 q 0 0 0 0 0 0         0 q 0 0 0 0 0 0     0 1 0 0 0 0 0 0
+0 1 0 0 0 0 0 0         1 0 1 0 0 0 0 0     0 0 1 0 0 0 0 0
+0 1 0 B 0 0 0 0         0 0 0 B 0 0 0 0     0 0 0 B 0 0 0 0
+0 1 0 0 K 0 0 0         0 0 0 0 K 0 0 0     0 0 0 0 K 0 0 0
+
+
+
+
+
+	@author Arttu Nieminen, Olli Koskinen
+	@param ownpiece,Bitboards
+	@return true if piece is in pin
+
+*/
+bool Position::bIsPinned(UI64 ownpiece, UI64 BitBoards[]){
+	UI64 attacks = wPawnAttacks(BitBoards[ W_PAWN ], BitBoards[ W_PIECES ]);
+	attacks |= AllWhiteKnightMoves(BitBoards[ W_KNIGHT ], BitBoards[ W_PIECES ]);
+	attacks |= AllRookMoves(BitBoards[ W_ROOK ], BitBoards[ EMPTYSQUARES ] | ownpiece, BitBoards[ W_PIECES ]);
+	attacks |= AllBishopMoves(BitBoards[ W_BISHOP ], BitBoards[ EMPTYSQUARES ] | ownpiece, BitBoards[ W_PIECES ]);
+	attacks |= queenMoves(BitBoards[ W_QUEEN ], (BitBoards[ EMPTYSQUARES ] | ownpiece), BitBoards[ W_PIECES ]);
+	if((attacks & BitBoards[ W_KING ]) != BitBoards[ EMPTY ]){
+		return true;
+	}else{
+		return false;
+	}
+}
+/**
+	Moves for a white piece that's in pin
+
+	@author Arttu Nieminen, Olli Koskinen
+	@param ownpiece, moves, Bitboards
+	@return bitboard of possible moves
+
+*/
+UI64 Position::wMovesForPinned(UI64 ownpiece, UI64 moves, UI64 BitBoards[]){
+		UI64 bishopMoves = AllBishopMoves(BitBoards[ B_BISHOP ] | BitBoards[ B_QUEEN ], BitBoards[ EMPTYSQUARES ] | ownpiece, BitBoards[ B_PIECES ]);
+		bishopMoves |= BitBoards[ B_ROOK ] | BitBoards[ B_QUEEN ];
+		UI64 rookMoves = AllRookMoves(BitBoards[ B_ROOK ] | BitBoards[ B_QUEEN ], BitBoards[ EMPTYSQUARES ] | ownpiece, BitBoards[ B_PIECES ]);
+		rookMoves = BitBoards[ B_ROOK ] | BitBoards[ B_QUEEN ];
+		if((bishopMoves & BitBoards[ W_KING ]) != BitBoards[ EMPTY ]){
+			return bishopMoves & moves;
+		}else if((rookMoves & BitBoards[ W_KING ]) != BitBoards[ EMPTY ]){
+			return rookMoves & moves;
+		}
+}
+
+/**
+	Moves for a black piece that's in pin
+
+	@author Arttu Nieminen, Olli Koskinen
+	@param ownpiece, moves, Bitboards
+	@return bitboard of possible moves
+
+*/
+UI64 Position::bMovesForPinned(UI64 ownpiece, UI64 moves, UI64 BitBoards[]){
+		UI64 bishopMoves = AllBishopMoves(BitBoards[ W_BISHOP ] | BitBoards[ W_QUEEN ], BitBoards[ EMPTYSQUARES ] | ownpiece, BitBoards[ W_PIECES ]);
+		bishopMoves |= BitBoards[ W_ROOK ] | BitBoards[ W_QUEEN ];
+		UI64 rookMoves = AllRookMoves(BitBoards[ W_ROOK ] | BitBoards[ W_QUEEN ], BitBoards[ EMPTYSQUARES ] | ownpiece, BitBoards[ W_PIECES ]);
+		rookMoves = BitBoards[ W_ROOK ] | BitBoards[ W_QUEEN ];
+		if((bishopMoves & BitBoards[ B_KING ]) != BitBoards[ EMPTY ]){
+			return bishopMoves & moves;
+		}else if((rookMoves & BitBoards[ B_KING ]) != BitBoards[ EMPTY ]){
+			return rookMoves & moves;
+		}
 }
 
