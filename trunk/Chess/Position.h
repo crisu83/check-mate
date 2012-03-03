@@ -62,8 +62,9 @@ private:
 	UI64 AllBishopMoves(UI64 bishop, UI64 emptysquares, UI64 ownpieces);
 	//queen
 	UI64 queenMoves(UI64 queen, UI64 emptysquares, UI64 ownpieces);
-
-
+	//isCheck-functions
+	bool wIsCheck(UI64 BitBoards[]);
+	bool bIsCheck(UI64 BitBoards[]);
 
 public:
 	Position(void);

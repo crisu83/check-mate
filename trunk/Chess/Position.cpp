@@ -140,131 +140,132 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 	int count = 0;
 
 	if(this->_toMove == WHITE){
-
-		//pawn moves
-		UI64 w_pawn = BitBoards[ W_PAWN ];
-		while((w_pawn & -w_pawn) != BitBoards[ EMPTY ]){ //while we have pawns to go through
-			std::vector<UI64> tempMove;
-			tempMove.insert(tempMove.end(), w_pawn & -w_pawn); //LS1B
-			tempMove.insert(tempMove.end(), wAllPawnMoves(w_pawn & -w_pawn, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]));
-			moveVector.insert(moveVector.end(), tempMove);
-			count++;
-			w_pawn = w_pawn &  (w_pawn-1); //reset the LS1B so we can get the next pawn
-		}
+		if(wIsCheck(BitBoards) == false){
+			//pawn moves
+			UI64 w_pawn = BitBoards[ W_PAWN ];
+			while((w_pawn & -w_pawn) != BitBoards[ EMPTY ]){ //while we have pawns to go through
+				std::vector<UI64> tempMove;
+				tempMove.insert(tempMove.end(), w_pawn & -w_pawn); //LS1B
+				tempMove.insert(tempMove.end(), wAllPawnMoves(w_pawn & -w_pawn, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]));
+				moveVector.insert(moveVector.end(), tempMove);
+				count++;
+				w_pawn = w_pawn &  (w_pawn-1); //reset the LS1B so we can get the next pawn
+			}
 		
-		//knight moves
-		UI64 w_knight = BitBoards[ W_KNIGHT ];
-		while((w_knight & -w_knight) != BitBoards[ EMPTY ]){ //while we have knights to go through
-			std::vector<UI64> tempMove;
-			tempMove.insert(tempMove.end(), w_knight & -w_knight); //LS1B
-			tempMove.insert(tempMove.end(), AllWhiteKnightMoves(w_knight & -w_knight, BitBoards[ W_PIECES ])); //all its moves
-			moveVector.insert(moveVector.end(), tempMove);
-			count++;
-			w_knight = w_knight &  (w_knight-1); //reset the LS1B so we can get the next knight
-		}
+			//knight moves
+			UI64 w_knight = BitBoards[ W_KNIGHT ];
+			while((w_knight & -w_knight) != BitBoards[ EMPTY ]){ //while we have knights to go through
+				std::vector<UI64> tempMove;
+				tempMove.insert(tempMove.end(), w_knight & -w_knight); //LS1B
+				tempMove.insert(tempMove.end(), AllWhiteKnightMoves(w_knight & -w_knight, BitBoards[ W_PIECES ])); //all its moves
+				moveVector.insert(moveVector.end(), tempMove);
+				count++;
+				w_knight = w_knight &  (w_knight-1); //reset the LS1B so we can get the next knight
+			}
 
-		//rook moves
-		UI64 w_rook = BitBoards[ W_ROOK ];
-		while((w_rook & -w_rook) != BitBoards[ EMPTY ]){
-			std::vector<UI64> tempMove;
-			tempMove.insert(tempMove.end(), w_rook & -w_rook);
-			tempMove.insert(tempMove.end(), AllRookMoves(w_rook & -w_rook, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]));
-			moveVector.insert(moveVector.end(), tempMove);
-			count++;
-			w_rook = w_rook & (w_rook-1);
-		}
+			//rook moves
+			UI64 w_rook = BitBoards[ W_ROOK ];
+			while((w_rook & -w_rook) != BitBoards[ EMPTY ]){
+				std::vector<UI64> tempMove;
+				tempMove.insert(tempMove.end(), w_rook & -w_rook);
+				tempMove.insert(tempMove.end(), AllRookMoves(w_rook & -w_rook, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]));
+				moveVector.insert(moveVector.end(), tempMove);
+				count++;
+				w_rook = w_rook & (w_rook-1);
+			}
 
-		//bishop moves
-		UI64 w_bishop = BitBoards[ W_BISHOP ];
-		while((w_bishop & -w_bishop) != BitBoards[ EMPTY ]){
-			std::vector<UI64> tempMove;
-			tempMove.insert(tempMove.end(), w_bishop & -w_bishop);
-			tempMove.insert(tempMove.end(), AllBishopMoves(w_bishop & -w_bishop, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]));
-			moveVector.insert(moveVector.end(), tempMove);
-			count++;
-			w_bishop = w_bishop & (w_bishop-1);
-		}
+			//bishop moves
+			UI64 w_bishop = BitBoards[ W_BISHOP ];
+			while((w_bishop & -w_bishop) != BitBoards[ EMPTY ]){
+				std::vector<UI64> tempMove;
+				tempMove.insert(tempMove.end(), w_bishop & -w_bishop);
+				tempMove.insert(tempMove.end(), AllBishopMoves(w_bishop & -w_bishop, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]));
+				moveVector.insert(moveVector.end(), tempMove);
+				count++;
+				w_bishop = w_bishop & (w_bishop-1);
+			}
 
-		//queen moves
-		UI64 w_queen = BitBoards[ W_QUEEN ];
-		while((w_queen & -w_queen) != BitBoards[ EMPTY ]){
-			std::vector<UI64> tempMove;
-			tempMove.insert(tempMove.end(), w_queen & -w_queen);
-			tempMove.insert(tempMove.end(), queenMoves(w_queen & -w_queen, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]));
-			moveVector.insert(moveVector.end(), tempMove);
-			count++;
-			w_queen = w_queen & (w_queen-1);
-		}
+			//queen moves
+			UI64 w_queen = BitBoards[ W_QUEEN ];
+			while((w_queen & -w_queen) != BitBoards[ EMPTY ]){
+				std::vector<UI64> tempMove;
+				tempMove.insert(tempMove.end(), w_queen & -w_queen);
+				tempMove.insert(tempMove.end(), queenMoves(w_queen & -w_queen, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]));
+				moveVector.insert(moveVector.end(), tempMove);
+				count++;
+				w_queen = w_queen & (w_queen-1);
+			}
 
-		//king moves
-		std::vector<UI64> tempMove;
-		tempMove.insert(tempMove.end(), BitBoards[ W_KING ]);
-		tempMove.insert(tempMove.end(),kingMoves(BitBoards[ W_KING ], BitBoards[ W_PIECES ]));
-		count++;
-		moveVector.insert(moveVector.end(), tempMove);
-		
+			//king moves
+			std::vector<UI64> tempMove;
+			tempMove.insert(tempMove.end(), BitBoards[ W_KING ]);
+			tempMove.insert(tempMove.end(),kingMoves(BitBoards[ W_KING ], BitBoards[ W_PIECES ]));
+			count++;
+			moveVector.insert(moveVector.end(), tempMove);
+		}
 
 	}else if(_toMove == BLACK){
+		if(bIsCheck(BitBoards) == false){
+			//pawn moves
+			UI64 b_pawn = BitBoards[ B_PAWN ];
+			while((b_pawn & -b_pawn) != BitBoards[ EMPTY ]){ //while we have pawns to go through
+				std::vector<UI64> tempMove;
+				tempMove.insert(tempMove.end(), b_pawn & -b_pawn); //LS1B
+				tempMove.insert(tempMove.end(),bAllPawnMoves(b_pawn & -b_pawn, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ])); //all its moves
+				count++;
+				b_pawn = b_pawn &  (b_pawn-1); //reset the LS1B so we can get the next pawn
+				moveVector.insert(moveVector.end(), tempMove);
+			}
 
-		//pawn moves
-		UI64 b_pawn = BitBoards[ B_PAWN ];
-		while((b_pawn & -b_pawn) != BitBoards[ EMPTY ]){ //while we have pawns to go through
-			std::vector<UI64> tempMove;
-			tempMove.insert(tempMove.end(), b_pawn & -b_pawn); //LS1B
-			tempMove.insert(tempMove.end(),bAllPawnMoves(b_pawn & -b_pawn, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ])); //all its moves
-			count++;
-			b_pawn = b_pawn &  (b_pawn-1); //reset the LS1B so we can get the next pawn
-			moveVector.insert(moveVector.end(), tempMove);
-		}
+			//knight moves
+			UI64 b_knight = BitBoards[ B_KNIGHT ];
+			while((b_knight & -b_knight) != BitBoards[ EMPTY ]){ //while we have knights to go through
+				std::vector<UI64> tempMove;
+				tempMove.insert(tempMove.end(), b_knight & -b_knight); //LS1B
+				tempMove.insert(tempMove.end(),AllBlackKnightMoves(b_knight & -b_knight, BitBoards[ B_PIECES ])); //all its moves
+				count++;
+				b_knight = b_knight &  (b_knight-1); //reset the LS1B so we can get the next knight
+				moveVector.insert(moveVector.end(), tempMove);
+			}
+			//rook moves
+			UI64 b_rook = BitBoards[ B_ROOK ];
+			while((b_rook & -b_rook) != BitBoards[ EMPTY ]){
+				std::vector<UI64> tempMove;
+				tempMove.insert(tempMove.end(), b_rook & -b_rook);
+				tempMove.insert(tempMove.end(), AllRookMoves(b_rook & -b_rook, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]));
+				moveVector.insert(moveVector.end(), tempMove);
+				count++;
+				b_rook = b_rook & (b_rook-1);
+			}
+			//bishop moves
+			UI64 b_bishop = BitBoards[ B_BISHOP ];
+			while((b_bishop & -b_bishop) != BitBoards[ EMPTY ]){
+				std::vector<UI64> tempMove;
+				tempMove.insert(tempMove.end(), b_bishop & -b_bishop);
+				tempMove.insert(tempMove.end(), AllBishopMoves(b_bishop & -b_bishop, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]));
+				moveVector.insert(moveVector.end(), tempMove);
+				count++;
+				b_bishop = b_bishop & (b_bishop-1);
+			}
 
-		//knight moves
-		UI64 b_knight = BitBoards[ B_KNIGHT ];
-		while((b_knight & -b_knight) != BitBoards[ EMPTY ]){ //while we have knights to go through
-			std::vector<UI64> tempMove;
-			tempMove.insert(tempMove.end(), b_knight & -b_knight); //LS1B
-			tempMove.insert(tempMove.end(),AllBlackKnightMoves(b_knight & -b_knight, BitBoards[ B_PIECES ])); //all its moves
-			count++;
-			b_knight = b_knight &  (b_knight-1); //reset the LS1B so we can get the next knight
-			moveVector.insert(moveVector.end(), tempMove);
-		}
-		//rook moves
-		UI64 b_rook = BitBoards[ B_ROOK ];
-		while((b_rook & -b_rook) != BitBoards[ EMPTY ]){
-			std::vector<UI64> tempMove;
-			tempMove.insert(tempMove.end(), b_rook & -b_rook);
-			tempMove.insert(tempMove.end(), AllRookMoves(b_rook & -b_rook, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]));
-			moveVector.insert(moveVector.end(), tempMove);
-			count++;
-			b_rook = b_rook & (b_rook-1);
-		}
-		//bishop moves
-		UI64 b_bishop = BitBoards[ B_BISHOP ];
-		while((b_bishop & -b_bishop) != BitBoards[ EMPTY ]){
-			std::vector<UI64> tempMove;
-			tempMove.insert(tempMove.end(), b_bishop & -b_bishop);
-			tempMove.insert(tempMove.end(), AllBishopMoves(b_bishop & -b_bishop, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]));
-			moveVector.insert(moveVector.end(), tempMove);
-			count++;
-			b_bishop = b_bishop & (b_bishop-1);
-		}
+			//queen moves
+			UI64 b_queen = BitBoards[ B_QUEEN ];
+			while((b_queen & -b_queen) != BitBoards[ EMPTY ]){
+				std::vector<UI64> tempMove;
+				tempMove.insert(tempMove.end(), b_queen & -b_queen);
+				tempMove.insert(tempMove.end(), queenMoves(b_queen & -b_queen, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]));
+				moveVector.insert(moveVector.end(), tempMove);
+				count++;
+				b_queen = b_queen & (b_queen-1);
+			}
 
-		//queen moves
-		UI64 b_queen = BitBoards[ B_QUEEN ];
-		while((b_queen & -b_queen) != BitBoards[ EMPTY ]){
+			//king moves
 			std::vector<UI64> tempMove;
-			tempMove.insert(tempMove.end(), b_queen & -b_queen);
-			tempMove.insert(tempMove.end(), queenMoves(b_queen & -b_queen, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]));
-			moveVector.insert(moveVector.end(), tempMove);
+			tempMove.insert(tempMove.end(),BitBoards[ B_KING ]);
+			tempMove.insert(tempMove.end(),kingMoves(BitBoards[ B_KING ], BitBoards[ B_PIECES ]));
 			count++;
-			b_queen = b_queen & (b_queen-1);
+			moveVector.insert(moveVector.end(), tempMove);
 		}
-
-		//king moves
-		std::vector<UI64> tempMove;
-		tempMove.insert(tempMove.end(),BitBoards[ B_KING ]);
-		tempMove.insert(tempMove.end(),kingMoves(BitBoards[ B_KING ], BitBoards[ B_PIECES ]));
-		count++;
-		moveVector.insert(moveVector.end(), tempMove);
 	}
 			return moveVector;
 }
@@ -951,4 +952,32 @@ UI64 Position::AllBishopMoves(UI64 bishop, UI64 emptysquares, UI64 ownpieces){
 
 UI64 Position::queenMoves(UI64 queen, UI64 emptysquares, UI64 ownpieces){
 	return AllRookMoves(queen, emptysquares, ownpieces) | AllBishopMoves(queen, emptysquares, ownpieces);
+}
+
+bool Position::wIsCheck(UI64 BitBoards[]) {
+	UI64 ownking = BitBoards[ W_KING ];
+	UI64 attacks = bPawnAttacks(BitBoards[ B_PAWN ], BitBoards[ B_PIECES ]);
+	attacks |= AllBlackKnightMoves(BitBoards[ B_KNIGHT ], BitBoards[ B_PIECES ]);
+	attacks |= AllRookMoves(BitBoards[ B_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]);
+	attacks |= AllBishopMoves(BitBoards[ B_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]);
+	attacks |= queenMoves(BitBoards[ B_QUEEN ], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]);
+	if((attacks & ownking) != BitBoards[ EMPTY ]){
+		return true;
+	}else{
+		return false;
+	}
+}
+
+bool Position::bIsCheck(UI64 BitBoards[]) {
+	UI64 ownking = BitBoards[ B_KING ];
+	UI64 attacks = bPawnAttacks(BitBoards[ W_PAWN ], BitBoards[ W_PIECES ]);
+	attacks |= AllWhiteKnightMoves(BitBoards[ W_KNIGHT ], BitBoards[ W_PIECES ]);
+	attacks |= AllRookMoves(BitBoards[ W_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
+	attacks |= AllBishopMoves(BitBoards[ W_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
+	attacks |= queenMoves(BitBoards[ W_QUEEN ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
+	if((attacks & ownking) != BitBoards[ EMPTY ]){
+		return true;
+	}else{
+		return false;
+	}
 }
