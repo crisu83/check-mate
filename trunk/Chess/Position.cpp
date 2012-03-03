@@ -876,6 +876,14 @@ king					 king << 1			|    	king >> 1			==
    return (rooks >> 8);
 }
 
+/**
+	All Rook Moves
+
+ 	@author Arttu Nieminen, Olli Koskinen
+	@param Bitboard of rooks, emptysquares, ownpieces
+	@return All rook moves
+
+*/
 UI64 Position::AllRookMoves(UI64 rooks, UI64 emptysquares, UI64 ownpieces){
 	return (rWest(rooks, emptysquares) | rEast(rooks, emptysquares) | rNorth(rooks, emptysquares) | rSouth(rooks, emptysquares)) & ~ownpieces;
 }
@@ -953,15 +961,34 @@ UI64 Position::AllRookMoves(UI64 rooks, UI64 emptysquares, UI64 ownpieces){
    return ~A_FILE & (bishop >> 7);
 }
 
+/**
+	All Bishop Moves
 
+ 	@author Arttu Nieminen, Olli Koskinen
+	@param Bitboard of bishops, emptysquares, ownpieces
+	@return All bishops moves
+ */
 UI64 Position::AllBishopMoves(UI64 bishop, UI64 emptysquares, UI64 ownpieces){
 	return (bishopNorthEast(bishop, emptysquares) | bishopNorthWest(bishop, emptysquares) | bishopSouthEast(bishop, emptysquares) | bishopSouthWest(bishop, emptysquares))& ~ownpieces;
 }
 
+/**
+	All Queen Moves
+
+ 	@author Arttu Nieminen, Olli Koskinen
+	@param Bitboard of bishops, emptysquares, ownpieces
+	@return All queens moves
+ */
 UI64 Position::queenMoves(UI64 queen, UI64 emptysquares, UI64 ownpieces){
 	return AllRookMoves(queen, emptysquares, ownpieces) | AllBishopMoves(queen, emptysquares, ownpieces);
 }
+/**
+	Is White in Check
 
+ 	@author Arttu Nieminen, Olli Koskinen
+	@param Bitboards
+	@return true if White is in check
+ */
 bool Position::wIsCheck(UI64 BitBoards[]) {
 	UI64 ownking = BitBoards[ W_KING ];
 	UI64 attacks = wCheckEnemyAttacks(ownking, BitBoards);
@@ -972,6 +999,13 @@ bool Position::wIsCheck(UI64 BitBoards[]) {
 	}
 }
 
+/**
+	Is Black in Check
+
+ 	@author Arttu Nieminen, Olli Koskinen
+	@param Bitboards
+	@return true if black is in check
+ */
 bool Position::bIsCheck(UI64 BitBoards[]) {
 	UI64 ownking = BitBoards[ B_KING ];
 	UI64 attacks = bCheckEnemyAttacks(ownking, BitBoards);
@@ -981,16 +1015,50 @@ bool Position::bIsCheck(UI64 BitBoards[]) {
 		return false;
 	}
 }
-//returns all white attacks
+
+
+/*
+	Function for getting those moves King can't take because they make check for enemy
+
+for example
+How to check that e3-e4 		if we get queen attacks we don't get the e4
+is illegal in this situation	queenattacks								kingattacks (this should be illegal)
+0 0 0 0 0 0 0 0					0 0 1 0 0 0 1 0								0 0 0 0 0 0 0 0	
+0 0 0 0 0 0 0 0                 0 0 1 0 0 1 0 0                             0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0                 1 0 1 0 1 0 0 0                             0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0                 0 1 1 1 0 0 0 0                             0 0 0 0 0 0 0 0
+0 0 q 0 p 0 0 0                 1 1 q 1 0 0 0 0                             0 0 0 0 1 0 0 0
+0 0 0 0 K 0 0 0                 0 1 1 1 0 0 0 0                             0 0 0 0 K 0 0 0
+0 0 0 0 0 0 0 0                 1 0 1 0 1 0 0 0                             0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0                 0 0 1 0 0 1 0 0                             0 0 0 0 0 0 0 0
+
+	So we need to reset the pawn in enemypawns which king can attack, so we get the queen move which makes the kingattack illegal
+
+enemypieces to give to queenattacks(enemypieces & ~kingattacks)   queenattacks after
+0 0 0 0 0 0 0 0														0 0 1 0 0 0 1 0		
+0 0 0 0 0 0 0 0                                                     0 0 1 0 0 1 0 0
+0 0 0 0 0 0 0 0                                                     1 0 1 0 1 0 0 0
+0 0 0 0 0 0 0 0                                                     0 1 1 1 0 0 0 0
+0 0 0 0 0 0 0 0                                                     1 1 0 1 1 1 1 1
+0 0 0 0 0 0 0 0                                                     0 1 1 1 0 0 0 0
+0 0 0 0 0 0 0 0                                                     1 0 1 0 1 0 0 0
+0 0 0 0 0 0 0 0                                                     0 0 1 0 0 1 0 0
+
+
+	@author Arttu Nieminen, Olli Koskinen
+	@param ownpiece,Bitboards
+	@return bitboard of the squares which king can't move into
+
+*/
 UI64 Position::bCheckEnemyAttacks(UI64 ownpiece, UI64 BitBoards[]){;
 	UI64 attacks = bPawnAttacks(BitBoards[ W_PAWN ], BitBoards[ W_PIECES ]);
 	attacks |= AllWhiteKnightMoves(BitBoards[ W_KNIGHT ], BitBoards[ W_PIECES ]);
 	attacks |= AllRookMoves(BitBoards[ W_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
 	attacks |= AllBishopMoves(BitBoards[ W_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
-	attacks |= queenMoves(BitBoards[ W_QUEEN ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
+	UI64 kingattacks =  bKingMoves(ownpiece, BitBoards[ B_PIECES ], BitBoards);
+	attacks |= queenMoves(BitBoards[ W_QUEEN ], BitBoards[ EMPTYSQUARES ], (BitBoards[ W_PIECES ]& ~kingattacks));
 	return attacks;
 }
-//return all black attacks
 UI64 Position::wCheckEnemyAttacks(UI64 ownpiece, UI64 BitBoards[]){
 	UI64 attacks = bPawnAttacks(BitBoards[ B_PAWN ], BitBoards[ B_PIECES ]);
 	attacks |= AllBlackKnightMoves(BitBoards[ B_KNIGHT ], BitBoards[ B_PIECES ]);
@@ -1000,3 +1068,4 @@ UI64 Position::wCheckEnemyAttacks(UI64 ownpiece, UI64 BitBoards[]){
 	attacks |= queenMoves(BitBoards[ B_QUEEN ], (BitBoards[ EMPTYSQUARES ]), (BitBoards[ B_PIECES ]& ~kingattacks));
 	return attacks;
 }
+
