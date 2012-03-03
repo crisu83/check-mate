@@ -47,7 +47,11 @@ private:
 	UI64 AllWhiteKnightMoves(UI64 w_knight, UI64 w_pieces);
 	UI64 AllBlackKnightMoves(UI64 b_knight, UI64 b_pieces);
 	//king
-	UI64 kingMoves(UI64 king, UI64 ownpieces);
+	UI64 wKingMoves(UI64 king, UI64 ownpieces, UI64 BitBoards[]);
+	UI64 bKingMoves(UI64 king, UI64 ownpieces, UI64 BitBoards[]);
+	UI64 bCheckEnemyAttacks(UI64 BitBoards[]);
+	UI64 wCheckEnemyAttacks(UI64 BitBoards[]);
+	//to check if enemy attacks our piece
 	//rook
 	UI64 AllRookMoves(UI64 rooks, UI64 emptysquares, UI64 ownpieces);
 	UI64 rEast(UI64 rooks, UI64 emptysquares);
