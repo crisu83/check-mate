@@ -3,7 +3,7 @@
 
 //some constants
 #define SQUARES 64
-#define BITBOARDS 16
+#define BITBOARDS 17
 #define A_FILE  0x0101010101010101
 #define B_FILE	0x202020202020202
 #define C_FILE	0x404040404040404

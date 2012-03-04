@@ -1528,6 +1528,14 @@ UI64 Position::bMovesForPinned(UI64 ownpiece, UI64 moves, UI64 BitBoards[]){
 		return attacks & moves;
 }
 
+/**
+	Moves for white king to escape the check
+
+	@author Arttu Nieminen, Olli Koskinen
+	@param king, Bitboards
+	@return bitboard of possible moves
+
+*/
 UI64 Position::wEscapeMoves(UI64 king, UI64 BitBoards[]){
 	UI64 attacks = bPawnAttacks(BitBoards[ B_PAWN ], BitBoards[ B_PIECES ]);
 	attacks |= AllBlackKnightMoves(BitBoards[ B_KNIGHT ], BitBoards[ B_PIECES ]);
@@ -1537,7 +1545,14 @@ UI64 Position::wEscapeMoves(UI64 king, UI64 BitBoards[]){
 	UI64 kingmoves = wKingMoves(king, BitBoards[ W_PIECES ], BitBoards);
 	return kingmoves & ~attacks;
 }
+/**
+	Moves for black king to escape the check
 
+	@author Arttu Nieminen, Olli Koskinen
+	@param king, Bitboards
+	@return bitboard of possible moves
+
+*/
 UI64 Position::bEscapeMoves(UI64 king, UI64 BitBoards[]){
 	UI64 attacks = wPawnAttacks(BitBoards[ W_PAWN ], BitBoards[ W_PIECES ]);
 	attacks |= AllWhiteKnightMoves(BitBoards[ W_KNIGHT ], BitBoards[ W_PIECES ]);
@@ -1548,6 +1563,14 @@ UI64 Position::bEscapeMoves(UI64 king, UI64 BitBoards[]){
 	return kingmoves & ~attacks;
 }
 
+/**
+	Moves for blocking the check for white
+
+	@author Arttu Nieminen, Olli Koskinen
+	@param ownpiece, moves, Bitboards
+	@return bitboard of possible moves
+
+*/
 UI64 Position::wBlockCheck(UI64 ownpiece, UI64 moves, UI64 BitBoards[]){
 		//we need to check every enemypiece individually
 		UI64 attacks = 0;
@@ -1646,7 +1669,14 @@ UI64 Position::wBlockCheck(UI64 ownpiece, UI64 moves, UI64 BitBoards[]){
 		return attacks & moves;
 }
 
+/**
+	Moves for blocking the check for black
 
+	@author Arttu Nieminen, Olli Koskinen
+	@param ownpiece, moves, Bitboards
+	@return bitboard of possible moves
+
+*/
 UI64 Position::bBlockCheck(UI64 ownpiece, UI64 moves, UI64 BitBoards[]){
 		//we need to check every enemypiece individually
 		UI64 attacks = 0;
