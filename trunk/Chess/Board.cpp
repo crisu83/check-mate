@@ -61,6 +61,7 @@ void Board::clear()
 void Board::initBitboards(){
 
 	fillSquareBits();
+	fiftyMove = 0;
 
 	_BitBoards[ EMPTY	]	= 0x0000;  // Empty board
 	_BitBoards[ W_KING	]	= 0x10;
@@ -278,16 +279,23 @@ void Board::updateBitBoards(Move move, int type){
 	int destIndex	=	(move.getX2()) + (move.getY2()<<3);
 
 
+	//Set the fiftyMove rule to zero if pawn is moved, else add +1 on every move.
+	if(type == W_PAWN || B_PAWN)
+		fiftyMove = 0;
+	else
+		fiftyMove++;
+
+
 	if(type == W_ROOK){
-		if(_BitBoards[W_ROOK] & _SquareBits[0]) //White queen side rook
+		if( !(_BitBoards[W_ROOK] & _SquareBits[0]) ) //White queen side rook
 			_position->wLongCastleFalse();
-		if(_BitBoards[W_ROOK] & _SquareBits[7]) //White king side rook
+		if( !(_BitBoards[W_ROOK] & _SquareBits[7])) //White king side rook
 			_position->wShortCastleFalse();
 	}
 	else if(type == B_ROOK){
-		if(_BitBoards[B_ROOK] & _SquareBits[63]) //Black queen side rook
+		if( !(_BitBoards[B_ROOK] & _SquareBits[63]) ) //Black queen side rook
 			_position->bShortCastleFalse();
-		if(_BitBoards[B_ROOK] & _SquareBits[56]) //Black king side rook
+		if( !(_BitBoards[B_ROOK] & _SquareBits[56]) ) //Black king side rook
 			_position->bShortCastleFalse();
 	}
 
@@ -304,6 +312,9 @@ void Board::updateBitBoards(Move move, int type){
 	int ourPieces	= ( type <= W_PAWN && type > EMPTY ) ? W_PIECES : B_PIECES;
 
 	if( (_BitBoards[ enemyPieces ]  &  _SquareBits[ destIndex ]) == _SquareBits[ destIndex ] ){
+
+		//First, clear the fifty move rule to zero, since we attack
+		fiftyMove = 0;
 
 		_BitBoards[ enemyPieces ]  &=  ~_SquareBits[  destIndex  ];  // Remove the enemy piece from pieces
 		_BitBoards[	   type		]  &=  ~_SquareBits[ sourceIndex ];  // Remove our piece from the source
@@ -421,6 +432,19 @@ bool Board::moveIsLegal(Move *_curMove){
 
 	return false;
 }
+
+/**
+	Checks if we have moved 50 without captures or moving with pawn.  Game will draw after this.
+	
+	@Author Olli Koskinen, Arttu Nieminen
+	@return true if we have moved silently 50 or more times.
+
+*/
+bool Board::fiftyMoveRule(){
+	return fiftyMove >= 50 ? true : false;
+}
+
+
 
 /**
 	Gets the all the possible moves for current player in a vector<vector<UI64>> iterable format.

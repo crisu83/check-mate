@@ -67,7 +67,7 @@ int Game::run(void)
 	while (_running)
 	{
 		//Check if the move is legal and prompt the user if not
-		while(!_board->moveIsLegal(_curMove)){
+		while(!_board->moveIsLegal(_curMove) && !_board->fiftyMoveRule()){
 
 		// Render the game.
 		render();
