@@ -152,8 +152,8 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 						tempMove.insert(tempMove.end(), (BitBoards[ W_KING ]) >> 2 );
 						count++;
 						//move the rook
-						tempmove.insert(tempmove.end(), BitBoards[ W_ROOK ]);
-						tempmove.insert(tempmove.end(), BitBoards[ W_ROOK ] << 3);
+						tempmove.insert(tempmove.end(), (BitBoards[ W_ROOK ] & -BitBoards[ B_ROOK ]));
+						tempmove.insert(tempmove.end(), (BitBoards[ W_ROOK ] & -BitBoards[ B_ROOK ]) << 3);
 						count++;
 						moveVector.insert(moveVector.end(), tempMove);
 						moveVector.insert(moveVector.end(), tempmove);
@@ -169,8 +169,8 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 						tempMove.insert(tempMove.end(), (BitBoards[ W_KING ]) << 2 );
 						count++;
 						//move the rook
-						tempmove.insert(tempmove.end(), BitBoards[ W_ROOK ]);
-						tempmove.insert(tempmove.end(), BitBoards[ W_ROOK ] >> 3);
+						tempmove.insert(tempmove.end(), (BitBoards[ W_ROOK ]^(BitBoards[ W_ROOK ] & -BitBoards[ W_ROOK ])));
+						tempmove.insert(tempmove.end(), (BitBoards[ W_ROOK ]^(BitBoards[ W_ROOK ] & -BitBoards[ W_ROOK ])) >> 3);
 						count++;
 						moveVector.insert(moveVector.end(), tempMove);
 						moveVector.insert(moveVector.end(), tempmove);
@@ -343,8 +343,8 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 						tempMove.insert(tempMove.end(), (BitBoards[ B_KING ]) >> 2 );
 						count++;
 						//move the rook
-						tempmove.insert(tempmove.end(), BitBoards[ B_ROOK ]);
-						tempmove.insert(tempmove.end(), BitBoards[ B_ROOK ] << 3);
+						tempmove.insert(tempmove.end(), (BitBoards[ B_ROOK ] & -BitBoards[ B_ROOK ])); //ls1b
+						tempmove.insert(tempmove.end(), (BitBoards[ B_ROOK ] & -BitBoards[ B_ROOK ]) << 3);
 						count++;
 						moveVector.insert(moveVector.end(), tempMove);
 						moveVector.insert(moveVector.end(), tempmove);
@@ -360,8 +360,8 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 						tempMove.insert(tempMove.end(), (BitBoards[ B_KING ]) << 2 );
 						count++;
 						//move the rook
-						tempmove.insert(tempmove.end(), BitBoards[ B_ROOK ]);
-						tempmove.insert(tempmove.end(), BitBoards[ B_ROOK ] >> 3);
+						tempmove.insert(tempmove.end(), (BitBoards[ B_ROOK ]^(BitBoards[ B_ROOK ] & -BitBoards[ B_ROOK ]))); //reseted LS1B
+						tempmove.insert(tempmove.end(), (BitBoards[ B_ROOK ]^(BitBoards[ B_ROOK ] & -BitBoards[ B_ROOK ])) >> 3); 
 						count++;
 						moveVector.insert(moveVector.end(), tempMove);
 						moveVector.insert(moveVector.end(), tempmove);
