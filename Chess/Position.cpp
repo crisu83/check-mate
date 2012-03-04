@@ -150,6 +150,11 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 					tempMove.insert(tempMove.end(), wAllPawnMoves(w_pawn & -w_pawn, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]));
 					moveVector.insert(moveVector.end(), tempMove);
 					count++;
+				}else{
+					tempMove.insert(tempMove.end(), w_pawn & -w_pawn);
+					tempMove.insert(tempMove.end(), wMovesForPinned(w_pawn & -w_pawn, wAllPawnMoves(w_pawn & -w_pawn, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]), BitBoards));
+					moveVector.insert(moveVector.end(), tempMove);
+					count++;
 				}
 				w_pawn = w_pawn &  (w_pawn-1); //reset the LS1B so we can get the next pawn
 			}
@@ -161,6 +166,11 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 				if(wIsPinned(w_knight & -w_knight, BitBoards) == false){
 					tempMove.insert(tempMove.end(), w_knight & -w_knight); //LS1B
 					tempMove.insert(tempMove.end(), AllWhiteKnightMoves(w_knight & -w_knight, BitBoards[ W_PIECES ])); //all its moves
+					moveVector.insert(moveVector.end(), tempMove);
+					count++;
+				}else{
+					tempMove.insert(tempMove.end(), w_knight & -w_knight);
+					tempMove.insert(tempMove.end(), wMovesForPinned(w_knight & -w_knight, AllWhiteKnightMoves(w_knight & -w_knight, BitBoards[ W_PIECES ]), BitBoards));
 					moveVector.insert(moveVector.end(), tempMove);
 					count++;
 				}
@@ -228,6 +238,25 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			count++;
 			moveVector.insert(moveVector.end(), tempMove);
 		}else{
+			UI64 w_pawn = BitBoards[ W_PAWN ];
+			while((w_pawn & -w_pawn) != BitBoards[ EMPTY ]){
+				std::vector<UI64> tempMove;
+				tempMove.insert(tempMove.end(), w_pawn & -w_pawn);
+				tempMove.insert(tempMove.end(), wBlockCheck(w_pawn & -w_pawn, wAllPawnMoves(w_pawn & -w_pawn, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]), BitBoards));
+				moveVector.insert(moveVector.end(), tempMove);
+				count++;
+				w_pawn = w_pawn & (w_pawn-1);
+			}
+
+			UI64 w_knight = BitBoards[ W_KNIGHT ];
+			while((w_knight & -w_knight) != BitBoards[ EMPTY ]){
+				std::vector<UI64> tempMove;
+				tempMove.insert(tempMove.end(), w_knight & -w_knight);
+				tempMove.insert(tempMove.end(), wBlockCheck(w_knight & -w_knight, AllWhiteKnightMoves(w_knight & -w_knight, BitBoards[ W_PIECES ]), BitBoards));
+				moveVector.insert(moveVector.end(), tempMove);
+				count++;
+				w_knight = w_knight & (w_knight-1);
+			}
 			//rook moves
 			UI64 w_rook = BitBoards[ W_ROOK ];
 			while((w_rook & -w_rook) != BitBoards[ EMPTY ]){
@@ -277,6 +306,11 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 					count++;
 					b_pawn = b_pawn &  (b_pawn-1); //reset the LS1B so we can get the next pawn
 					moveVector.insert(moveVector.end(), tempMove);
+				}else{
+					tempMove.insert(tempMove.end(), b_pawn & -b_pawn);
+					tempMove.insert(tempMove.end(), bMovesForPinned(b_pawn & -b_pawn, bAllPawnMoves(b_pawn & -b_pawn, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]), BitBoards));
+					moveVector.insert(moveVector.end(), tempMove);
+					count++;
 				}
 			}
 
@@ -290,6 +324,11 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 					count++;
 					b_knight = b_knight &  (b_knight-1); //reset the LS1B so we can get the next knight
 					moveVector.insert(moveVector.end(), tempMove);
+				}else{
+					tempMove.insert(tempMove.end(), b_knight & -b_knight);
+					tempMove.insert(tempMove.end(), wMovesForPinned(b_knight & -b_knight, AllBlackKnightMoves(b_knight & -b_knight, BitBoards[ B_PIECES ]), BitBoards));
+					moveVector.insert(moveVector.end(), tempMove);
+					count++;
 				}
 			}
 			//rook moves
@@ -352,6 +391,26 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			count++;
 			moveVector.insert(moveVector.end(), tempMove);
 		}else{
+			UI64 b_pawn = BitBoards[ B_PAWN ];
+			while((b_pawn & -b_pawn) != BitBoards[ EMPTY ]){
+				std::vector<UI64> tempMove;
+				tempMove.insert(tempMove.end(), b_pawn & -b_pawn);
+				tempMove.insert(tempMove.end(), bBlockCheck(b_pawn & -b_pawn, bAllPawnMoves(b_pawn & -b_pawn, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]), BitBoards));
+				moveVector.insert(moveVector.end(), tempMove);
+				count++;
+				b_pawn = b_pawn & (b_pawn-1);
+			}
+
+			UI64 b_knight = BitBoards[ B_KNIGHT ];
+			while((b_knight & -b_knight) != BitBoards[ EMPTY ]){
+				std::vector<UI64> tempMove;
+				tempMove.insert(tempMove.end(), b_knight & -b_knight);
+				tempMove.insert(tempMove.end(), bBlockCheck(b_knight & -b_knight, AllBlackKnightMoves(b_knight & -b_knight, BitBoards[ B_PIECES ]), BitBoards));
+				moveVector.insert(moveVector.end(), tempMove);
+				count++;
+				b_knight = b_knight & (b_knight-1);
+			}
+			
 			UI64 b_rook = BitBoards[ B_ROOK ];
 			while((b_rook & -b_rook) != BitBoards[ EMPTY ]){
 				std::vector<UI64> tempMove;
@@ -582,8 +641,8 @@ UI64 Position::bPawnSingleAttacks(UI64 b_pawn, UI64 w_pieces) {
 	@param Black pawns and white pieces
 	@return all possible white pawn moves
 */
-UI64 Position::wAllPawnMoves(UI64 w_pawn, UI64 emptysquares, UI64 b_pieces){
-	UI64 pushes = (wPawnAttacks(w_pawn, b_pieces) & ~b_pieces & ~emptysquares);
+UI64 Position::wAllPawnMoves(UI64 w_pawn, UI64 emptysquares, UI64 w_pieces){
+	UI64 pushes = (wPawnAttacks(w_pawn, w_pieces) & ~w_pieces & ~emptysquares);
 	pushes |= wSinglePushTargets(w_pawn, emptysquares);
 	pushes |= wDoublePushTargets(w_pawn, emptysquares);
 	return pushes;
@@ -596,8 +655,8 @@ UI64 Position::wAllPawnMoves(UI64 w_pawn, UI64 emptysquares, UI64 b_pieces){
 	@param Black pawns and white pieces
 	@return all possible black pawn moves
 */
-UI64 Position::bAllPawnMoves(UI64 b_pawn, UI64 emptysquares, UI64 w_pieces){
-	UI64 pushes = (bPawnAttacks(b_pawn, w_pieces) & ~w_pieces & ~emptysquares);
+UI64 Position::bAllPawnMoves(UI64 b_pawn, UI64 emptysquares, UI64 b_pieces){
+	UI64 pushes = (bPawnAttacks(b_pawn, b_pieces) & ~b_pieces & ~emptysquares);
 	pushes |= bSinglePushTargets(b_pawn, emptysquares);
 	pushes |= bDoublePushTargets(b_pawn, emptysquares);
 	return pushes;

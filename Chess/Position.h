@@ -33,8 +33,8 @@ private:
 	UI64 bPawnAttacks(UI64 b_pawn, UI64 w_pieces);
 	UI64 bPawnDblAttacks(UI64 b_pawn, UI64 w_pieces);
 	UI64 bPawnSingleAttacks(UI64 b_pawn, UI64 w_pieces);
-	UI64 wAllPawnMoves(UI64 w_pawn, UI64 emptysquares, UI64 b_pieces);
-	UI64 bAllPawnMoves(UI64 b_pawn, UI64 emptysquares, UI64 w_pieces);
+	UI64 wAllPawnMoves(UI64 w_pawn, UI64 emptysquares, UI64 w_pieces);
+	UI64 bAllPawnMoves(UI64 b_pawn, UI64 emptysquares, UI64 b_pieces);
 	//for knights
 	UI64 KnoNoEa(UI64 knight);
 	UI64 KnoEaEa(UI64 knight);
