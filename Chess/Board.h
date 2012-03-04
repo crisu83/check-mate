@@ -29,6 +29,7 @@ private:
 	//Private functions
 	void initBitboards();
 	std::vector<UI64[2]> moves;
+   int fiftyMove;
 
 
 public:
@@ -53,6 +54,8 @@ public:
 	std::string getTurn(void) const;
 
 	void BitBoardToMoves();
+	bool fiftyMoveRule();
+
 
 	Piece *getPieceAt(int x, int y);
 	void setPosition(Position *position);
