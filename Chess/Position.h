@@ -74,6 +74,8 @@ private:
 	UI64 bMovesForPinned(UI64 ownpiece, UI64 moves, UI64 BitBoards[]);
 	UI64 wEscapeMoves(UI64 king, UI64 BitBoards[]);
 	UI64 bEscapeMoves(UI64 king, UI64 BitBoards[]);
+	UI64 wBlockCheck(UI64 ownpiece, UI64 moves, UI64 BitBoards[]);
+	UI64 bBlockCheck(UI64 ownpiece, UI64 moves, UI64 BitBoards[]);
 
 public:
 	Position(void);
