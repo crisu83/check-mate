@@ -265,9 +265,33 @@ void Board::updateBitBoards(Move move, int type){
 	if(debug)
 		std::cout<<"Bitboards [ type ] = "<<_BitBoards[ type ]<<"\n"; 
 
+		//If we move the king, we cant do castling anymore
+	if(type == W_KING){
+		_position->setWhiteCastlingFalse();
+	}
+	else if(type == B_KING){
+		_position->setBlackCastlingFalse();
+	}
+
 	//Find the index for the squareBits array from the coords.
 	int sourceIndex =	(move.getX1()) + (move.getY1()<<3);
 	int destIndex	=	(move.getX2()) + (move.getY2()<<3);
+
+
+	if(type == W_ROOK){
+		if(_BitBoards[W_ROOK] & _SquareBits[0]) //White queen side rook
+			_position->wLongCastleFalse();
+		if(_BitBoards[W_ROOK] & _SquareBits[7]) //White king side rook
+			_position->wShortCastleFalse();
+	}
+	else if(type == B_ROOK){
+		if(_BitBoards[B_ROOK] & _SquareBits[63]) //Black queen side rook
+			_position->bShortCastleFalse();
+		if(_BitBoards[B_ROOK] & _SquareBits[56]) //Black king side rook
+			_position->bShortCastleFalse();
+	}
+
+
 
 	if(debug)
 		std::cout<<"source "<<sourceIndex<<" dest "<<destIndex<<"\n";

@@ -140,12 +140,48 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 	int count = 0;
 
 	if(this->_toMove == WHITE){
-		if(wIsCheck(BitBoards) == false){
+		if( !wIsCheck(BitBoards)){
+
+			//Castling
+			if(_whiteCastleLongAllowed){
+				if(D1C1B1_MASK & ~BitBoards[ EMPTYSQUARES ]) //if the area between rook and king is empty
+					if(wCheckEnemyAttacks(BitBoards[W_KING], BitBoards) & D1C1B1_MASK){
+						std::vector<UI64> tempMove, tempmove;
+						//move the king
+						tempMove.insert(tempMove.end(), BitBoards[ W_KING ]);
+						tempMove.insert(tempMove.end(), (BitBoards[ W_KING ]) >> 2 );
+						count++;
+						//move the rook
+						tempmove.insert(tempmove.end(), BitBoards[ W_ROOK ]);
+						tempmove.insert(tempmove.end(), BitBoards[ W_ROOK ] << 3);
+						count++;
+						moveVector.insert(moveVector.end(), tempMove);
+						moveVector.insert(moveVector.end(), tempmove);
+					}
+			}
+
+			if(_whiteCastleShortAllowed){
+				if(F1G1_MASK  & ~BitBoards[ EMPTYSQUARES ]) //if the area between rook and king is empty
+					if(wCheckEnemyAttacks(BitBoards[W_KING], BitBoards) & F1G1_MASK){ // if somebody attacks the area we are going to move
+						std::vector<UI64> tempMove, tempmove;
+						//move the king
+						tempMove.insert(tempMove.end(), BitBoards[ W_KING ]);
+						tempMove.insert(tempMove.end(), (BitBoards[ W_KING ]) << 2 );
+						count++;
+						//move the rook
+						tempmove.insert(tempmove.end(), BitBoards[ W_ROOK ]);
+						tempmove.insert(tempmove.end(), BitBoards[ W_ROOK ] >> 3);
+						count++;
+						moveVector.insert(moveVector.end(), tempMove);
+						moveVector.insert(moveVector.end(), tempmove);
+					}
+			}
+
 			//pawn moves
 			UI64 w_pawn = BitBoards[ W_PAWN ];
 			while((w_pawn & -w_pawn) != BitBoards[ EMPTY ]){ //while we have pawns to go through
 				std::vector<UI64> tempMove;
-				if(wIsPinned(w_pawn & -w_pawn, BitBoards) == false){
+				if( !wIsPinned(w_pawn & -w_pawn, BitBoards) ){
 					tempMove.insert(tempMove.end(), w_pawn & -w_pawn); //LS1B
 					tempMove.insert(tempMove.end(), wAllPawnMoves(w_pawn & -w_pawn, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]));
 					moveVector.insert(moveVector.end(), tempMove);
@@ -163,7 +199,7 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			UI64 w_knight = BitBoards[ W_KNIGHT ];
 			while((w_knight & -w_knight) != BitBoards[ EMPTY ]){ //while we have knights to go through
 				std::vector<UI64> tempMove;
-				if(wIsPinned(w_knight & -w_knight, BitBoards) == false){
+				if( !wIsPinned(w_knight & -w_knight, BitBoards) ){
 					tempMove.insert(tempMove.end(), w_knight & -w_knight); //LS1B
 					tempMove.insert(tempMove.end(), AllWhiteKnightMoves(w_knight & -w_knight, BitBoards[ W_PIECES ])); //all its moves
 					moveVector.insert(moveVector.end(), tempMove);
@@ -181,7 +217,7 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			UI64 w_rook = BitBoards[ W_ROOK ];
 			while((w_rook & -w_rook) != BitBoards[ EMPTY ]){
 				std::vector<UI64> tempMove;
-				if(wIsPinned(w_rook & -w_rook, BitBoards) == false){
+				if(!wIsPinned(w_rook & -w_rook, BitBoards) ){
 					tempMove.insert(tempMove.end(), w_rook & -w_rook);
 					tempMove.insert(tempMove.end(), AllRookMoves(w_rook & -w_rook, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]));
 					moveVector.insert(moveVector.end(), tempMove);
@@ -199,7 +235,7 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			UI64 w_bishop = BitBoards[ W_BISHOP ];
 			while((w_bishop & -w_bishop) != BitBoards[ EMPTY ]){
 				std::vector<UI64> tempMove;
-				if(wIsPinned(w_bishop & -w_bishop, BitBoards) == false){
+				if( !wIsPinned(w_bishop & -w_bishop, BitBoards) ){
 					tempMove.insert(tempMove.end(), w_bishop & -w_bishop);
 					tempMove.insert(tempMove.end(), AllBishopMoves(w_bishop & -w_bishop, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]));
 					moveVector.insert(moveVector.end(), tempMove);
@@ -217,7 +253,7 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			UI64 w_queen = BitBoards[ W_QUEEN ];
 			while((w_queen & -w_queen) != BitBoards[ EMPTY ]){
 				std::vector<UI64> tempMove;
-				if(wIsPinned(w_queen & -w_queen, BitBoards) == false){
+				if( !wIsPinned(w_queen & -w_queen, BitBoards) ){
 					tempMove.insert(tempMove.end(), w_queen & -w_queen);
 					tempMove.insert(tempMove.end(), queenMoves(w_queen & -w_queen, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]));
 					moveVector.insert(moveVector.end(), tempMove);
@@ -295,12 +331,49 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 		}
 
 	}else if(_toMove == BLACK){
-		if(bIsCheck(BitBoards) == false){
+		if( !bIsCheck(BitBoards)){
+
+			//Castling
+			if(_blackCastleLongAllowed){
+				if(D8C8B8_MASK & ~BitBoards[ EMPTYSQUARES ]) //if the area between rook and king is empty
+					if(bCheckEnemyAttacks(BitBoards[B_KING], BitBoards) & D8C8B8_MASK){
+						std::vector<UI64> tempMove, tempmove;
+						//move the king
+						tempMove.insert(tempMove.end(), BitBoards[ B_KING ]);
+						tempMove.insert(tempMove.end(), (BitBoards[ B_KING ]) >> 2 );
+						count++;
+						//move the rook
+						tempmove.insert(tempmove.end(), BitBoards[ B_ROOK ]);
+						tempmove.insert(tempmove.end(), BitBoards[ B_ROOK ] << 3);
+						count++;
+						moveVector.insert(moveVector.end(), tempMove);
+						moveVector.insert(moveVector.end(), tempmove);
+					}
+			}
+
+			if(_blackCastleShortAllowed){
+				if(F8G8_MASK  & ~BitBoards[ EMPTYSQUARES ]) //if the area between rook and king is empty
+					if(bCheckEnemyAttacks(BitBoards[B_KING], BitBoards) & F8G8_MASK){ // if somebody attacks the area we are going to move
+						std::vector<UI64> tempMove, tempmove;
+						//move the king
+						tempMove.insert(tempMove.end(), BitBoards[ B_KING ]);
+						tempMove.insert(tempMove.end(), (BitBoards[ B_KING ]) << 2 );
+						count++;
+						//move the rook
+						tempmove.insert(tempmove.end(), BitBoards[ B_ROOK ]);
+						tempmove.insert(tempmove.end(), BitBoards[ B_ROOK ] >> 3);
+						count++;
+						moveVector.insert(moveVector.end(), tempMove);
+						moveVector.insert(moveVector.end(), tempmove);
+					}
+			}
+
+
 			//pawn moves
 			UI64 b_pawn = BitBoards[ B_PAWN ];
 			while((b_pawn & -b_pawn) != BitBoards[ EMPTY ]){ //while we have pawns to go through
 				std::vector<UI64> tempMove;
-				if(bIsPinned(b_pawn & -b_pawn, BitBoards) == false){
+				if( !bIsPinned(b_pawn & -b_pawn, BitBoards) ){
 					tempMove.insert(tempMove.end(), b_pawn & -b_pawn); //LS1B
 					tempMove.insert(tempMove.end(),bAllPawnMoves(b_pawn & -b_pawn, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ])); //all its moves
 					count++;
@@ -318,7 +391,7 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			UI64 b_knight = BitBoards[ B_KNIGHT ];
 			while((b_knight & -b_knight) != BitBoards[ EMPTY ]){ //while we have knights to go through
 				std::vector<UI64> tempMove;
-				if(bIsPinned(b_knight & -b_knight, BitBoards) == false){
+				if( !bIsPinned(b_knight & -b_knight, BitBoards) ){
 					tempMove.insert(tempMove.end(), b_knight & -b_knight); //LS1B
 					tempMove.insert(tempMove.end(),AllBlackKnightMoves(b_knight & -b_knight, BitBoards[ B_PIECES ])); //all its moves
 					count++;
@@ -335,7 +408,7 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			UI64 b_rook = BitBoards[ B_ROOK ];
 			while((b_rook & -b_rook) != BitBoards[ EMPTY ]){
 				std::vector<UI64> tempMove;
-				if(wIsPinned(b_rook & -b_rook, BitBoards) == false){
+				if( !wIsPinned(b_rook & -b_rook, BitBoards) ){
 					tempMove.insert(tempMove.end(), b_rook & -b_rook);
 					tempMove.insert(tempMove.end(), AllRookMoves(b_rook & -b_rook, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]));
 					moveVector.insert(moveVector.end(), tempMove);
@@ -352,7 +425,7 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			UI64 b_bishop = BitBoards[ B_BISHOP ];
 			while((b_bishop & -b_bishop) != BitBoards[ EMPTY ]){
 				std::vector<UI64> tempMove;
-				if(wIsPinned(b_bishop & -b_bishop, BitBoards) == false){
+				if( !wIsPinned(b_bishop & -b_bishop, BitBoards) ){
 					tempMove.insert(tempMove.end(), b_bishop & -b_bishop);
 					tempMove.insert(tempMove.end(), AllBishopMoves(b_bishop & -b_bishop, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]));
 					moveVector.insert(moveVector.end(), tempMove);
@@ -370,7 +443,7 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			UI64 b_queen = BitBoards[ B_QUEEN ];
 			while((b_queen & -b_queen) != BitBoards[ EMPTY ]){
 				std::vector<UI64> tempMove;
-				if(wIsPinned(b_queen & -b_queen, BitBoards) == false){
+				if( !wIsPinned(b_queen & -b_queen, BitBoards) ){
 					tempMove.insert(tempMove.end(), b_queen & -b_queen);
 					tempMove.insert(tempMove.end(), queenMoves(b_queen & -b_queen, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]));
 					moveVector.insert(moveVector.end(), tempMove);
@@ -1773,4 +1846,78 @@ UI64 Position::bBlockCheck(UI64 ownpiece, UI64 moves, UI64 BitBoards[]){
 		}
 
 		return attacks & moves;
+}
+
+/**
+	Blocks the castling from whites
+
+	@author Olli Koskinen, Arttu Nieminen
+	@param void
+	@return void
+
+*/
+void Position::setWhiteCastlingFalse()
+{
+	_whiteCastleShortAllowed = false;
+	_whiteCastleLongAllowed = false;
+}
+
+/**
+	Blocks the castling from blacks
+
+	@author Olli Koskinen, Arttu Nieminen
+	@param void
+	@return void
+
+*/
+void Position::setBlackCastlingFalse(){
+	_blackCastleShortAllowed = false;
+	_blackCastleLongAllowed = false;
+}
+
+/**
+	Blocks the castling with short rook, aka king side rook
+
+	@author Olli Koskinen, Arttu Nieminen
+	@param void
+	@return void
+
+*/
+void Position::wShortCastleFalse(){
+	_whiteCastleShortAllowed = false;
+}
+
+/**
+	Blocks the castling with long rook, aka queen side rook
+
+	@author Olli Koskinen, Arttu Nieminen
+	@param void
+	@return void
+
+*/
+void Position::wLongCastleFalse(){
+	_whiteCastleLongAllowed = false;
+}
+
+/**
+	Blocks the castling with short rook, aka king side rook
+
+	@author Olli Koskinen, Arttu Nieminen
+	@param void
+	@return void
+
+*/
+void Position::bShortCastleFalse(){
+	_blackCastleShortAllowed = false;
+}
+
+/**
+	Blocks the castling with long rook, aka queen side rook
+
+	@author Olli Koskinen, Arttu Nieminen
+	@param void
+	@return void
+*/
+void Position::bLongCastleFalse(){
+	_blackCastleLongAllowed = false;
 }
