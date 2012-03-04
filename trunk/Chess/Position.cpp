@@ -228,6 +228,35 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			count++;
 			moveVector.insert(moveVector.end(), tempMove);
 		}else{
+			//rook moves
+			UI64 w_rook = BitBoards[ W_ROOK ];
+			while((w_rook & -w_rook) != BitBoards[ EMPTY ]){
+				std::vector<UI64> tempMove;
+				tempMove.insert(tempMove.end(), w_rook & -w_rook);
+				tempMove.insert(tempMove.end(), wBlockCheck(w_rook & -w_rook, AllRookMoves(w_rook & -w_rook, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]), BitBoards));
+				moveVector.insert(moveVector.end(), tempMove);
+				count++;
+				w_rook = w_rook & (w_rook-1);
+			}
+			UI64 w_bishop = BitBoards[ W_BISHOP ];
+			while((w_bishop & -w_bishop) != BitBoards[ EMPTY ]){
+				std::vector<UI64> tempMove;
+				tempMove.insert(tempMove.end(), w_bishop & -w_bishop);
+				tempMove.insert(tempMove.end(), wBlockCheck(w_bishop & -w_bishop, AllBishopMoves(w_bishop & -w_bishop, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]), BitBoards));
+				moveVector.insert(moveVector.end(), tempMove);
+				count++;
+				w_bishop = w_bishop & (w_bishop-1);
+			}
+			UI64 w_queen = BitBoards[ W_QUEEN ];
+			while((w_queen & -w_queen) != BitBoards[ EMPTY ]){
+				std::vector<UI64> tempMove;
+				tempMove.insert(tempMove.end(), w_queen & -w_queen);
+				tempMove.insert(tempMove.end(), wBlockCheck(w_queen & -w_queen, queenMoves(w_queen & -w_queen, BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]), BitBoards));
+				moveVector.insert(moveVector.end(), tempMove);
+				count++;
+				w_queen = w_queen & (w_queen-1);
+			}
+
 			//king moves
 			std::vector<UI64> tempMove;
 			tempMove.insert(tempMove.end(), BitBoards[ W_KING ] );
@@ -242,22 +271,26 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			UI64 b_pawn = BitBoards[ B_PAWN ];
 			while((b_pawn & -b_pawn) != BitBoards[ EMPTY ]){ //while we have pawns to go through
 				std::vector<UI64> tempMove;
-				tempMove.insert(tempMove.end(), b_pawn & -b_pawn); //LS1B
-				tempMove.insert(tempMove.end(),bAllPawnMoves(b_pawn & -b_pawn, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ])); //all its moves
-				count++;
-				b_pawn = b_pawn &  (b_pawn-1); //reset the LS1B so we can get the next pawn
-				moveVector.insert(moveVector.end(), tempMove);
+				if(bIsPinned(b_pawn & -b_pawn, BitBoards) == false){
+					tempMove.insert(tempMove.end(), b_pawn & -b_pawn); //LS1B
+					tempMove.insert(tempMove.end(),bAllPawnMoves(b_pawn & -b_pawn, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ])); //all its moves
+					count++;
+					b_pawn = b_pawn &  (b_pawn-1); //reset the LS1B so we can get the next pawn
+					moveVector.insert(moveVector.end(), tempMove);
+				}
 			}
 
 			//knight moves
 			UI64 b_knight = BitBoards[ B_KNIGHT ];
 			while((b_knight & -b_knight) != BitBoards[ EMPTY ]){ //while we have knights to go through
 				std::vector<UI64> tempMove;
-				tempMove.insert(tempMove.end(), b_knight & -b_knight); //LS1B
-				tempMove.insert(tempMove.end(),AllBlackKnightMoves(b_knight & -b_knight, BitBoards[ B_PIECES ])); //all its moves
-				count++;
-				b_knight = b_knight &  (b_knight-1); //reset the LS1B so we can get the next knight
-				moveVector.insert(moveVector.end(), tempMove);
+				if(bIsPinned(b_knight & -b_knight, BitBoards) == false){
+					tempMove.insert(tempMove.end(), b_knight & -b_knight); //LS1B
+					tempMove.insert(tempMove.end(),AllBlackKnightMoves(b_knight & -b_knight, BitBoards[ B_PIECES ])); //all its moves
+					count++;
+					b_knight = b_knight &  (b_knight-1); //reset the LS1B so we can get the next knight
+					moveVector.insert(moveVector.end(), tempMove);
+				}
 			}
 			//rook moves
 			UI64 b_rook = BitBoards[ B_ROOK ];
@@ -303,9 +336,9 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 					tempMove.insert(tempMove.end(), queenMoves(b_queen & -b_queen, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]));
 					moveVector.insert(moveVector.end(), tempMove);
 					count++;
-				}else{
+				}else{	
 					tempMove.insert(tempMove.end(), b_queen & -b_queen);
-					tempMove.insert(tempMove.end(), wMovesForPinned(b_queen & -b_queen, AllRookMoves(b_queen & -b_queen, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]), BitBoards));
+					tempMove.insert(tempMove.end(), wMovesForPinned(b_queen & -b_queen, queenMoves(b_queen & -b_queen, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]), BitBoards));
 					moveVector.insert(moveVector.end(), tempMove);
 					count++;
 				}
@@ -319,6 +352,34 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			count++;
 			moveVector.insert(moveVector.end(), tempMove);
 		}else{
+			UI64 b_rook = BitBoards[ B_ROOK ];
+			while((b_rook & -b_rook) != BitBoards[ EMPTY ]){
+				std::vector<UI64> tempMove;
+				tempMove.insert(tempMove.end(), b_rook & -b_rook);
+				tempMove.insert(tempMove.end(), bBlockCheck(b_rook & -b_rook, AllRookMoves(b_rook & -b_rook, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]), BitBoards));
+				moveVector.insert(moveVector.end(), tempMove);
+				count++;
+				b_rook = b_rook & (b_rook-1);
+			}
+			UI64 b_bishop = BitBoards[ B_BISHOP ];
+			while((b_bishop & -b_bishop) != BitBoards[ EMPTY ]){
+				std::vector<UI64> tempMove;
+				tempMove.insert(tempMove.end(), b_bishop & -b_bishop);
+				tempMove.insert(tempMove.end(), bBlockCheck(b_bishop & -b_bishop, AllBishopMoves(b_bishop & -b_bishop, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]), BitBoards));
+				moveVector.insert(moveVector.end(), tempMove);
+				count++;
+				b_bishop = b_bishop & (b_bishop-1);
+			}
+			UI64 b_queen = BitBoards[ B_QUEEN ];
+			while((b_queen & -b_queen) != BitBoards[ EMPTY ]){
+				std::vector<UI64> tempMove;
+				tempMove.insert(tempMove.end(), b_queen & -b_queen);
+				tempMove.insert(tempMove.end(), bBlockCheck(b_queen & -b_queen, queenMoves(b_queen & -b_queen, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]), BitBoards));
+				moveVector.insert(moveVector.end(), tempMove);
+				count++;
+				b_queen = b_queen & (b_queen-1);
+			}
+
 			//king moves
 			std::vector<UI64> tempMove;
 			tempMove.insert(tempMove.end(), BitBoards[ B_KING ] );
@@ -1204,7 +1265,8 @@ North&South				Diagonal			Diagonal & Bishopmoves
 0 1 0 B 0 0 0 0         0 0 0 B 0 0 0 0     0 0 0 B 0 0 0 0
 0 1 0 0 K 0 0 0         0 0 0 0 K 0 0 0     0 0 0 0 K 0 0 0
 
-
+For getting Moves for pinned pieces we have to go through every enemypiece individually
+and check what type of attack it is, so we can know which move is legal for us.
 
 
 
@@ -1234,15 +1296,86 @@ bool Position::bIsPinned(UI64 ownpiece, UI64 BitBoards[]){
 
 */
 UI64 Position::wMovesForPinned(UI64 ownpiece, UI64 moves, UI64 BitBoards[]){
-		UI64 bishopMoves = AllBishopMoves(BitBoards[ B_BISHOP ] | BitBoards[ B_QUEEN ], BitBoards[ EMPTYSQUARES ] | ownpiece, BitBoards[ B_PIECES ]);
-		bishopMoves |= BitBoards[ B_ROOK ] | BitBoards[ B_QUEEN ];
-		UI64 rookMoves = AllRookMoves(BitBoards[ B_ROOK ] | BitBoards[ B_QUEEN ], BitBoards[ EMPTYSQUARES ] | ownpiece, BitBoards[ B_PIECES ]);
-		rookMoves = BitBoards[ B_ROOK ] | BitBoards[ B_QUEEN ];
-		if((bishopMoves & BitBoards[ W_KING ]) != BitBoards[ EMPTY ]){
-			return bishopMoves & moves;
-		}else if((rookMoves & BitBoards[ W_KING ]) != BitBoards[ EMPTY ]){
-			return rookMoves & moves;
+		//we need to check every enemypiece individually
+		UI64 attacks = 0;
+		UI64 rook = BitBoards[ B_ROOK ];
+		while((rook & -rook) != BitBoards[ EMPTY ]){
+			if(((rNorth(rook & -rook, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= rook & -rook;
+				attacks |= rNorth(rook & -rook, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			if(((rSouth(rook & -rook, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= rook & -rook;
+				attacks |= rSouth(rook & -rook, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			if(((rWest(rook & -rook, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= rook & -rook;
+				attacks |= rWest(rook & -rook, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			if(((rEast(rook & -rook, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= rook & -rook;
+				attacks |= rEast(rook & -rook, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			rook = rook & (rook-1);
 		}
+		UI64 bishop = BitBoards[ B_BISHOP ];
+		while((bishop & -bishop) != BitBoards[ EMPTY ]){
+			if(((bishopNorthEast(bishop & -bishop, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= bishop & -bishop;
+				attacks |= bishopNorthEast(bishop & -bishop, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			if(((bishopNorthWest(bishop & -bishop, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= bishop & -bishop;
+				attacks |= bishopNorthWest(bishop & -bishop, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			if(((bishopSouthWest(bishop & -bishop, BitBoards[ EMPTYSQUARES ]) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= bishop & -bishop;
+				attacks |= bishopSouthWest(bishop & -bishop, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			if(((bishopSouthEast(bishop & -bishop, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= bishop & -bishop;
+				attacks |= bishopSouthEast(bishop & -bishop, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			bishop = bishop & (bishop-1);
+		}
+
+		UI64 queen = BitBoards[ B_QUEEN ];
+		while((queen & -queen) != BitBoards[ EMPTY ]){
+			if(((bishopNorthEast(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= bishopNorthEast(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			if(((bishopNorthWest(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= bishopNorthWest(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			if(((bishopSouthWest(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= bishopSouthWest(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			if(((bishopSouthEast(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= bishopSouthEast(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			if(((rNorth(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= rNorth(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			if(((rSouth(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= rSouth(queen & -queen, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((rWest(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= rWest(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			if(((rEast(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= rEast(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			queen = queen & (queen-1);
+		}
+		return attacks & moves;
 }
 
 /**
@@ -1254,15 +1387,86 @@ UI64 Position::wMovesForPinned(UI64 ownpiece, UI64 moves, UI64 BitBoards[]){
 
 */
 UI64 Position::bMovesForPinned(UI64 ownpiece, UI64 moves, UI64 BitBoards[]){
-		UI64 bishopMoves = AllBishopMoves(BitBoards[ W_BISHOP ] | BitBoards[ W_QUEEN ], BitBoards[ EMPTYSQUARES ] | ownpiece, BitBoards[ W_PIECES ]);
-		bishopMoves |= BitBoards[ W_ROOK ] | BitBoards[ W_QUEEN ];
-		UI64 rookMoves = AllRookMoves(BitBoards[ W_ROOK ] | BitBoards[ W_QUEEN ], BitBoards[ EMPTYSQUARES ] | ownpiece, BitBoards[ W_PIECES ]);
-		rookMoves = BitBoards[ W_ROOK ] | BitBoards[ W_QUEEN ];
-		if((bishopMoves & BitBoards[ B_KING ]) != BitBoards[ EMPTY ]){
-			return bishopMoves & moves;
-		}else if((rookMoves & BitBoards[ B_KING ]) != BitBoards[ EMPTY ]){
-			return rookMoves & moves;
+		//we need to check every enemypiece individually
+		UI64 attacks = 0;
+		UI64 rook = BitBoards[ W_ROOK ];
+		while((rook & -rook) != BitBoards[ EMPTY ]){
+			if(((rNorth(rook & -rook, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= rook & -rook;
+				attacks |= rNorth(rook & -rook, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			if(((rSouth(rook & -rook, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= rook & -rook;
+				attacks |= rSouth(rook & -rook, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			if(((rWest(rook & -rook, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= rook & -rook;
+				attacks |= rWest(rook & -rook, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			if(((rEast(rook & -rook, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= rook & -rook;
+				attacks |= rEast(rook & -rook, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			rook = rook & (rook-1);
 		}
+		UI64 bishop = BitBoards[ W_BISHOP ];
+		while((bishop & -bishop) != BitBoards[ EMPTY ]){
+			if(((bishopNorthEast(bishop & -bishop, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= bishop & -bishop;
+				attacks |= bishopNorthEast(bishop & -bishop, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			if(((bishopNorthWest(bishop & -bishop, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= bishop & -bishop;
+				attacks |= bishopNorthWest(bishop & -bishop, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			if(((bishopSouthWest(bishop & -bishop, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ B_KING ] ) != BitBoards[ EMPTY ])){
+				attacks |= bishop & -bishop;
+				attacks |= bishopSouthWest(bishop & -bishop, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			if(((bishopSouthEast(bishop & -bishop, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= bishop & -bishop;
+				attacks |= bishopSouthEast(bishop & -bishop, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			bishop = bishop & (bishop-1);
+		}
+
+		UI64 queen = BitBoards[ W_QUEEN ];
+		while((queen & -queen) != BitBoards[ EMPTY ]){
+			if(((bishopNorthEast(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= bishopNorthEast(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			if(((bishopNorthWest(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= bishopNorthWest(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			if(((bishopSouthWest(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= bishopSouthWest(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			if(((bishopSouthEast(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= bishopSouthEast(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			if(((rNorth(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= rNorth(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			if(((rSouth(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= rSouth(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			if(((rWest(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= rWest(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			if(((rEast(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= rEast(queen & -queen, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			}
+			queen = queen & (queen-1);
+		}
+		return attacks & moves;
 }
 
 UI64 Position::wEscapeMoves(UI64 king, UI64 BitBoards[]){
@@ -1283,4 +1487,201 @@ UI64 Position::bEscapeMoves(UI64 king, UI64 BitBoards[]){
 	attacks |= queenMoves(BitBoards[ W_QUEEN ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES] );
 	UI64 kingmoves = bKingMoves(king, BitBoards[ B_PIECES ], BitBoards);
 	return kingmoves & ~attacks;
+}
+
+UI64 Position::wBlockCheck(UI64 ownpiece, UI64 moves, UI64 BitBoards[]){
+		//we need to check every enemypiece individually
+		UI64 attacks = 0;
+		UI64 pawn = BitBoards[ B_PAWN ];
+		while((pawn & -pawn) != BitBoards[ EMPTY ]){ //while we have pawns to go through
+			if(((bPawnAttacks(pawn & -pawn, BitBoards[ W_PIECES ]) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= pawn & -pawn;
+			}
+			pawn = pawn &  (pawn-1); //reset the LS1B so we can get the next pawn
+		}
+		UI64 rook = BitBoards[ B_ROOK ];
+		while((rook & -rook) != BitBoards[ EMPTY ]){
+			if(((rNorth(rook & -rook, BitBoards[ EMPTYSQUARES ]) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= rook & -rook;
+				attacks |= rNorth(rook & -rook, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((rSouth(rook & -rook, BitBoards[ EMPTYSQUARES ]) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= rook & -rook;
+				attacks |= rSouth(rook & -rook, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((rWest(rook & -rook, BitBoards[ EMPTYSQUARES ]) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= rook & -rook;
+				attacks |= rWest(rook & -rook, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((rEast(rook & -rook, BitBoards[ EMPTYSQUARES ]) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= rook & -rook;
+				attacks |= rEast(rook & -rook, BitBoards[ EMPTYSQUARES ]);
+			}
+			rook = rook & (rook-1);
+		}
+		UI64 bishop = BitBoards[ B_BISHOP ];
+		while((bishop & -bishop) != BitBoards[ EMPTY ]){
+			if(((bishopNorthEast(bishop & -bishop, BitBoards[ EMPTYSQUARES ]) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= bishop & -bishop;
+				attacks |= bishopNorthEast(bishop & -bishop, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((bishopNorthWest(bishop & -bishop, BitBoards[ EMPTYSQUARES ]) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= bishop & -bishop;
+				attacks |= bishopNorthWest(bishop & -bishop, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((bishopSouthWest(bishop & -bishop, BitBoards[ EMPTYSQUARES ]) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= bishop & -bishop;
+				attacks |= bishopSouthWest(bishop & -bishop, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((bishopSouthEast(bishop & -bishop, BitBoards[ EMPTYSQUARES ]) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= bishop & -bishop;
+				attacks |= bishopSouthEast(bishop & -bishop, BitBoards[ EMPTYSQUARES ]);
+			}
+			bishop = bishop & (bishop-1);
+		}
+
+		UI64 queen = BitBoards[ B_QUEEN ];
+		while((queen & -queen) != BitBoards[ EMPTY ]){
+			if(((bishopNorthEast(queen & -queen, BitBoards[ EMPTYSQUARES ]) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= bishopNorthEast(queen & -queen, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((bishopNorthWest(queen & -queen, BitBoards[ EMPTYSQUARES ]) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= bishopNorthWest(queen & -queen, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((bishopSouthWest(queen & -queen, BitBoards[ EMPTYSQUARES ]) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= bishopSouthWest(queen & -queen, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((bishopSouthEast(queen & -queen, BitBoards[ EMPTYSQUARES ]) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= bishopSouthEast(queen & -queen, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((rNorth(queen & -queen, BitBoards[ EMPTYSQUARES ]) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= rNorth(queen & -queen, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((rSouth(queen & -queen, BitBoards[ EMPTYSQUARES ]) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= rSouth(queen & -queen, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((rWest(queen & -queen, BitBoards[ EMPTYSQUARES ]) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= rWest(queen & -queen, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((rEast(queen & -queen, BitBoards[ EMPTYSQUARES ]) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= rEast(queen & -queen, BitBoards[ EMPTYSQUARES ]);
+			}
+			queen = queen & (queen-1);
+		}
+		UI64 knight = BitBoards[ B_KNIGHT ];
+		while((knight & -knight) != BitBoards[ EMPTY ]){ //while we have pawns to go through
+			if(((AllBlackKnightMoves(knight & -knight, BitBoards[ B_PIECES ]) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= knight & -knight;
+			}
+			knight = knight &  (knight-1); //reset the LS1B so we can get the next pawn
+		}
+
+		return attacks & moves;
+}
+
+
+UI64 Position::bBlockCheck(UI64 ownpiece, UI64 moves, UI64 BitBoards[]){
+		//we need to check every enemypiece individually
+		UI64 attacks = 0;
+		UI64 pawn = BitBoards[ W_PAWN ];
+		while((pawn & -pawn) != BitBoards[ EMPTY ]){ //while we have pawns to go through
+			if(((wPawnAttacks(pawn & -pawn, BitBoards[ B_PIECES ]) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= pawn & -pawn;
+			}
+			pawn = pawn &  (pawn-1); //reset the LS1B so we can get the next pawn
+		}
+		UI64 rook = BitBoards[ W_ROOK ];
+		while((rook & -rook) != BitBoards[ EMPTY ]){
+			if(((rNorth(rook & -rook, BitBoards[ EMPTYSQUARES ]) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= rook & -rook;
+				attacks |= rNorth(rook & -rook, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((rSouth(rook & -rook, BitBoards[ EMPTYSQUARES ]) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= rook & -rook;
+				attacks |= rSouth(rook & -rook, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((rWest(rook & -rook, BitBoards[ EMPTYSQUARES ]) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= rook & -rook;
+				attacks |= rWest(rook & -rook, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((rEast(rook & -rook, BitBoards[ EMPTYSQUARES ]) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= rook & -rook;
+				attacks |= rEast(rook & -rook, BitBoards[ EMPTYSQUARES ]);
+			}
+			rook = rook & (rook-1);
+		}
+		UI64 bishop = BitBoards[ W_BISHOP ];
+		while((bishop & -bishop) != BitBoards[ EMPTY ]){
+			if(((bishopNorthEast(bishop & -bishop, BitBoards[ EMPTYSQUARES ]) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= bishop & -bishop;
+				attacks |= bishopNorthEast(bishop & -bishop, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((bishopNorthWest(bishop & -bishop, BitBoards[ EMPTYSQUARES ]) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= bishop & -bishop;
+				attacks |= bishopNorthWest(bishop & -bishop, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((bishopSouthWest(bishop & -bishop, BitBoards[ EMPTYSQUARES ]) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= bishop & -bishop;
+				attacks |= bishopSouthWest(bishop & -bishop, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((bishopSouthEast(bishop & -bishop, BitBoards[ EMPTYSQUARES ]) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= bishop & -bishop;
+				attacks |= bishopSouthEast(bishop & -bishop, BitBoards[ EMPTYSQUARES ]);
+			}
+			bishop = bishop & (bishop-1);
+		}
+
+		UI64 queen = BitBoards[ W_QUEEN ];
+		while((queen & -queen) != BitBoards[ EMPTY ]){
+			if(((bishopNorthEast(queen & -queen, BitBoards[ EMPTYSQUARES ]) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= bishopNorthEast(queen & -queen, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((bishopNorthWest(queen & -queen, BitBoards[ EMPTYSQUARES ]) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= bishopNorthWest(queen & -queen, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((bishopSouthWest(queen & -queen, BitBoards[ EMPTYSQUARES ]) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= bishopSouthWest(queen & -queen, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((bishopSouthEast(queen & -queen, BitBoards[ EMPTYSQUARES ]) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= bishopSouthEast(queen & -queen, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((rNorth(queen & -queen, BitBoards[ EMPTYSQUARES ]) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= rNorth(queen & -queen, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((rSouth(queen & -queen, BitBoards[ EMPTYSQUARES ]) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= rSouth(queen & -queen, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((rWest(queen & -queen, BitBoards[ EMPTYSQUARES ]) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= rWest(queen & -queen, BitBoards[ EMPTYSQUARES ]);
+			}
+			if(((rEast(queen & -queen, BitBoards[ EMPTYSQUARES ]) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= queen & -queen;
+				attacks |= rEast(queen & -queen, BitBoards[ EMPTYSQUARES ]);
+			}
+			queen = queen & (queen-1);
+		}
+		UI64 knight = BitBoards[ W_KNIGHT ];
+		while((knight & -knight) != BitBoards[ EMPTY ]){ //while we have pawns to go through
+			if(((AllWhiteKnightMoves(knight & -knight, BitBoards[ W_PIECES ]) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+				attacks |= knight & -knight;
+			}
+			knight = knight &  (knight-1); //reset the LS1B so we can get the next pawn
+		}
+
+		return attacks & moves;
 }
