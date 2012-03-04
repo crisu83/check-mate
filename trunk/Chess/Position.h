@@ -5,15 +5,12 @@
 #define WHITE 0
 #define BLACK 1
 
+
 class Position
 {
 private:
 	int _map[8][8];
 	int _toMove;
-	bool _whiteCastleShortAllowed;
-	bool _whiteCastleLongAllowed;
-	bool _blackCastleShortAllowed;
-	bool _blackCastleLongAllowed;
 	int _enPassantOnLine;
 	std::vector<Move> legalMoves;
 	std::vector<std::vector<UI64>> moveVector;
@@ -77,6 +74,10 @@ private:
 	UI64 wBlockCheck(UI64 ownpiece, UI64 moves, UI64 BitBoards[]);
 	UI64 bBlockCheck(UI64 ownpiece, UI64 moves, UI64 BitBoards[]);
 
+	bool _whiteCastleShortAllowed;
+	bool _whiteCastleLongAllowed;
+	bool _blackCastleShortAllowed;
+	bool _blackCastleLongAllowed;
 public:
 	Position(void);
 	~Position(void);
@@ -121,7 +122,14 @@ public:
 	void endTurn();
 
 	std::string getTurnName() const;
-
 	int *getMap();
+
+	//Castling
+	void setWhiteCastlingFalse();
+	void setBlackCastlingFalse();
+	void wShortCastleFalse();
+	void wLongCastleFalse();
+	void bShortCastleFalse();
+	void bLongCastleFalse();
 };
 
