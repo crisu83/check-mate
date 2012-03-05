@@ -14,6 +14,11 @@ private:
 	int _enPassantOnLine;
 	std::vector<Move> legalMoves;
 	std::vector<std::vector<UI64>> moveVector;
+	
+	bool _whiteCastleShortAllowed;
+	bool _whiteCastleLongAllowed;
+	bool _blackCastleShortAllowed;
+	bool _blackCastleLongAllowed;
 
 	/**
 		functions for move generation
@@ -74,10 +79,10 @@ private:
 	UI64 wBlockCheck(UI64 ownpiece, UI64 moves, UI64 BitBoards[]);
 	UI64 bBlockCheck(UI64 ownpiece, UI64 moves, UI64 BitBoards[]);
 
-	bool _whiteCastleShortAllowed;
-	bool _whiteCastleLongAllowed;
-	bool _blackCastleShortAllowed;
-	bool _blackCastleLongAllowed;
+	//Castling
+	UI64 wAllEnemyAttacks(UI64 BitBoards[]);
+	UI64 bAllEnemyAttacks(UI64 BitBoards[]);
+
 public:
 	Position(void);
 	~Position(void);
