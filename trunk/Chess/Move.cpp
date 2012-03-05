@@ -101,6 +101,20 @@ void Move::strToMove(const char* str)
 		res = strtok(NULL, "-");
 		i++;
 	}
+
+	//castling flags for whites
+	if((_x1 == 4 && _x2 == 2) && (_y1 == 0 && _y2 == 0)){
+		_castleLong = true;
+	}
+	else if ((_x1== 4 && _x2 ==6) && (_y1 == 0 && _y2 == 0)){
+		_castleShort = true;
+	}	//castling flags for blacks
+	else if((_x1 == 4 && _x2 == 2) && (_y1 == 7 && _y2 == 7)){
+		_castleLong = true;
+	}
+	else if ((_x1== 4 && _x2 ==6) && (_y1 == 7 && _y2 == 7)){
+		_castleShort = true;
+	}
 	
 	// Free the memory.
 	delete copy;
@@ -171,5 +185,22 @@ int Move::getX2() const
 int Move::getY2() const
 {
 	return _y2;
+}
+
+/**
+	Returns true if castling is ongoing
+
+	@return bool true if castling
+*/
+bool Move::Castling(){
+	return (_castleLong == true || _castleShort == true) ? true : false;
+}
+
+bool Move::castlingLong(){
+	return _castleLong;
+}
+
+bool Move::castlingShort(){
+	return _castleShort;
 }
 

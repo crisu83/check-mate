@@ -144,12 +144,12 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 
 			//Castling
 			if(_whiteCastleLongAllowed){
-				if(D1C1B1_MASK & ~BitBoards[ EMPTYSQUARES ]) //if the area between rook and king is empty
-					if(wCheckEnemyAttacks(BitBoards[W_KING], BitBoards) & D1C1B1_MASK){
+				if( !(D1C1B1_MASK & ~BitBoards[ EMPTYSQUARES ])) //if the area between rook and king is empty
+					if( !(wAllEnemyAttacks(BitBoards) & D1C1B1_MASK) ){
 						std::vector<UI64> tempMove, tempmove;
 						//move the king
 						tempMove.insert(tempMove.end(), BitBoards[ W_KING ]);
-						tempMove.insert(tempMove.end(), (BitBoards[ W_KING ]) >> 2 );
+						tempMove.insert(tempMove.end(), BitBoards[ W_KING ] >> 2 );
 						
 						//move the rook
 						tempmove.insert(tempmove.end(), (BitBoards[ W_ROOK ] & -BitBoards[ B_ROOK ]));
@@ -161,19 +161,20 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			}
 
 			if(_whiteCastleShortAllowed){
-				if(F1G1_MASK  & ~BitBoards[ EMPTYSQUARES ]) //if the area between rook and king is empty
-					if(wCheckEnemyAttacks(BitBoards[W_KING], BitBoards) & F1G1_MASK){ // if somebody attacks the area we are going to move
+				if(!(F1G1_MASK  & ~BitBoards[ EMPTYSQUARES ])) //if the area between rook and king is empty
+					if( !(wAllEnemyAttacks(BitBoards) & F1G1_MASK) ){ // if somebody attacks the area we are going to move
 						std::vector<UI64> tempMove, tempmove;
 						//move the king
 						tempMove.insert(tempMove.end(), BitBoards[ W_KING ]);
-						tempMove.insert(tempMove.end(), (BitBoards[ W_KING ]) << 2 );
+						tempMove.insert(tempMove.end(), BitBoards[ W_KING ] << 2 );
 						
 						//move the rook
 						tempmove.insert(tempmove.end(), (BitBoards[ W_ROOK ]^(BitBoards[ W_ROOK ] & -BitBoards[ W_ROOK ])));
-						tempmove.insert(tempmove.end(), (BitBoards[ W_ROOK ]^(BitBoards[ W_ROOK ] & -BitBoards[ W_ROOK ])) >> 3);
+						tempmove.insert(tempmove.end(), (BitBoards[ W_ROOK ]^(BitBoards[ W_ROOK ] & -BitBoards[ W_ROOK ])) >> 2);
 						
 						moveVector.insert(moveVector.end(), tempMove);
 						moveVector.insert(moveVector.end(), tempmove);
+
 					}
 			}
 
@@ -335,12 +336,12 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 
 			//Castling
 			if(_blackCastleLongAllowed){
-				if(D8C8B8_MASK & ~BitBoards[ EMPTYSQUARES ]) //if the area between rook and king is empty
-					if(bCheckEnemyAttacks(BitBoards[B_KING], BitBoards) & D8C8B8_MASK){
+				if(!(D8C8B8_MASK & ~BitBoards[ EMPTYSQUARES ])) //if the area between rook and king is empty
+					if( !(bAllEnemyAttacks(BitBoards) & D8C8B8_MASK) ){
 						std::vector<UI64> tempMove, tempmove;
 						//move the king
 						tempMove.insert(tempMove.end(), BitBoards[ B_KING ]);
-						tempMove.insert(tempMove.end(), (BitBoards[ B_KING ]) >> 2 );
+						tempMove.insert(tempMove.end(), (BitBoards[ B_KING ]) << 2 );
 						
 						//move the rook
 						tempmove.insert(tempmove.end(), (BitBoards[ B_ROOK ] & -BitBoards[ B_ROOK ])); //ls1b
@@ -352,8 +353,8 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			}
 
 			if(_blackCastleShortAllowed){
-				if(F8G8_MASK  & ~BitBoards[ EMPTYSQUARES ]) //if the area between rook and king is empty
-					if(bCheckEnemyAttacks(BitBoards[B_KING], BitBoards) & F8G8_MASK){ // if somebody attacks the area we are going to move
+				if(!(F8G8_MASK  & ~BitBoards[ EMPTYSQUARES ])) //if the area between rook and king is empty
+					if( !(bAllEnemyAttacks(BitBoards) & F8G8_MASK) ){ // if somebody attacks the area we are going to move
 						std::vector<UI64> tempMove, tempmove;
 						//move the king
 						tempMove.insert(tempMove.end(), BitBoards[ B_KING ]);
@@ -361,7 +362,7 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 						
 						//move the rook
 						tempmove.insert(tempmove.end(), (BitBoards[ B_ROOK ]^(BitBoards[ B_ROOK ] & -BitBoards[ B_ROOK ]))); //reseted LS1B
-						tempmove.insert(tempmove.end(), (BitBoards[ B_ROOK ]^(BitBoards[ B_ROOK ] & -BitBoards[ B_ROOK ])) >> 3); 
+						tempmove.insert(tempmove.end(), (BitBoards[ B_ROOK ]^(BitBoards[ B_ROOK ] & -BitBoards[ B_ROOK ])) >> 2); 
 						
 						moveVector.insert(moveVector.end(), tempMove);
 						moveVector.insert(moveVector.end(), tempmove);
@@ -1920,4 +1921,40 @@ void Position::bShortCastleFalse(){
 */
 void Position::bLongCastleFalse(){
 	_blackCastleLongAllowed = false;
+}
+
+
+/**
+	Returns all the black attacks in one board
+
+	@author Olli Koskinen, Arttu Nieminen
+	@param void
+	@return UI64 Bitboard as enemy attacks
+*/
+UI64 Position::wAllEnemyAttacks(UI64 BitBoards[]){
+	UI64 attacks = bPawnAttacks(BitBoards[ B_PAWN ], BitBoards[ B_PIECES ]);
+	attacks |= AllBlackKnightMoves(BitBoards[ B_KNIGHT ], BitBoards[ B_PIECES ]);
+	attacks |= AllRookMoves(BitBoards[ B_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]);
+	attacks |= AllBishopMoves(BitBoards[ B_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]);
+	attacks |= queenMoves(BitBoards[ B_QUEEN ], (BitBoards[ EMPTYSQUARES ]), (BitBoards[ B_PIECES ]));
+	attacks |= bKingMoves(BitBoards[ B_KING ], BitBoards[ B_PIECES ],BitBoards);
+	return attacks;
+}
+
+
+/**
+	Returns all the white attacks in one board
+
+	@author Olli Koskinen, Arttu Nieminen
+	@param void
+	@return UI64 Bitboard as enemy attacks
+*/
+UI64 Position::bAllEnemyAttacks(UI64 BitBoards[]){
+	UI64 attacks = wPawnAttacks(BitBoards[ W_PAWN ], BitBoards[ W_PIECES ]);
+	attacks |= AllBlackKnightMoves(BitBoards[ W_KNIGHT ], BitBoards[ W_PIECES ]);
+	attacks |= AllRookMoves(BitBoards[ W_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
+	attacks |= AllBishopMoves(BitBoards[ W_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
+	attacks |= queenMoves(BitBoards[ W_QUEEN ], (BitBoards[ EMPTYSQUARES ]), (BitBoards[ W_PIECES ]));
+	attacks |= bKingMoves(BitBoards[ W_KING ], BitBoards[ W_PIECES ],BitBoards);
+	return attacks;
 }

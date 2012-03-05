@@ -50,5 +50,9 @@ public:
 	int getY1() const;
 	int getX2() const;
 	int getY2() const;
+
+	bool Castling();
+	bool castlingShort();
+	bool castlingLong();
 };
 

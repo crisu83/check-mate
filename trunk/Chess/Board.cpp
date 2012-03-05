@@ -266,7 +266,7 @@ void Board::updateBitBoards(Move move, int type){
 	if(debug)
 		std::cout<<"Bitboards [ type ] = "<<_BitBoards[ type ]<<"\n"; 
 
-		//If we move the king, we cant do castling anymore
+	//If we move the king, we cant do castling anymore
 	if(type == W_KING){
 		_position->setWhiteCastlingFalse();
 	}
@@ -287,15 +287,17 @@ void Board::updateBitBoards(Move move, int type){
 
 
 	if(type == W_ROOK){
-		if( !(_BitBoards[W_ROOK] & _SquareBits[0]) ) //White queen side rook
+		//LS1B
+		if((_BitBoards[W_ROOK] & -_BitBoards[W_ROOK]) & _SquareBits[0] ) //White queen side rook
 			_position->wLongCastleFalse();
-		if( !(_BitBoards[W_ROOK] & _SquareBits[7])) //White king side rook
+		//Reseted LS1B
+		if( !( (_BitBoards[W_ROOK] ^(_BitBoards[W_ROOK] & -_BitBoards[W_ROOK])) & _SquareBits[7])) //White king side rook
 			_position->wShortCastleFalse();
 	}
 	else if(type == B_ROOK){
-		if( !(_BitBoards[B_ROOK] & _SquareBits[63]) ) //Black queen side rook
+		if((_BitBoards[B_ROOK] & -_BitBoards[B_ROOK]) & _SquareBits[63] ) //Black queen side rook
 			_position->bShortCastleFalse();
-		if( !(_BitBoards[B_ROOK] & _SquareBits[56]) ) //Black king side rook
+		if(  (_BitBoards[B_ROOK] ^(_BitBoards[B_ROOK] & -_BitBoards[B_ROOK])) & _SquareBits[56])  //Black king side rook
 			_position->bShortCastleFalse();
 	}
 
@@ -304,38 +306,66 @@ void Board::updateBitBoards(Move move, int type){
 	if(debug)
 		std::cout<<"source "<<sourceIndex<<" dest "<<destIndex<<"\n";
 
-	//Account for the attacks
-	//If clause == If the type is one of the Whites, then we look from black pieces
-	//And if the type is one of the blacks, then we look from white pieces
-	//Then we binary AND it with the destination bit from the squareBits and see if the result is the same as squareBits dest
-	int enemyPieces = ( type <= W_PAWN && type > EMPTY ) ? B_PIECES : W_PIECES;
-	int ourPieces	= ( type <= W_PAWN && type > EMPTY ) ? W_PIECES : B_PIECES;
+	//If we have a castling situation
+	if(move.Castling()){
+		//We determine which rooks should we move with castling
+		int rooksToMove	= ( type <= W_PAWN && type > EMPTY ) ? W_ROOK : B_ROOK;
 
-	if( (_BitBoards[ enemyPieces ]  &  _SquareBits[ destIndex ]) == _SquareBits[ destIndex ] ){
-
-		//First, clear the fifty move rule to zero, since we attack
-		fiftyMove = 0;
-
-		_BitBoards[ enemyPieces ]  &=  ~_SquareBits[  destIndex  ];  // Remove the enemy piece from pieces
-		_BitBoards[	   type		]  &=  ~_SquareBits[ sourceIndex ];  // Remove our piece from the source
-		_BitBoards[  ourPieces	]  &=  ~_SquareBits[ sourceIndex ];	 // remove our piece from pieces
-		_BitBoards[    type     ]  |=   _SquareBits[  destIndex  ];  // add our piece to destination
-
-
-		int i	= (type <= W_PAWN &&  type > EMPTY) ? B_KING : W_KING;
-		int end = (type <= W_PAWN &&  type > EMPTY) ? B_PAWN : W_PAWN;
-
-		for( i; i <= end; i++){
-			if(( _BitBoards[ i ] & _SquareBits[ destIndex ]) == _SquareBits[destIndex ] ){
-				_BitBoards[ i ]  &=  ~_SquareBits[destIndex ];
-			}
-		}
-
-	}else{
-		//We move without distractions
-		//Delete the piece we are going to move and then add it to a new place
+		//Delete the king we are going to move and then add it to a new place
 		_BitBoards[ type ] &=  ~_SquareBits[ sourceIndex ];
 		_BitBoards[ type ] |=   _SquareBits[ destIndex   ];
+
+
+		//We move rooks too
+		if(move.castlingLong()){
+			UI64 rooksPlace = (_BitBoards[ rooksToMove ] & -_BitBoards[ rooksToMove ]);
+			//Delete the piece we are going to move and then add it to a new place
+			_BitBoards[ rooksToMove ] &=  ~(_BitBoards[ rooksToMove ] & -_BitBoards[ rooksToMove ]);
+			_BitBoards[ rooksToMove ] |=   rooksPlace << 3;
+
+		}
+		else if(move.castlingShort()) {
+			UI64 rooksPlace =(_BitBoards[ rooksToMove ] ^(_BitBoards[ rooksToMove ] & -_BitBoards[ rooksToMove ]));
+			_BitBoards[ rooksToMove ] &=  ~ (_BitBoards[ rooksToMove ] ^(_BitBoards[ rooksToMove ] & -_BitBoards[ rooksToMove ]));
+			_BitBoards[ rooksToMove ] |=   rooksPlace  >> 2 ;
+		}
+	}
+	else
+	{
+
+		//Account for the attacks
+		//If clause == If the type is one of the Whites, then we look from black pieces
+		//And if the type is one of the blacks, then we look from white pieces
+		//Then we binary AND it with the destination bit from the squareBits and see if the result is the same as squareBits dest
+		int enemyPieces = ( type <= W_PAWN && type > EMPTY ) ? B_PIECES : W_PIECES;
+		int ourPieces	= ( type <= W_PAWN && type > EMPTY ) ? W_PIECES : B_PIECES;
+
+		if( (_BitBoards[ enemyPieces ]  &  _SquareBits[ destIndex ]) == _SquareBits[ destIndex ] ){
+
+			//First, clear the fifty move rule to zero, since we attack
+			fiftyMove = 0;
+
+			_BitBoards[ enemyPieces ]  &=  ~_SquareBits[  destIndex  ];  // Remove the enemy piece from pieces
+			_BitBoards[	   type		]  &=  ~_SquareBits[ sourceIndex ];  // Remove our piece from the source
+			_BitBoards[  ourPieces	]  &=  ~_SquareBits[ sourceIndex ];	 // remove our piece from pieces
+			_BitBoards[    type     ]  |=   _SquareBits[  destIndex  ];  // add our piece to destination
+
+
+			int i	= (type <= W_PAWN &&  type > EMPTY) ? B_KING : W_KING;
+			int end = (type <= W_PAWN &&  type > EMPTY) ? B_PAWN : W_PAWN;
+
+			for( i; i <= end; i++){
+				if(( _BitBoards[ i ] & _SquareBits[ destIndex ]) == _SquareBits[destIndex ] ){
+					_BitBoards[ i ]  &=  ~_SquareBits[destIndex ];
+				}
+			}
+
+		}else{
+			//We move without distractions
+			//Delete the piece we are going to move and then add it to a new place
+			_BitBoards[ type ] &=  ~_SquareBits[ sourceIndex ];
+			_BitBoards[ type ] |=   _SquareBits[ destIndex   ];
+		}
 	}
 
 	//Update the all the white/black pieces according to turn

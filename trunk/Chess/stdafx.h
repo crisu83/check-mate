@@ -3,6 +3,15 @@
 // are changed infrequently
 //
 
+//Dissables the annoying warning: 
+//warning C4146: unary minus operator applied to unsigned type, result still unsigned
+//Which does not concern us.
+#pragma warning(disable:4146)
+//gets rid of warning C4018: '<=' : signed/unsigned mismatch warning
+#pragma warning(disable:4018)
+//gets rid of warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. warning
+#pragma warning(disable:4996)
+
 #pragma once
 
 typedef unsigned long long UI64;
