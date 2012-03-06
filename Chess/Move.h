@@ -21,6 +21,7 @@ private:
 	bool _castleLong;	// was it queenside castling?
 	bool _enPassant;	// was pawn taken en passant?
 	int _promoteTo;		// which piece we promoted to?
+	bool promote;
 
 public:
 	Move(void);
@@ -51,8 +52,13 @@ public:
 	int getX2() const;
 	int getY2() const;
 
-	bool Castling();
-	bool castlingShort();
-	bool castlingLong();
+	//Promote
+	int getPromoteTo() const;
+	bool promoting() const;
+
+	//castling
+	bool Castling() const;
+	bool castlingShort() const;
+	bool castlingLong() const;
 };
 

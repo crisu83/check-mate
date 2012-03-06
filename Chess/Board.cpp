@@ -277,6 +277,7 @@ void Board::updateBitBoards(Move move, int type){
 	//Find the index for the squareBits array from the coords.
 	int sourceIndex =	(move.getX1()) + (move.getY1()<<3);
 	int destIndex	=	(move.getX2()) + (move.getY2()<<3);
+	int toMove = _position->getToMove();
 
 
 	//Set the fiftyMove rule to zero if pawn is moved, else add +1 on every move.
@@ -286,6 +287,7 @@ void Board::updateBitBoards(Move move, int type){
 		fiftyMove++;
 
 
+	//If we move one of the rooks, then it will not be able to castle anymore
 	if(type == W_ROOK){
 		//LS1B
 		if((_BitBoards[W_ROOK] & -_BitBoards[W_ROOK]) & _SquareBits[0] ) //White queen side rook
@@ -325,9 +327,88 @@ void Board::updateBitBoards(Move move, int type){
 
 		}
 		else if(move.castlingShort()) {
+			//Delete the piece we are going to move and then add it to a new place
 			UI64 rooksPlace =(_BitBoards[ rooksToMove ] ^(_BitBoards[ rooksToMove ] & -_BitBoards[ rooksToMove ]));
 			_BitBoards[ rooksToMove ] &=  ~ (_BitBoards[ rooksToMove ] ^(_BitBoards[ rooksToMove ] & -_BitBoards[ rooksToMove ]));
 			_BitBoards[ rooksToMove ] |=   rooksPlace  >> 2 ;
+		}
+	}
+	//We have a promotion
+	else if(move.promoting() && toMove == WHITE && move.getY2() == 7 ){
+
+		switch(move.getPromoteTo()){
+
+		case 'n':
+			//Knights
+			//Remove the pawn from the list
+			_BitBoards[ W_PAWN ] &=  ~_SquareBits[ sourceIndex ];
+			//And ad a knight to the dest place
+			_BitBoards[ W_KNIGHT] |=   _SquareBits[ destIndex   ];
+
+
+		case 'b':
+			//Bishops
+			//Remove the pawn from the list
+			_BitBoards[ W_PAWN ] &=  ~_SquareBits[ sourceIndex ];
+			//And ad a bishop to the dest place
+			_BitBoards[ W_BISHOP ] |=   _SquareBits[ destIndex   ];
+			break;		
+
+		case 'q':
+			//Queens
+			//Remove the pawn from the list
+			_BitBoards[ W_PAWN ] &=  ~_SquareBits[ sourceIndex ];
+			//And ad a queen to the dest place
+			_BitBoards[ W_QUEEN] |=   _SquareBits[ destIndex   ];
+			break;
+
+
+		case 'r':
+			//Rooks
+			//Remove the pawn from the list
+			_BitBoards[ W_PAWN ] &=  ~_SquareBits[ sourceIndex ];
+			//And ad a rook to the dest place
+			_BitBoards[ W_ROOK] |=   _SquareBits[ destIndex   ];
+			break;
+
+		}
+
+	}
+	else if (move.promoting() && toMove == BLACK && move.getY2() == 0){
+
+		switch(move.getPromoteTo()){
+		case 'n':
+			//Knights
+			//Remove the pawn from the list
+			_BitBoards[ B_PAWN ] &=  ~_SquareBits[ sourceIndex ];
+			//And ad a knight to the dest place
+			_BitBoards[ B_KNIGHT] |=   _SquareBits[ destIndex   ];
+			break;	
+
+		case 'b':
+			//Bishops
+			//Remove the pawn from the list
+			_BitBoards[ B_PAWN ] &=  ~_SquareBits[ sourceIndex ];
+			//And ad a knight to the dest place
+			_BitBoards[ B_BISHOP] |=   _SquareBits[ destIndex   ];
+			break;		
+
+		case 'q':
+			//Queens
+			//Remove the pawn from the list
+			_BitBoards[ B_PAWN ] &=  ~_SquareBits[ sourceIndex ];
+			//And ad a knight to the dest place
+			_BitBoards[ B_QUEEN] |=   _SquareBits[ destIndex   ];
+			break;
+
+		case 'r':
+			//Rooks
+			//Remove the pawn from the list
+			_BitBoards[ B_PAWN ] &=  ~_SquareBits[ sourceIndex ];
+			//And ad a knight to the dest place
+			_BitBoards[ B_ROOK] |=   _SquareBits[ destIndex   ];
+			break;
+
 		}
 	}
 	else
@@ -341,7 +422,6 @@ void Board::updateBitBoards(Move move, int type){
 		int ourPieces	= ( type <= W_PAWN && type > EMPTY ) ? W_PIECES : B_PIECES;
 
 		if( (_BitBoards[ enemyPieces ]  &  _SquareBits[ destIndex ]) == _SquareBits[ destIndex ] ){
-
 			//First, clear the fifty move rule to zero, since we attack
 			fiftyMove = 0;
 
@@ -349,7 +429,6 @@ void Board::updateBitBoards(Move move, int type){
 			_BitBoards[	   type		]  &=  ~_SquareBits[ sourceIndex ];  // Remove our piece from the source
 			_BitBoards[  ourPieces	]  &=  ~_SquareBits[ sourceIndex ];	 // remove our piece from pieces
 			_BitBoards[    type     ]  |=   _SquareBits[  destIndex  ];  // add our piece to destination
-
 
 			int i	= (type <= W_PAWN &&  type > EMPTY) ? B_KING : W_KING;
 			int end = (type <= W_PAWN &&  type > EMPTY) ? B_PAWN : W_PAWN;
@@ -359,8 +438,8 @@ void Board::updateBitBoards(Move move, int type){
 					_BitBoards[ i ]  &=  ~_SquareBits[destIndex ];
 				}
 			}
-
-		}else{
+		}
+		else{
 			//We move without distractions
 			//Delete the piece we are going to move and then add it to a new place
 			_BitBoards[ type ] &=  ~_SquareBits[ sourceIndex ];
@@ -511,12 +590,12 @@ std::vector<std::string> Board::getMoveStrings(){
 		UI64 source		  = bitboards.at(i).at(0);
 		UI64 destinations = bitboards.at(i).at(1);
 
-		for(int j = 0; j < SQUARES - 1; j++){
+		for(int j = 0; j < SQUARES; j++){
 			if((source & _SquareBits[ j ]) ==  _SquareBits[ j ] ){
 				int x =  j & 7;
 				int y =  j >> 3; 
 
-				for(int k = 0; k < SQUARES - 1; k++){
+				for(int k = 0; k < SQUARES; k++){
 					if ((destinations & _SquareBits[ k ]) ==  _SquareBits[ k ] ){
 
 						int x2 =  k & 7;
