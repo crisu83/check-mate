@@ -26,6 +26,7 @@ Move::Move(void)
 Move::Move(int x1, int y1, int x2, int y2)
 {
 	Move();
+	promote = false;
 
 	_x1 = x1;
 	_y1 = y1;
@@ -59,7 +60,7 @@ void Move::strToMove(const char* str)
 
 	while (res != NULL)
 	{
-		// todo: handle castling, en passant and promotion.
+		// todo: en passant
 
 		// source
 		if (i == 0)
@@ -96,6 +97,28 @@ void Move::strToMove(const char* str)
 			// y-coord
 			c = res[1];
 			_y2 = atoi(&c) - 1;
+
+			//Promote 
+			if(strlen(res) >=3){
+				switch(res[2]){
+					case 'n':
+						promote = true;
+						_promoteTo = 'n'; // use the ascii number as identifier
+						break;			  // in this case 'n' would be equal to 110
+					case 'b':
+						promote = true;
+						_promoteTo = 'b'; //This way we can compare the number in a form that is easy 
+						break;			  //to read by the coder
+					case 'q':
+						promote = true;
+						_promoteTo = 'q';
+						break;
+					case 'r':
+						promote = true;
+						_promoteTo = 'r';
+						break;
+				}
+			}
 		}
 
 		res = strtok(NULL, "-");
@@ -192,15 +215,46 @@ int Move::getY2() const
 
 	@return bool true if castling
 */
-bool Move::Castling(){
+bool Move::Castling() const{
 	return (_castleLong == true || _castleShort == true) ? true : false;
 }
 
-bool Move::castlingLong(){
+/**
+	A function to check, if we can castle with particular rook
+	@Author Olli Koskinen, Arttu Nieminen
+	@return bool true if castling is possible
+*/
+bool Move::castlingLong() const{
 	return _castleLong;
 }
 
-bool Move::castlingShort(){
+/**
+	A function to check, if we can castle with particular rook
+	@Author Olli Koskinen, Arttu Nieminen
+	@return bool true if castling is possible
+*/
+bool Move::castlingShort() const{
 	return _castleShort;
+}
+
+
+/**
+	A function to return the piece we are going to promote to
+
+	@Author Olli Koskinen, Arttu Nieminen
+	@return int as the piece representative
+*/
+int Move::getPromoteTo() const{
+	return _promoteTo;
+}
+
+/**
+	A function to return boolean for checking if we can promote.
+
+	@Author Olli Koskinen, Arttu Nieminen
+	@return true if we can promote
+*/
+bool Move::promoting() const {
+	return promote;
 }
 
