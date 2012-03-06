@@ -1613,9 +1613,9 @@ UI64 Position::bMovesForPinned(UI64 ownpiece, UI64 moves, UI64 BitBoards[]){
 UI64 Position::wEscapeMoves(UI64 king, UI64 BitBoards[]){
 	UI64 attacks = bPawnAttacks(BitBoards[ B_PAWN ], BitBoards[ B_PIECES ]);
 	attacks |= AllBlackKnightMoves(BitBoards[ B_KNIGHT ], BitBoards[ B_PIECES ]);
-	attacks |= AllRookMoves(BitBoards[ B_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]);
-	attacks |= AllBishopMoves(BitBoards[ B_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]);
-	attacks |= queenMoves(BitBoards[ B_QUEEN ], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES] );
+	attacks |= AllRookMoves(BitBoards[ B_ROOK ], BitBoards[ EMPTYSQUARES ] | king, BitBoards[ B_PIECES ]);
+	attacks |= AllBishopMoves(BitBoards[ B_BISHOP ], BitBoards[ EMPTYSQUARES ] | king, BitBoards[ B_PIECES ]);
+	attacks |= queenMoves(BitBoards[ B_QUEEN ], BitBoards[ EMPTYSQUARES ] | king, BitBoards[ B_PIECES] );
 	UI64 kingmoves = wKingMoves(king, BitBoards[ W_PIECES ], BitBoards);
 	return kingmoves & ~attacks;
 }
@@ -1630,9 +1630,9 @@ UI64 Position::wEscapeMoves(UI64 king, UI64 BitBoards[]){
 UI64 Position::bEscapeMoves(UI64 king, UI64 BitBoards[]){
 	UI64 attacks = wPawnAttacks(BitBoards[ W_PAWN ], BitBoards[ W_PIECES ]);
 	attacks |= AllWhiteKnightMoves(BitBoards[ W_KNIGHT ], BitBoards[ W_PIECES ]);
-	attacks |= AllRookMoves(BitBoards[ W_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
-	attacks |= AllBishopMoves(BitBoards[ W_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
-	attacks |= queenMoves(BitBoards[ W_QUEEN ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES] );
+	attacks |= AllRookMoves(BitBoards[ W_ROOK ], BitBoards[ EMPTYSQUARES ] | king, BitBoards[ W_PIECES ]);
+	attacks |= AllBishopMoves(BitBoards[ W_BISHOP ], BitBoards[ EMPTYSQUARES ] | king, BitBoards[ W_PIECES ]);
+	attacks |= queenMoves(BitBoards[ W_QUEEN ], BitBoards[ EMPTYSQUARES ] | king, BitBoards[ W_PIECES] );
 	UI64 kingmoves = bKingMoves(king, BitBoards[ B_PIECES ], BitBoards);
 	return kingmoves & ~attacks;
 }
