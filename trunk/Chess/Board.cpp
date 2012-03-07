@@ -266,14 +266,6 @@ void Board::updateBitBoards(Move move, int type){
 	if(debug)
 		std::cout<<"Bitboards [ type ] = "<<_BitBoards[ type ]<<"\n"; 
 
-	//If we move the king, we cant do castling anymore
-	if(type == W_KING){
-		_position->setWhiteCastlingFalse();
-	}
-	else if(type == B_KING){
-		_position->setBlackCastlingFalse();
-	}
-
 	//Find the index for the squareBits array from the coords.
 	int sourceIndex =	(move.getX1()) + (move.getY1()<<3);
 	int destIndex	=	(move.getX2()) + (move.getY2()<<3);
@@ -291,6 +283,40 @@ void Board::updateBitBoards(Move move, int type){
 		fiftyMove++;
 
 
+	/*
+	*
+	*	EN PASSANT
+	*
+	*/
+
+
+	if(type == W_PAWN){
+		if( (move.getY2() - move.getY1()) == 2){ //If we do a doublepush with pawn
+			_BitBoards[ ENPASSANT ] |= _SquareBits[ sourceIndex ] << 8; 
+		}
+
+	}else if (type == B_PAWN){
+		if( (move.getY1() - move.getY2()) == 2){ //If we do a doublepush with pawn
+			_BitBoards[ ENPASSANT ] |= _SquareBits[ sourceIndex ] >> 8; 
+		}
+	}
+
+
+	/*
+	*
+	*	CASTLING
+	*
+	*/
+
+	//If we move the king, we cant do castling anymore
+	if(type == W_KING){
+		_position->setWhiteCastlingFalse();
+	}
+	else if(type == B_KING){
+		_position->setBlackCastlingFalse();
+	}
+
+
 	//If we move one of the rooks, then it will not be able to castle anymore
 	if(type == W_ROOK){
 		//LS1B
@@ -306,8 +332,6 @@ void Board::updateBitBoards(Move move, int type){
 		if(  (_BitBoards[B_ROOK] ^(_BitBoards[B_ROOK] & -_BitBoards[B_ROOK])) & _SquareBits[56])  //Black king side rook
 			_position->bShortCastleFalse();
 	}
-
-
 
 	if(debug)
 		std::cout<<"source "<<sourceIndex<<" dest "<<destIndex<<"\n";
@@ -337,7 +361,13 @@ void Board::updateBitBoards(Move move, int type){
 			_BitBoards[ rooksToMove ] |=   rooksPlace  >> 2 ;
 		}
 	}
-	//We have a promotion
+
+
+	/*
+	*
+	*	PROMOTING
+	*
+	*/
 	else if(move.promoting() && toMove == WHITE && move.getY2() == 7 ){
 
 		switch(move.getPromoteTo()){
@@ -416,19 +446,20 @@ void Board::updateBitBoards(Move move, int type){
 		}
 	}
 
-	//Account for the attacks
-	//If clause == If the type is one of the Whites, then we look from black pieces
-	//And if the type is one of the blacks, then we look from white pieces
-	//Then we binary AND it with the destination bit from the squareBits and see if the result is the same as squareBits dest
 
-
+	/*
+	*
+	*	ATTACKS
+	*
+	*/
+	//We look if there is enemy on our destination
 	if( (_BitBoards[ enemyPieces ]  &  _SquareBits[ destIndex ]) == _SquareBits[ destIndex ] ){
+
 		//First, clear the fifty move rule to zero, since we attack
 		fiftyMove = 0;
 
 		_BitBoards[ enemyPieces ]  &=  ~_SquareBits[  destIndex  ];  // Remove the enemy piece from pieces
 		_BitBoards[  ourPieces	]  &=  ~_SquareBits[ sourceIndex ];	 // remove our piece from pieces
-
 
 		//If we are promoting, these are not needed
 		if(!move.promoting()){
@@ -436,10 +467,9 @@ void Board::updateBitBoards(Move move, int type){
 			_BitBoards[    type     ]  |=   _SquareBits[  destIndex  ];  // add our piece to destination
 		}
 
-
-		int i	= (type <= W_PAWN &&  type > EMPTY) ? B_KING : W_KING;
-		int end = (type <= W_PAWN &&  type > EMPTY) ? B_PAWN : W_PAWN;
-
+		int i	= toMove == WHITE ? B_KING : W_KING;
+		int end = toMove == WHITE ? B_PAWN : W_PAWN;
+		//And just in case we search every enemy table trhough if there's still someone in our dest square
 		for( i; i <= end; i++){
 			if(( _BitBoards[ i ] & _SquareBits[ destIndex ]) == _SquareBits[destIndex ] ){
 				_BitBoards[ i ]  &=  ~_SquareBits[destIndex ];
@@ -447,9 +477,15 @@ void Board::updateBitBoards(Move move, int type){
 		}
 	}
 	else{
-		//We move without distractions
 		//Delete the piece we are going to move and then add it to a new place
 		if(!move.promoting()){
+			//If we have enpassant move
+			if((_BitBoards[ ENPASSANT ]  & _SquareBits[destIndex]) == _SquareBits[destIndex] ){
+				if(toMove == WHITE)
+					_BitBoards[ B_PAWN ] &=  ~_SquareBits[ destIndex ] >> 8;
+				else
+					_BitBoards[ W_PAWN ] &=  ~_SquareBits[ destIndex ] << 8;
+			}
 			_BitBoards[ type ] &=  ~_SquareBits[ sourceIndex ];
 			_BitBoards[ type ] |=   _SquareBits[ destIndex   ];
 		}
@@ -466,10 +502,14 @@ void Board::updateBitBoards(Move move, int type){
 
 	_BitBoards[ EMPTYSQUARES ]= ~( _BitBoards[ W_PIECES ] | _BitBoards[ B_PIECES ] );
 
+
+
 	if(debug)
 		std::cout<<"Bitboards [ type ] = "<<_BitBoards[ type ]<<"\n"; 
 
 	BitBoardToMoves();
+
+	_BitBoards[ ENPASSANT ] &= toMove == WHITE ? ~SIXTH_RANK : ~THIRD_RANK;
 }
 
 /**
