@@ -67,14 +67,18 @@ private:
 	UI64 AllBishopMoves(UI64 bishop, UI64 emptysquares, UI64 ownpieces);
 	//queen
 	UI64 queenMoves(UI64 queen, UI64 emptysquares, UI64 ownpieces);
+
+	//for escaping
+	UI64 wEscapeMoves(UI64 king, UI64 BitBoards[]);
+	UI64 bEscapeMoves(UI64 king, UI64 BitBoards[]);
+	UI64 queenMovesForEscaping(UI64 queen, UI64 emptysquares);
+	UI64 AllBishopMovesForEscaping(UI64 bishop, UI64 emptysquares);
+	UI64 AllRookMovesForEscaping(UI64 rooks, UI64 emptysquares);
 	//isCheck-functions
-	
 	bool wIsPinned(UI64 ownpiece, UI64 BitBoards[]);
 	bool bIsPinned(UI64 ownpiece, UI64 BitBoards[]);
 	UI64 wMovesForPinned(UI64 ownpiece, UI64 moves, UI64 BitBoards[]);
 	UI64 bMovesForPinned(UI64 ownpiece, UI64 moves, UI64 BitBoards[]);
-	UI64 wEscapeMoves(UI64 king, UI64 BitBoards[]);
-	UI64 bEscapeMoves(UI64 king, UI64 BitBoards[]);
 	UI64 wBlockCheck(UI64 ownpiece, UI64 moves, UI64 BitBoards[]);
 	UI64 bBlockCheck(UI64 ownpiece, UI64 moves, UI64 BitBoards[]);
 
