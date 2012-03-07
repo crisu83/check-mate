@@ -576,30 +576,6 @@ bool Board::moveIsLegal(Move *_curMove){
 
 	std::vector<std::vector<UI64>> move = _position->genLegalMoves(_BitBoards);
 
-	if(move.size() == 0){
-
-		if(_position->getToMove() == WHITE){
-			if(_position->wIsCheck(_BitBoards)){
-				system("CLS");
-				std::cout<<"Checkmate!\nThe game ends in favor of Black!";
-				getchar();
-				return 0;
-			}
-		}else{
-
-			if(_position->bIsCheck(_BitBoards)){
-				system("CLS");
-				std::cout<<"Checkmate!\nThe game ends in favor of White!";
-				getchar();
-				return 0;
-			}
-		}
-
-		system("CLS");
-		std::cout<<"Stalemate!\nThe game ends in draw!";
-		getchar();
-		return 0;
-	}
 
 	for(int i = 0; i <move.size(); i++){
 		UI64 source		  = move.at(i).at(0);
@@ -651,6 +627,33 @@ std::vector<std::string> Board::getMoveStrings(){
 	std::vector<std::string> strVector;
 	std::string str;
 	std::vector<std::vector<UI64>> bitboards = getLegalMoves();
+
+
+	if(bitboards.size() == 0){
+
+		if(_position->getToMove() == WHITE){
+			if(_position->wIsCheck(_BitBoards)){
+				system("CLS");
+				std::cout<<"Checkmate!\nThe game ends in favor of Black!";
+				getchar();
+				system("exit");
+			}
+		}else{
+
+			if(_position->bIsCheck(_BitBoards)){
+				system("CLS");
+				std::cout<<"Checkmate!\nThe game ends in favor of White!";
+				getchar();
+				system("exit");
+			}
+		}
+
+		system("CLS");
+		std::cout<<"Stalemate!\nThe game ends in draw!";
+		getchar();
+		system("exit");
+	}
+
 	bool pointIsSet = false;
 
 	int x = 0,
