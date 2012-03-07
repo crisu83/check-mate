@@ -279,6 +279,10 @@ void Board::updateBitBoards(Move move, int type){
 	int destIndex	=	(move.getX2()) + (move.getY2()<<3);
 	int toMove = _position->getToMove();
 
+	//If the type is one of the Whites, then we look from black pieces
+	//And if the type is one of the blacks, then we look from white pieces
+	int enemyPieces = toMove == WHITE ? B_PIECES : W_PIECES;
+	int ourPieces	= toMove == WHITE ? W_PIECES : B_PIECES;
 
 	//Set the fiftyMove rule to zero if pawn is moved, else add +1 on every move.
 	if(type == W_PAWN || B_PAWN)
@@ -344,7 +348,7 @@ void Board::updateBitBoards(Move move, int type){
 			_BitBoards[ W_PAWN ] &=  ~_SquareBits[ sourceIndex ];
 			//And ad a knight to the dest place
 			_BitBoards[ W_KNIGHT] |=   _SquareBits[ destIndex   ];
-
+			break;
 
 		case 'b':
 			//Bishops
@@ -411,41 +415,46 @@ void Board::updateBitBoards(Move move, int type){
 
 		}
 	}
-	else
-	{
 
-		//Account for the attacks
-		//If clause == If the type is one of the Whites, then we look from black pieces
-		//And if the type is one of the blacks, then we look from white pieces
-		//Then we binary AND it with the destination bit from the squareBits and see if the result is the same as squareBits dest
-		int enemyPieces = ( type <= W_PAWN && type > EMPTY ) ? B_PIECES : W_PIECES;
-		int ourPieces	= ( type <= W_PAWN && type > EMPTY ) ? W_PIECES : B_PIECES;
+	//Account for the attacks
+	//If clause == If the type is one of the Whites, then we look from black pieces
+	//And if the type is one of the blacks, then we look from white pieces
+	//Then we binary AND it with the destination bit from the squareBits and see if the result is the same as squareBits dest
 
-		if( (_BitBoards[ enemyPieces ]  &  _SquareBits[ destIndex ]) == _SquareBits[ destIndex ] ){
-			//First, clear the fifty move rule to zero, since we attack
-			fiftyMove = 0;
 
-			_BitBoards[ enemyPieces ]  &=  ~_SquareBits[  destIndex  ];  // Remove the enemy piece from pieces
+	if( (_BitBoards[ enemyPieces ]  &  _SquareBits[ destIndex ]) == _SquareBits[ destIndex ] ){
+		//First, clear the fifty move rule to zero, since we attack
+		fiftyMove = 0;
+
+		_BitBoards[ enemyPieces ]  &=  ~_SquareBits[  destIndex  ];  // Remove the enemy piece from pieces
+		_BitBoards[  ourPieces	]  &=  ~_SquareBits[ sourceIndex ];	 // remove our piece from pieces
+
+
+		//If we are promoting, these are not needed
+		if(!move.promoting()){
 			_BitBoards[	   type		]  &=  ~_SquareBits[ sourceIndex ];  // Remove our piece from the source
-			_BitBoards[  ourPieces	]  &=  ~_SquareBits[ sourceIndex ];	 // remove our piece from pieces
 			_BitBoards[    type     ]  |=   _SquareBits[  destIndex  ];  // add our piece to destination
+		}
 
-			int i	= (type <= W_PAWN &&  type > EMPTY) ? B_KING : W_KING;
-			int end = (type <= W_PAWN &&  type > EMPTY) ? B_PAWN : W_PAWN;
 
-			for( i; i <= end; i++){
-				if(( _BitBoards[ i ] & _SquareBits[ destIndex ]) == _SquareBits[destIndex ] ){
-					_BitBoards[ i ]  &=  ~_SquareBits[destIndex ];
-				}
+		int i	= (type <= W_PAWN &&  type > EMPTY) ? B_KING : W_KING;
+		int end = (type <= W_PAWN &&  type > EMPTY) ? B_PAWN : W_PAWN;
+
+		for( i; i <= end; i++){
+			if(( _BitBoards[ i ] & _SquareBits[ destIndex ]) == _SquareBits[destIndex ] ){
+				_BitBoards[ i ]  &=  ~_SquareBits[destIndex ];
 			}
 		}
-		else{
-			//We move without distractions
-			//Delete the piece we are going to move and then add it to a new place
+	}
+	else{
+		//We move without distractions
+		//Delete the piece we are going to move and then add it to a new place
+		if(!move.promoting()){
 			_BitBoards[ type ] &=  ~_SquareBits[ sourceIndex ];
 			_BitBoards[ type ] |=   _SquareBits[ destIndex   ];
 		}
 	}
+
 
 	//Update the all the white/black pieces according to turn
 	_BitBoards[ W_PIECES ]  = _BitBoards[ W_PAWN ] | _BitBoards[ W_ROOK ] 
