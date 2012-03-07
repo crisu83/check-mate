@@ -576,6 +576,13 @@ bool Board::moveIsLegal(Move *_curMove){
 
 	std::vector<std::vector<UI64>> move = _position->genLegalMoves(_BitBoards);
 
+	if(move.size() == 0){
+		system("CLS");
+		std::cout<<"Checkmate!\nThe game ends in favor of "<<_position->getToMove() == WHITE ? "Black": "White";
+		getchar();
+		return 0;
+	}
+
 	for(int i = 0; i <move.size(); i++){
 		UI64 source		  = move.at(i).at(0);
 		UI64 destinations = move.at(i).at(1);
