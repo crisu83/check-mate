@@ -636,7 +636,7 @@ std::vector<std::string> Board::getMoveStrings(){
 				system("CLS");
 				std::cout<<"Checkmate!\nThe game ends in favor of Black!";
 				getchar();
-				system("exit");
+				exit(0);
 			}
 		}else{
 
@@ -644,14 +644,14 @@ std::vector<std::string> Board::getMoveStrings(){
 				system("CLS");
 				std::cout<<"Checkmate!\nThe game ends in favor of White!";
 				getchar();
-				system("exit");
+				exit(0);
 			}
 		}
 
 		system("CLS");
 		std::cout<<"Stalemate!\nThe game ends in draw!";
 		getchar();
-		system("exit");
+		exit(0);
 	}
 
 	bool pointIsSet = false;
