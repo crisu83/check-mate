@@ -74,6 +74,8 @@ private:
 	UI64 queenMovesForEscaping(UI64 queen, UI64 emptysquares);
 	UI64 AllBishopMovesForEscaping(UI64 bishop, UI64 emptysquares);
 	UI64 AllRookMovesForEscaping(UI64 rooks, UI64 emptysquares);
+	UI64 AllWhiteKnightMovesForEscaping(UI64 w_knight);
+	UI64 AllBlackKnightMovesForEscaping(UI64 b_knight);
 	//isCheck-functions
 	bool wIsPinned(UI64 ownpiece, UI64 BitBoards[]);
 	bool bIsPinned(UI64 ownpiece, UI64 BitBoards[]);
