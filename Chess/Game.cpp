@@ -67,20 +67,22 @@ int Game::run(void)
 	while (_running)
 	{
 		//Check if the move is legal and prompt the user if not
-		while(!_board->moveIsLegal(_curMove) && !_board->fiftyMoveRule()){
+		while(!_board->moveIsLegal(_curMove)){
+
+		_board->fiftyMoveRule();
 
 		// Render the game.
 		render();
 
 			std::vector<std::string> muuvit = _board->getMoveStrings();
-
+			if(muuvit.size() == 5)
+				getchar();
 			int rands = rand() % muuvit.size();
 			std::string s = muuvit.at(rands);
 
 			for(int i = 0; i <s.length(); i++){
 				moveStr[i] = s.at(i);
 			}
-
 
     //Disabled user input for testing
 

@@ -277,7 +277,7 @@ void Board::updateBitBoards(Move move, int type){
 	int ourPieces	= toMove == WHITE ? W_PIECES : B_PIECES;
 
 	//Set the fiftyMove rule to zero if pawn is moved, else add +1 on every move.
-	if(type == W_PAWN || B_PAWN)
+	if(type == W_PAWN ||type ==  B_PAWN)
 		fiftyMove = 0;
 	else
 		fiftyMove++;
@@ -599,8 +599,12 @@ bool Board::moveIsLegal(Move *_curMove){
 	@return true if we have moved silently 50 or more times.
 
 */
-bool Board::fiftyMoveRule(){
-	return fiftyMove >= 50 ? true : false;
+void Board::fiftyMoveRule(){
+	if(fiftyMove >= 50 ){
+		std::cout<<"Stalemate by 50 move rule!\nThe game ends in draw!";
+		getchar();
+		exit(0);
+	}
 }
 
 
