@@ -1420,6 +1420,7 @@ enemypieces to give to queenattacks(enemypieces & ~kingattacks)   queenattacks a
 */
 UI64 Position::bCheckEnemyAttacks(UI64 ownpiece, UI64 BitBoards[]){;
 	UI64 attacks = wPawnAttacks(BitBoards[ W_PAWN ]);
+	attacks |= wKingMoves(BitBoards[ W_KING ], BitBoards[ W_PIECES ], BitBoards);
 	attacks |= AllWhiteKnightMovesForEscaping(BitBoards[ W_KNIGHT ]);
 	attacks |= AllRookMoves(BitBoards[ W_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
 	attacks |= AllBishopMoves(BitBoards[ W_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
@@ -1429,6 +1430,7 @@ UI64 Position::bCheckEnemyAttacks(UI64 ownpiece, UI64 BitBoards[]){;
 }
 UI64 Position::wCheckEnemyAttacks(UI64 ownpiece, UI64 BitBoards[]){
 	UI64 attacks = bPawnAttacks(BitBoards[ B_PAWN ]);
+	attacks |= bKingMoves(BitBoards[ B_KING ], BitBoards[ B_PIECES ], BitBoards);
 	attacks |= AllBlackKnightMovesForEscaping(BitBoards[ B_KNIGHT ]);
 	attacks |= AllRookMoves(BitBoards[ B_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]);
 	attacks |= AllBishopMoves(BitBoards[ B_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]);
