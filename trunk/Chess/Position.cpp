@@ -1358,13 +1358,13 @@ UI64 Position::queenMovesForEscaping(UI64 queen, UI64 emptysquares){
 	@return true if White is in check
  */
 bool Position::wIsCheck(UI64 BitBoards[]) {
-	UI64 attacks = wPawnAttacks(BitBoards[ W_PAWN ]);
-	attacks |= wKingMoves(BitBoards[ W_KING ], BitBoards[ W_PIECES ], BitBoards);
-	attacks |= AllWhiteKnightMovesForEscaping(BitBoards[ W_KNIGHT ]);
-	attacks |= AllRookMoves(BitBoards[ W_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
-	attacks |= AllBishopMoves(BitBoards[ W_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
-	attacks |= queenMoves(BitBoards[ W_QUEEN ], BitBoards[ EMPTYSQUARES ], (BitBoards[ W_PIECES ]));
-	if((attacks & BitBoards[ W_KING ]) != BitBoards[ EMPTY ]){
+	UI64 attacks = bPawnAttacks(BitBoards[ B_PAWN ]);
+	attacks |= bKingMoves(BitBoards[ B_KING ], BitBoards[ B_PIECES ], BitBoards);
+	attacks |= AllBlackKnightMoves(BitBoards[ B_KNIGHT ], B_PIECES);
+	attacks |= AllRookMoves(BitBoards[ B_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]);
+	attacks |= AllBishopMoves(BitBoards[ B_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]);
+	attacks |= queenMoves(BitBoards[ B_QUEEN ], BitBoards[ EMPTYSQUARES ], (BitBoards[ B_PIECES ]));
+	if((attacks & BitBoards[ W_KING ]) != 0){
 		return true;
 	}else{
 		return false;
@@ -1381,7 +1381,7 @@ bool Position::wIsCheck(UI64 BitBoards[]) {
 bool Position::bIsCheck(UI64 BitBoards[]) {
 	UI64 attacks = wPawnAttacks(BitBoards[ W_PAWN ]);
 	attacks |= wKingMoves(BitBoards[ W_KING ], BitBoards[ W_PIECES ], BitBoards);
-	attacks |= AllWhiteKnightMovesForEscaping(BitBoards[ W_KNIGHT ]);
+	attacks |= AllWhiteKnightMoves(BitBoards[ W_KNIGHT ], W_PIECES);
 	attacks |= AllRookMoves(BitBoards[ W_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
 	attacks |= AllBishopMoves(BitBoards[ W_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
 	attacks |= queenMoves(BitBoards[ W_QUEEN ], BitBoards[ EMPTYSQUARES ], (BitBoards[ W_PIECES ]));
