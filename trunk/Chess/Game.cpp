@@ -72,14 +72,26 @@ int Game::run(void)
 		// Render the game.
 		render();
 
-		std::cin >> moveStr;
+			std::vector<std::string> muuvit = _board->getMoveStrings();
+
+			int rands = rand() % muuvit.size();
+			std::string s = muuvit.at(rands);
+
+			for(int i = 0; i <s.length(); i++){
+				moveStr[i] = s.at(i);
+			}
+
+
+    //Disabled user input for testing
+
+	//	std::cin >> moveStr;
 		// Wait for a keypress.
-		getchar();
+	//	getchar();
+	
 
 		// Process the move.
 		_curMove = new Move();
 		_curMove->strToMove(moveStr);
-
 		}
 
 		delete _curMove;

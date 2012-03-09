@@ -633,7 +633,7 @@ std::vector<std::string> Board::getMoveStrings(){
 
 		if(_position->getToMove() == WHITE){
 			if(_position->wIsCheck(_BitBoards)){
-				system("CLS");
+			//	system("CLS");
 				std::cout<<"Checkmate!\nThe game ends in favor of Black!";
 				getchar();
 				exit(0);
@@ -641,14 +641,14 @@ std::vector<std::string> Board::getMoveStrings(){
 		}else{
 
 			if(_position->bIsCheck(_BitBoards)){
-				system("CLS");
+				//system("CLS");
 				std::cout<<"Checkmate!\nThe game ends in favor of White!";
 				getchar();
 				exit(0);
 			}
 		}
 
-		system("CLS");
+		//system("CLS");
 		std::cout<<"Stalemate!\nThe game ends in draw!";
 		getchar();
 		exit(0);
