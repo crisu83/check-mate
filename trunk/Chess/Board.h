@@ -56,7 +56,7 @@ public:
 	std::string getTurn(void) const;
 
 	void BitBoardToMoves();
-	bool fiftyMoveRule();
+	void fiftyMoveRule();
 
 
 	Piece *getPieceAt(int x, int y);
