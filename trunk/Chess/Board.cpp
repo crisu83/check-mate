@@ -601,6 +601,7 @@ bool Board::moveIsLegal(Move *_curMove){
 */
 void Board::fiftyMoveRule(){
 	if(fiftyMove >= 50 ){
+		PlaySound(L"gameover.wav",NULL,SND_FILENAME|SND_ASYNC); 
 		std::cout<<"Stalemate by 50 move rule!\nThe game ends in draw!";
 		getchar();
 		exit(0);
@@ -638,6 +639,7 @@ std::vector<std::string> Board::getMoveStrings(){
 		if(_position->getToMove() == WHITE){
 			if(_position->wIsCheck(_BitBoards)){
 			//	system("CLS");
+				PlaySound(L"gameover.wav",NULL,SND_FILENAME|SND_ASYNC); 
 				std::cout<<"Checkmate!\nThe game ends in favor of Black!";
 				getchar();
 				exit(0);
@@ -646,6 +648,7 @@ std::vector<std::string> Board::getMoveStrings(){
 
 			if(_position->bIsCheck(_BitBoards)){
 				//system("CLS");
+				PlaySound(L"gameover.wav",NULL,SND_FILENAME|SND_ASYNC); 
 				std::cout<<"Checkmate!\nThe game ends in favor of White!";
 				getchar();
 				exit(0);
@@ -653,6 +656,7 @@ std::vector<std::string> Board::getMoveStrings(){
 		}
 
 		//system("CLS");
+		PlaySound(L"gameover.wav",NULL,SND_FILENAME|SND_ASYNC); 
 		std::cout<<"Stalemate!\nThe game ends in draw!";
 		getchar();
 		exit(0);
