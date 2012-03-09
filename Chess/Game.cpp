@@ -77,12 +77,12 @@ int Game::run(void)
 
 			std::vector<std::string> muuvit = _board->getMoveStrings();
 			if(muuvit.size() == 5)
-				getchar();
+				//getchar();
 
 			srand(time(0));
 
-			unsigned int rands= rand() % muuvit.size();
-			std::string s = muuvit.at((int)rands);
+			 int rands= rand() % muuvit.size();
+			std::string s = muuvit.at(rands);
 
 			for(int i = 0; i <s.length(); i++){
 				moveStr[i] = s.at(i);

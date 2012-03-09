@@ -12,6 +12,8 @@
 //gets rid of warning C4996: 'strcpy': This function or variable may be unsafe. Consider using strcpy_s instead. warning
 #pragma warning(disable:4996)
 
+#pragma comment( lib, "Winmm.lib" )
+
 #pragma once
 
 typedef unsigned long long UI64;
@@ -36,3 +38,6 @@ typedef unsigned long long UI64;
 #include "Square.h"
 #include "Board.h"
 #include "Game.h"
+
+//This is only for PlaySound. For shits and giggles
+#include <Windows.h>
