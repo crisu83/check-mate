@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "Game.h"
 #include <bitset>
+#include <time.h>
 
 /**
 	Constructor.
@@ -77,8 +78,11 @@ int Game::run(void)
 			std::vector<std::string> muuvit = _board->getMoveStrings();
 			if(muuvit.size() == 5)
 				getchar();
-			int rands = rand() % muuvit.size();
-			std::string s = muuvit.at(rands);
+
+			srand(time(0));
+
+			unsigned int rands= rand() % muuvit.size();
+			std::string s = muuvit.at((int)rands);
 
 			for(int i = 0; i <s.length(); i++){
 				moveStr[i] = s.at(i);
