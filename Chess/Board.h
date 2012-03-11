@@ -1,6 +1,5 @@
 #pragma once
 
-
 //some constants
 #define SQUARES 64
 #define BITBOARDS 17
@@ -28,11 +27,13 @@ private:
 	UI64 _SquareBits[SQUARES];
 	Position *_position;
 	UI64 _BitBoards[BITBOARDS];
+
 	//Private functions
 	void initBitboards();
 	std::vector<UI64[2]> moves;
-   int fiftyMove;
+	int fiftyMove;
 
+	ChessTimer chessTimer;
 
 public:
 	Board(void);
@@ -64,6 +65,11 @@ public:
 	std::vector<std::vector<UI64>> getLegalMoves();
 	std::vector<std::string> getMoveStrings();
 	std::string movesAsString(int x1, int y1, int x2, int y2);
+
+
+	//Few variables for timing functions.
+	double total_elapsed;
+	int total_count;
 
 };
 

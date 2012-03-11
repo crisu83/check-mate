@@ -1,12 +1,12 @@
-#include "StdAfx.h"
-#include "Board.h"
+#include "stdafx.h"
+
 
 /**
 	Constructor.
  */
 Board::Board(void)
 {
-	
+	chessTimer = ChessTimer();
 	initBitboards();
 }
 
@@ -262,9 +262,6 @@ void Board::BitBoardToMoves(){
 	@return void
 */
 void Board::updateBitBoards(Move move, int type){
-	//Debug info: 
-	if(debug)
-		std::cout<<"Bitboards [ type ] = "<<_BitBoards[ type ]<<"\n"; 
 
 	//Find the index for the squareBits array from the coords.
 	int sourceIndex =	(move.getX1()) + (move.getY1()<<3);
@@ -276,7 +273,12 @@ void Board::updateBitBoards(Move move, int type){
 	int enemyPieces = toMove == WHITE ? B_PIECES : W_PIECES;
 	int ourPieces	= toMove == WHITE ? W_PIECES : B_PIECES;
 
-	//Set the fiftyMove rule to zero if pawn is moved, else add +1 on every move.
+
+	/**
+	 *
+	 *Fifty move rule
+	 *
+	 */
 	if(type == W_PAWN ||type ==  B_PAWN)
 		fiftyMove = 0;
 	else
@@ -288,8 +290,6 @@ void Board::updateBitBoards(Move move, int type){
 	*	EN PASSANT
 	*
 	*/
-
-
 	if(type == W_PAWN){
 		if( (move.getY2() - move.getY1()) == 2){ //If we do a doublepush with pawn
 			_BitBoards[ ENPASSANT ] |= _SquareBits[ sourceIndex ] << 8; 
@@ -300,6 +300,7 @@ void Board::updateBitBoards(Move move, int type){
 			_BitBoards[ ENPASSANT ] |= _SquareBits[ sourceIndex ] >> 8; 
 		}
 	}
+
 
 
 	/*
@@ -332,9 +333,6 @@ void Board::updateBitBoards(Move move, int type){
 		if(  (_BitBoards[B_ROOK] ^(_BitBoards[B_ROOK] & -_BitBoards[B_ROOK])) & _SquareBits[56])  //Black king side rook
 			_position->bShortCastleFalse();
 	}
-
-	if(debug)
-		std::cout<<"source "<<sourceIndex<<" dest "<<destIndex<<"\n";
 
 	//If we have a castling situation
 	if(move.Castling()){
@@ -574,7 +572,21 @@ bool Board::moveIsLegal(Move *_curMove){
 	int sourceIndex =	(_curMove->getX1()) + (_curMove->getY1()<<3);
 	int destIndex	=	(_curMove->getX2()) + (_curMove->getY2()<<3); 
 
+	/**
+	*
+	* genLegalMoves and it's timing functions, for performance testing.
+	*/
+
+	chessTimer.StartCounter();
 	std::vector<std::vector<UI64>> move = _position->genLegalMoves(_BitBoards);
+
+	std::cout <<"\ngenLegalMoves inclusive time: "<<chessTimer.GetCounter()<<" microseconds\n";
+
+	/**
+	*
+	* END
+	*/
+
 
 
 	for(int i = 0; i <move.size(); i++){
@@ -603,6 +615,8 @@ void Board::fiftyMoveRule(){
 	if(fiftyMove >= 50 ){
 		PlaySound(L"gameover.wav",NULL,SND_FILENAME|SND_ASYNC); 
 		std::cout<<"Stalemate by 50 move rule!\nThe game ends in draw!";
+		std::cout<<"\ngenLegalMoves average time was: "<<total_elapsed / total_count<<" microseconds";
+		std::cout<<"\nTimes called genLegalMoves: "<<total_count;
 		getchar();
 		exit(0);
 	}
@@ -641,6 +655,8 @@ std::vector<std::string> Board::getMoveStrings(){
 			//	system("CLS");
 				PlaySound(L"gameover.wav",NULL,SND_FILENAME|SND_ASYNC); 
 				std::cout<<"Checkmate!\nThe game ends in favor of Black!";
+				std::cout<<"\ngenLegalMoves average time was: "<<total_elapsed / total_count<<" microseconds";
+				std::cout<<"\nTimes called genLegalMoves: "<<total_count;
 				getchar();
 				exit(0);
 			}
@@ -650,6 +666,8 @@ std::vector<std::string> Board::getMoveStrings(){
 				//system("CLS");
 				PlaySound(L"gameover.wav",NULL,SND_FILENAME|SND_ASYNC); 
 				std::cout<<"Checkmate!\nThe game ends in favor of White!";
+				std::cout<<"\ngenLegalMoves average time was: "<<total_elapsed / total_count<<" microseconds";
+				std::cout<<"\nTimes called genLegalMoves: "<<total_count;
 				getchar();
 				exit(0);
 			}
@@ -658,6 +676,8 @@ std::vector<std::string> Board::getMoveStrings(){
 		//system("CLS");
 		PlaySound(L"gameover.wav",NULL,SND_FILENAME|SND_ASYNC); 
 		std::cout<<"Stalemate!\nThe game ends in draw!";
+		std::cout<<"\ngenLegalMoves average time was: "<<total_elapsed / total_count<<" microseconds";
+		std::cout<<"\nTimes called genLegalMoves: "<<total_count;
 		getchar();
 		exit(0);
 	}

@@ -169,7 +169,7 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 						tempMove.insert(tempMove.end(), BitBoards[ W_KING ] << 2 );
 						
 						//move the rook
-						tempmove.insert(tempmove.end(), (BitBoards[ W_ROOK ]^(BitBoards[ W_ROOK ] & -BitBoards[ W_ROOK ])));
+						tempmove.insert(tempmove.end(), (BitBoards[ W_ROOK ]^(BitBoards[ W_ROOK ] & -BitBoards[ W_ROOK ]))); //reseted LS1B
 						tempmove.insert(tempmove.end(), (BitBoards[ W_ROOK ]^(BitBoards[ W_ROOK ] & -BitBoards[ W_ROOK ])) >> 2);
 						
 						moveVector.insert(moveVector.end(), tempMove);
@@ -622,17 +622,13 @@ void Position::setToMove(int i){
 	Position::_toMove = i;
 }
 
-int Position::getToMove(){
+int Position::getToMove() const{
 	return _toMove;
 }
 
 
-
 /****
 	FUNCTIONS FOR MOVE GENERATION
-	
-
-
 	
 */
 
