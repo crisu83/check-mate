@@ -70,34 +70,35 @@ int Game::run(void)
 		//Check if the move is legal and prompt the user if not
 		while(!_board->moveIsLegal(_curMove)){
 
-		_board->fiftyMoveRule();
+			_board->fiftyMoveRule();
 
-		// Render the game.
-		render();
+			// Render the game.
+			render();
 
 			std::vector<std::string> muuvit = _board->getMoveStrings();
 			if(muuvit.size() == 5)
 				//getchar();
 
-			srand(time(0));
+				srand(time(0));
 
-			 int rands= rand() % muuvit.size();
-			std::string s = muuvit.at(rands);
+			if(debug){
+				int rands= rand() % muuvit.size();
+				std::string s = muuvit.at(rands);
 
-			for(int i = 0; i <s.length(); i++){
-				moveStr[i] = s.at(i);
+				for(int i = 0; i <s.length(); i++){
+					moveStr[i] = s.at(i);
+				}
 			}
 
-    //Disabled user input for testing
+			if(!debug){
+				std::cin >> moveStr;
+				// Wait for a keypress.
+				getchar();
+			}
 
-	//	std::cin >> moveStr;
-		// Wait for a keypress.
-	//	getchar();
-	
-
-		// Process the move.
-		_curMove = new Move();
-		_curMove->strToMove(moveStr);
+			// Process the move.
+			_curMove = new Move();
+			_curMove->strToMove(moveStr);
 		}
 
 		delete _curMove;

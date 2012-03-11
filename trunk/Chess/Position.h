@@ -1,5 +1,4 @@
 #pragma once
-#include "stdafx.h"
 
 
 #define WHITE 0
@@ -97,11 +96,11 @@ public:
 
 	std::vector<std::vector<UI64>> genLegalMoves(UI64 BitBoards[]);
 	void setToMove(int i);
-	int  getToMove();
+	int  getToMove() const;
 	void endTurn();
-
-	std::string getTurnName() const;
 	int *getMap();
+	std::string getTurnName() const;
+
 
 	//Castling
 	void setWhiteCastlingFalse();
@@ -110,8 +109,12 @@ public:
 	void wLongCastleFalse();
 	void bShortCastleFalse();
 	void bLongCastleFalse();
+
 	//check
 	bool wIsCheck(UI64 BitBoards[]);
 	bool bIsCheck(UI64 BitBoards[]);
+
+
+	double evaluate();
 };
 
