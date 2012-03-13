@@ -2081,6 +2081,27 @@ UI64 Position::bAllEnemyAttacks(UI64 BitBoards[]){
 	return attacks;
 }
 
+UI64 Position::allWhite(UI64 BitBoards[]){
+	UI64 moves = wAllPawnMoves(BitBoards[ W_PAWN ], BitBoards[ EMPTYSQUARES ], BitBoards);
+	moves |= AllBlackKnightMoves(BitBoards[ W_KNIGHT ], BitBoards[ W_PIECES ]);
+	moves |= AllRookMoves(BitBoards[ W_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
+	moves |= AllBishopMoves(BitBoards[ W_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
+	moves |= queenMoves(BitBoards[ W_QUEEN ], (BitBoards[ EMPTYSQUARES ]), (BitBoards[ W_PIECES ]));
+	moves |= bKingMoves(BitBoards[ W_KING ], BitBoards[ W_PIECES ],BitBoards);
+	return moves;
+}
+
+UI64 Position::allBlack(UI64 BitBoards[]){
+	UI64 moves = bAllPawnMoves(BitBoards[ B_PAWN ], BitBoards[ EMPTYSQUARES ], BitBoards);
+	moves |= AllBlackKnightMoves(BitBoards[ B_KNIGHT ], BitBoards[ B_PIECES ]);
+	moves |= AllRookMoves(BitBoards[ B_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]);
+	moves |= AllBishopMoves(BitBoards[ B_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]);
+	moves |= queenMoves(BitBoards[ B_QUEEN ], (BitBoards[ EMPTYSQUARES ]), (BitBoards[ B_PIECES ]));
+	moves |= bKingMoves(BitBoards[ B_KING ], BitBoards[ B_PIECES ],BitBoards);
+	return moves;
+}
+
+
 int Position::popCount(UI64 bitboard){
 	int count = 0;
 	while((bitboard & -bitboard) != 0){ 
@@ -2093,6 +2114,7 @@ int Position::popCount(UI64 bitboard){
 
 double Position::evaluate(UI64 BitBoards[]){
 
+	//population counting
 	int wqueen = popCount(BitBoards[ W_QUEEN ]);
 	int wrook = popCount(BitBoards[ W_ROOK ]);
 	int wbishop = popCount(BitBoards[ W_BISHOP ]);
@@ -2107,8 +2129,15 @@ double Position::evaluate(UI64 BitBoards[]){
 
 	int wking = 1;
 	int bking = 1;
-
+	//material balance
 	double material = 1000*(wking-bking) + 9*(wqueen-bqueen) + 5*(wrook-brook) + 3.25*(wbishop-bbishop) + 3*(wknight-bknight) + 1*(wpawns-bpawns);
 
+
+	//mobility
+	int wmoves = popCount(allWhite(BitBoards));
+	int bmoves = popCount(allBlack(BitBoards));
+
+	double value = material + (0,03 * (wmoves-bmoves));
+	return value;
 }
 

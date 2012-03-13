@@ -38,6 +38,12 @@ private:
 
 	void makeBoardBackUp();
 
+	int alphaBetaMax( int alpha, int beta, int depth );
+	int alphaBetaMin( int alpha, int beta, int depth );
+	std::vector<UI64> wRootSearch();
+	std::vector<UI64> bRootSearch();
+
+
 public:
 	Board(void);
 	~Board(void);
