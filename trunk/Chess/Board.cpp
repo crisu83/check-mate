@@ -421,7 +421,7 @@ void Board::updateBitBoards(Move move, int type){
 			//Bishops
 			//Remove the pawn from the list
 			_BitBoards[ B_PAWN ] &=  ~_SquareBits[ sourceIndex ];
-			//And ad a knight to the dest place
+			//And ad a Bishop to the dest place
 			_BitBoards[ B_BISHOP] |=   _SquareBits[ destIndex   ];
 			break;		
 
@@ -429,7 +429,7 @@ void Board::updateBitBoards(Move move, int type){
 			//Queens
 			//Remove the pawn from the list
 			_BitBoards[ B_PAWN ] &=  ~_SquareBits[ sourceIndex ];
-			//And ad a knight to the dest place
+			//And ad a B_QUEEN to the dest place
 			_BitBoards[ B_QUEEN] |=   _SquareBits[ destIndex   ];
 			break;
 
@@ -437,7 +437,7 @@ void Board::updateBitBoards(Move move, int type){
 			//Rooks
 			//Remove the pawn from the list
 			_BitBoards[ B_PAWN ] &=  ~_SquareBits[ sourceIndex ];
-			//And ad a knight to the dest place
+			//And ad a B_ROOK to the dest place
 			_BitBoards[ B_ROOK] |=   _SquareBits[ destIndex   ];
 			break;
 
@@ -615,8 +615,8 @@ void Board::fiftyMoveRule(){
 	if(fiftyMove >= 50 ){
 		PlaySound(L"gameover.wav",NULL,SND_FILENAME|SND_ASYNC); 
 		std::cout<<"Stalemate by 50 move rule!\nThe game ends in draw!";
-		std::cout<<"\ngenLegalMoves average time was: "<<total_elapsed / total_count<<" microseconds";
-		std::cout<<"\nTimes called genLegalMoves: "<<total_count;
+		std::cout<<"\ngenLegalMoves average time was: "<<chessTimer.getAverage()<<" microseconds";
+		std::cout<<"\nTimes called genLegalMoves: "<<chessTimer.getTotalCount();
 		getchar();
 		exit(0);
 	}
@@ -634,6 +634,196 @@ void Board::fiftyMoveRule(){
 std::vector<std::vector<UI64>> Board::getLegalMoves(){
 	return _position->genLegalMoves(_BitBoards);
 }
+
+/**
+	Copies the bitboard to a backup for later retrieving.
+	
+	@Author Olli Koskinen, Arttu Nieminen
+*/
+void Board::makeBoardBackUp(){
+	std::copy(_BitBoards[0], _BitBoards[BITBOARDS - 1 ], _backUp);
+}
+
+
+/**
+	Reversing the moves to original state.
+	
+	@Author Olli Koskinen, Arttu Nieminen
+*/
+void Board::takeBack(){
+	std::copy(_backUp[0], _backUp[BITBOARDS - 1 ], _BitBoards);
+}
+
+
+/**
+	Function for AI to make false moves
+	
+	@Author Olli Koskinen, Arttu Nieminen
+*/
+void Board::makeMove(std::vector<UI64> move){
+	//Backup the original state
+	makeBoardBackUp();
+
+	UI64 source = move.at(0);
+	UI64 dest = move.at(1);
+	int toMove = _position->getToMove();
+	int i	= toMove == WHITE ? B_KING : W_KING;
+	int end = toMove == WHITE ? B_PAWN : W_PAWN;
+	int enemyPieces = toMove == WHITE ? B_PIECES : W_PIECES;
+	int ourPieces	= toMove == WHITE ? W_PIECES : B_PIECES;
+
+
+	if(toMove == WHITE){
+		//If we promote
+		if((dest & EIGHT_RANK != 0 ) && (source & _BitBoards[ W_PAWN ] != 0))
+		{
+			//Set the the dest as a queen, always
+			_BitBoards[ W_QUEEN ] |= dest;
+
+			//Remove the dest from enemy pieces and from our own
+			_BitBoards[ W_PAWN   ] &= ~source;
+		}
+		if(source & _BitBoards[ W_KING ] != 0){
+			//If the king moves right 2 squares, it's castling
+			if((dest == (source<<2)) && _BitBoards[W_ROOK] & _SquareBits[7] != 0){
+				//Move the king
+				_BitBoards[ W_KING ] &=  ~source;
+				_BitBoards[ W_KING ] |=  dest;
+
+				//Move the rook
+				UI64 rooksPlace =(_BitBoards[ W_ROOK ] ^(_BitBoards[ W_ROOK ] & -_BitBoards[ W_ROOK ]));
+				_BitBoards[ W_ROOK ] &=  ~ (_BitBoards[ W_ROOK ] ^(_BitBoards[ W_ROOK ] & -_BitBoards[ W_ROOK ]));
+				_BitBoards[ W_ROOK] |=   rooksPlace  >> 2 ;
+
+			}
+			else if((dest == (source>>2) )&&  _BitBoards[W_ROOK] & _SquareBits[0] != 0){ //same as above but right
+				_BitBoards[ W_KING ] &=  ~source;
+				_BitBoards[ W_KING ] |=  dest;
+
+				//Delete the piece we are going to move and then add it to a new place
+				UI64 rooksPlace = (_BitBoards[ W_ROOK ] & -_BitBoards[ W_ROOK ]);
+				_BitBoards[ W_ROOK ] &=  ~(_BitBoards[ W_ROOK ] & -_BitBoards[ W_ROOK ]);
+				_BitBoards[ W_ROOK ] |=   rooksPlace << 3;
+			}
+		}
+		//En Passant
+
+		if(source & _BitBoards[ W_PAWN ] != 0){
+			if( dest == source << 16 ){ //If we do a doublepush with pawn
+				_BitBoards[ ENPASSANT ] |= source << 8; 
+			}
+		}
+
+	}else{
+
+		//If we promote
+		if((dest & FIRST_RANK != 0 ) && (source & _BitBoards[ B_PAWN ] != 0))
+		{
+			//Set the the dest as a queen, always
+			_BitBoards[ B_QUEEN ] |= dest;
+
+			//Remove the dest from enemy pieces and from our own
+			_BitBoards[ B_PAWN   ] &= ~source;
+		}
+		if(source & _BitBoards[ B_KING ] != 0){
+			//If the king moves right 2 squares, it's castling
+			if((dest == (source<<2)) &&  _BitBoards[B_ROOK] & _SquareBits[63] != 0){
+				//Move the king
+				_BitBoards[ B_KING ] &=  ~source;
+				_BitBoards[ B_KING ] |=  dest;
+
+				//Move the rook
+				UI64 rooksPlace =(_BitBoards[ B_ROOK ] ^(_BitBoards[ B_ROOK ] & -_BitBoards[ B_ROOK ]));
+				_BitBoards[ B_ROOK ] &=  ~ (_BitBoards[ B_ROOK ] ^(_BitBoards[ B_ROOK ] & -_BitBoards[ B_ROOK ]));
+				_BitBoards[ B_ROOK] |=   rooksPlace  >> 2 ;
+
+			}
+			else if((dest == (source>>2) ) &&  _BitBoards[B_ROOK] & _SquareBits[56] != 0){ //same as above but right
+				_BitBoards[ B_KING ] &=  ~source;
+				_BitBoards[ B_KING ] |=  dest;
+
+				//Delete the piece we are going to move and then add it to a new place
+				UI64 rooksPlace = (_BitBoards[ B_ROOK ] & -_BitBoards[ B_ROOK ]);
+				_BitBoards[ B_ROOK ] &=  ~(_BitBoards[ B_ROOK ] & -_BitBoards[ B_ROOK ]);
+				_BitBoards[ B_ROOK ] |=   rooksPlace << 3;
+			}
+		}
+		//En Passant
+
+		if(source & _BitBoards[ B_PAWN ] != 0){
+			if( dest == source >> 16 ){ //If we do a doublepush with pawn
+				_BitBoards[ ENPASSANT ] |= source >> 8; 
+			}
+		}
+	}
+
+	//Attacks
+	//If there is enemy in the dest square
+	if( (_BitBoards[ enemyPieces ]  &  dest) != 0 ){
+		//First, clear the fifty move rule to zero, since we attack
+		fiftyMove = 0;
+
+		_BitBoards[ enemyPieces ]  &=  ~dest;  // Remove the enemy piece from pieces
+		_BitBoards[  ourPieces	]  &=  ~source;	 // remove our piece from pieces
+
+		int i	= toMove == WHITE ? B_KING : W_KING;
+		int end = toMove == WHITE ? B_PAWN : W_PAWN;
+		//And just in case we search every enemy table trhough if there's still someone in our dest square
+		for( i; i <= end; i++){
+			if(( _BitBoards[ i ] & dest) != 0 ){
+				_BitBoards[ i ]  &=  ~dest;
+				break;
+			}
+		}
+	}
+	else{
+		//Delete the piece we are going to move and then add it to a new place
+		//If we have enpassant move
+		if((_BitBoards[ ENPASSANT ]  & dest) != 0){
+			if(toMove == WHITE)
+				_BitBoards[ B_PAWN ] &=  ~dest >> 8;
+			else
+				_BitBoards[ W_PAWN ] &=  ~dest << 8;
+		}
+
+
+		int i	= toMove == WHITE ? B_KING : W_KING;
+		int end = toMove == WHITE ? B_PAWN : W_PAWN;
+		//update the dest table
+		for(i; i<end; i++){
+			if(( _BitBoards[ i ] & dest) != 0 ){
+				_BitBoards[ i ]  &=  ~dest;
+				break;
+			}
+		}
+
+		i	= toMove == WHITE ? W_KING : B_KING;
+		end = toMove == WHITE ? W_PAWN : B_PAWN;
+		//Update the source table
+		for(i; i<end; i++){
+			if(( _BitBoards[ i ] & source) != 0 ){
+				_BitBoards[ i ]   |=  source;
+				break;
+			}
+		}
+
+	}
+
+	//Update the all the white/black pieces according to turn
+	_BitBoards[ W_PIECES ]  = _BitBoards[ W_PAWN ] | _BitBoards[ W_ROOK ] 
+	| _BitBoards[ W_KNIGHT ] | _BitBoards[ W_BISHOP ]  | _BitBoards[ W_QUEEN ]  | _BitBoards[ W_KING ];
+
+	_BitBoards[ B_PIECES ]  = _BitBoards[ B_PAWN ] | _BitBoards[ B_ROOK ] 
+	| _BitBoards[ B_KNIGHT ] | _BitBoards[ B_BISHOP ]  | _BitBoards[ B_QUEEN ]  | _BitBoards[ B_KING ];
+
+
+	_BitBoards[ EMPTYSQUARES ]= ~( _BitBoards[ W_PIECES ] | _BitBoards[ B_PIECES ] );
+
+
+	//Update enpassant table
+	_BitBoards[ ENPASSANT ] &= toMove == WHITE ? ~SIXTH_RANK : ~THIRD_RANK;
+}
+
 
 /**
 	Gets the all the possible moves for current player in a vector<vector<UI64>> iterable format.
@@ -655,8 +845,8 @@ std::vector<std::string> Board::getMoveStrings(){
 			//	system("CLS");
 				PlaySound(L"gameover.wav",NULL,SND_FILENAME|SND_ASYNC); 
 				std::cout<<"Checkmate!\nThe game ends in favor of Black!";
-				std::cout<<"\ngenLegalMoves average time was: "<<total_elapsed / total_count<<" microseconds";
-				std::cout<<"\nTimes called genLegalMoves: "<<total_count;
+				std::cout<<"\ngenLegalMoves average time was: "<<chessTimer.getAverage()<<" microseconds";
+				std::cout<<"\nTimes called genLegalMoves: "<<chessTimer.getTotalCount();
 				getchar();
 				exit(0);
 			}
@@ -666,8 +856,8 @@ std::vector<std::string> Board::getMoveStrings(){
 				//system("CLS");
 				PlaySound(L"gameover.wav",NULL,SND_FILENAME|SND_ASYNC); 
 				std::cout<<"Checkmate!\nThe game ends in favor of White!";
-				std::cout<<"\ngenLegalMoves average time was: "<<total_elapsed / total_count<<" microseconds";
-				std::cout<<"\nTimes called genLegalMoves: "<<total_count;
+				std::cout<<"\ngenLegalMoves average time was: "<<chessTimer.getAverage()<<" microseconds";
+				std::cout<<"\nTimes called genLegalMoves: "<<chessTimer.getTotalCount();
 				getchar();
 				exit(0);
 			}
@@ -676,8 +866,8 @@ std::vector<std::string> Board::getMoveStrings(){
 		//system("CLS");
 		PlaySound(L"gameover.wav",NULL,SND_FILENAME|SND_ASYNC); 
 		std::cout<<"Stalemate!\nThe game ends in draw!";
-		std::cout<<"\ngenLegalMoves average time was: "<<total_elapsed / total_count<<" microseconds";
-		std::cout<<"\nTimes called genLegalMoves: "<<total_count;
+		std::cout<<"\ngenLegalMoves average time was: "<<chessTimer.getAverage()<<" microseconds";
+		std::cout<<"\nTimes called genLegalMoves: "<<chessTimer.getTotalCount();
 		getchar();
 		exit(0);
 	}
