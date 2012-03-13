@@ -55,7 +55,24 @@ void ChessTimer::StartCounter()
 
 	QueryPerformanceCounter(&li);
 	CounterStart = li.QuadPart;
+	total_count++;
 }
+
+/**
+ * Returns the average time
+ * 
+ *
+ *@Author Olli Koskinen, Arttu Nieminen
+ */
+double ChessTimer::getAverage(){
+	return total_count == 0 ? 0 : total_elapsed/total_count;
+}
+
+
+int ChessTimer::getTotalCount(){
+	return total_count;
+}
+
 
 /**
  * GetCounter returns the time difference between startCounter and getCounter
@@ -67,7 +84,9 @@ double ChessTimer::GetCounter()
 {
 	LARGE_INTEGER li;
 	QueryPerformanceCounter(&li);
-	return double(li.QuadPart-CounterStart)/PCFreq;
+	double time = double(li.QuadPart-CounterStart)/PCFreq;
+	total_elapsed +=time;
+	return time;
 }
 
 

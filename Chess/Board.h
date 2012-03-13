@@ -27,6 +27,7 @@ private:
 	UI64 _SquareBits[SQUARES];
 	Position *_position;
 	UI64 _BitBoards[BITBOARDS];
+	UI64 _backUp[ BITBOARDS ];
 
 	//Private functions
 	void initBitboards();
@@ -34,6 +35,8 @@ private:
 	int fiftyMove;
 
 	ChessTimer chessTimer;
+
+	void makeBoardBackUp();
 
 public:
 	Board(void);
@@ -63,13 +66,11 @@ public:
 	Piece *getPieceAt(int x, int y);
 	void setPosition(Position *position);
 	std::vector<std::vector<UI64>> getLegalMoves();
+	
+	void makeMove(std::vector<UI64> move);
+	void takeBack();
 	std::vector<std::string> getMoveStrings();
 	std::string movesAsString(int x1, int y1, int x2, int y2);
-
-
-	//Few variables for timing functions.
-	double total_elapsed;
-	int total_count;
 
 };
 

@@ -19,6 +19,8 @@ public:
 	~ChessTimer();
 	void StartCounter();
 	double GetCounter();
+	double getAverage();
+	int getTotalCount();
 	void resetCounters();
 	void changeTimerResolution(int resolution);
 };

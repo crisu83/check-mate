@@ -33,6 +33,7 @@ typedef unsigned long long UI64;
 #include <iostream>
 #include <vector>
 #include <time.h>
+#include <limits>
 //This is only for PlaySound. For shits and giggles
 #include <Windows.h>
 
