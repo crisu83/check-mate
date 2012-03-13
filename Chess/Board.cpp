@@ -641,7 +641,7 @@ std::vector<std::vector<UI64>> Board::getLegalMoves(){
 	@Author Olli Koskinen, Arttu Nieminen
 */
 void Board::makeBoardBackUp(){
-	std::copy(_BitBoards[0], _BitBoards[BITBOARDS - 1 ], _backUp);
+	std::copy(_BitBoards, _BitBoards+(BITBOARDS - 1) , _backUp);
 }
 
 
@@ -651,7 +651,7 @@ void Board::makeBoardBackUp(){
 	@Author Olli Koskinen, Arttu Nieminen
 */
 void Board::takeBack(){
-	std::copy(_backUp[0], _backUp[BITBOARDS - 1 ], _BitBoards);
+	std::copy(_backUp, _backUp+(BITBOARDS - 1 ), _BitBoards);
 }
 
 
@@ -675,7 +675,7 @@ void Board::makeMove(std::vector<UI64> move){
 
 	if(toMove == WHITE){
 		//If we promote
-		if((dest & EIGHT_RANK != 0 ) && (source & _BitBoards[ W_PAWN ] != 0))
+		if(((dest & EIGHT_RANK) != 0 ) && ((source & _BitBoards[ W_PAWN ]) != 0))
 		{
 			//Set the the dest as a queen, always
 			_BitBoards[ W_QUEEN ] |= dest;
@@ -683,9 +683,9 @@ void Board::makeMove(std::vector<UI64> move){
 			//Remove the dest from enemy pieces and from our own
 			_BitBoards[ W_PAWN   ] &= ~source;
 		}
-		if(source & _BitBoards[ W_KING ] != 0){
+		if((source & _BitBoards[ W_KING ]) != 0){
 			//If the king moves right 2 squares, it's castling
-			if((dest == (source<<2)) && _BitBoards[W_ROOK] & _SquareBits[7] != 0){
+			if((dest == (source<<2)) && (_BitBoards[W_ROOK] & _SquareBits[7]) != 0){
 				//Move the king
 				_BitBoards[ W_KING ] &=  ~source;
 				_BitBoards[ W_KING ] |=  dest;
@@ -696,7 +696,7 @@ void Board::makeMove(std::vector<UI64> move){
 				_BitBoards[ W_ROOK] |=   rooksPlace  >> 2 ;
 
 			}
-			else if((dest == (source>>2) )&&  _BitBoards[W_ROOK] & _SquareBits[0] != 0){ //same as above but right
+			else if((dest == (source>>2) )&&  (_BitBoards[W_ROOK] & _SquareBits[0]) != 0){ //same as above but right
 				_BitBoards[ W_KING ] &=  ~source;
 				_BitBoards[ W_KING ] |=  dest;
 
@@ -708,7 +708,7 @@ void Board::makeMove(std::vector<UI64> move){
 		}
 		//En Passant
 
-		if(source & _BitBoards[ W_PAWN ] != 0){
+		if((source & _BitBoards[ W_PAWN ]) != 0){
 			if( dest == source << 16 ){ //If we do a doublepush with pawn
 				_BitBoards[ ENPASSANT ] |= source << 8; 
 			}
@@ -717,7 +717,7 @@ void Board::makeMove(std::vector<UI64> move){
 	}else{
 
 		//If we promote
-		if((dest & FIRST_RANK != 0 ) && (source & _BitBoards[ B_PAWN ] != 0))
+		if(((dest & FIRST_RANK) != 0 ) && ((source & _BitBoards[ B_PAWN ]) != 0))
 		{
 			//Set the the dest as a queen, always
 			_BitBoards[ B_QUEEN ] |= dest;
@@ -725,9 +725,9 @@ void Board::makeMove(std::vector<UI64> move){
 			//Remove the dest from enemy pieces and from our own
 			_BitBoards[ B_PAWN   ] &= ~source;
 		}
-		if(source & _BitBoards[ B_KING ] != 0){
+		if((source & _BitBoards[ B_KING ]) != 0){
 			//If the king moves right 2 squares, it's castling
-			if((dest == (source<<2)) &&  _BitBoards[B_ROOK] & _SquareBits[63] != 0){
+			if((dest == (source<<2)) && ( _BitBoards[B_ROOK] & _SquareBits[63]) != 0){
 				//Move the king
 				_BitBoards[ B_KING ] &=  ~source;
 				_BitBoards[ B_KING ] |=  dest;
@@ -738,7 +738,7 @@ void Board::makeMove(std::vector<UI64> move){
 				_BitBoards[ B_ROOK] |=   rooksPlace  >> 2 ;
 
 			}
-			else if((dest == (source>>2) ) &&  _BitBoards[B_ROOK] & _SquareBits[56] != 0){ //same as above but right
+			else if((dest == (source>>2) ) && ( _BitBoards[B_ROOK] & _SquareBits[56]) != 0){ //same as above but right
 				_BitBoards[ B_KING ] &=  ~source;
 				_BitBoards[ B_KING ] |=  dest;
 
@@ -750,7 +750,7 @@ void Board::makeMove(std::vector<UI64> move){
 		}
 		//En Passant
 
-		if(source & _BitBoards[ B_PAWN ] != 0){
+		if((source & _BitBoards[ B_PAWN ]) != 0){
 			if( dest == source >> 16 ){ //If we do a doublepush with pawn
 				_BitBoards[ ENPASSANT ] |= source >> 8; 
 			}
