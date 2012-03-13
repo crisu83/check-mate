@@ -996,9 +996,6 @@ void Board::setPosition(Position *position)
 int Board::alphaBetaMax( int alpha, int beta, int depth ) {
    if ( depth == 0 ) return _position->evaluate(_BitBoards);
    std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
-   if( moveVector.size() == 0 && _position->bIsCheck(_BitBoards)){
-	   return INT_MAX;
-	}
    int i = 0; int score;
    for (i=0;i>moveVector.size();i++) { //k‰yd‰‰n moveVectorin kaikki l‰pi
 	  makeMove(moveVector.at(i));  
