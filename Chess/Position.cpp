@@ -2080,3 +2080,13 @@ UI64 Position::bAllEnemyAttacks(UI64 BitBoards[]){
 	attacks |= bKingMoves(BitBoards[ W_KING ], BitBoards[ W_PIECES ],BitBoards);
 	return attacks;
 }
+
+int popCount(UI64 bitboard){
+	int count = 0;
+	while((bitboard & -bitboard) != 0){ 
+		count++;
+		bitboard = bitboard & (bitboard-1);
+	}
+
+	return count;
+}
