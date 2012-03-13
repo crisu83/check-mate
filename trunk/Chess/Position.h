@@ -87,6 +87,9 @@ private:
 	UI64 wAllEnemyAttacks(UI64 BitBoards[]);
 	UI64 bAllEnemyAttacks(UI64 BitBoards[]);
 
+	int popCount(UI64 bitboard);
+
+
 public:
 	Position(void);
 	~Position(void);
