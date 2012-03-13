@@ -89,6 +89,8 @@ private:
 
 	int popCount(UI64 bitboard);
 
+	UI64 allWhite(UI64 BitBoards[]);
+	UI64 allBlack(UI64 BitBoards[]);
 
 public:
 	Position(void);

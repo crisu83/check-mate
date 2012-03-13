@@ -6,7 +6,7 @@
  */
 Board::Board(void)
 {
-	chessTimer = ChessTimer();
+	//chessTimer = ChessTimer();
 	initBitboards();
 }
 
@@ -577,10 +577,10 @@ bool Board::moveIsLegal(Move *_curMove){
 	* genLegalMoves and it's timing functions, for performance testing.
 	*/
 
-	chessTimer.StartCounter();
+	//chessTimer.StartCounter();
 	std::vector<std::vector<UI64>> move = _position->genLegalMoves(_BitBoards);
 
-	std::cout <<"\ngenLegalMoves inclusive time: "<<chessTimer.GetCounter()<<" microseconds\n";
+	//std::cout <<"\ngenLegalMoves inclusive time: "<<chessTimer.GetCounter()<<" microseconds\n";
 
 	/**
 	*
@@ -596,6 +596,7 @@ bool Board::moveIsLegal(Move *_curMove){
 		if( (source & _SquareBits[sourceIndex]) == _SquareBits[sourceIndex] ){
 			if( (destinations &  _SquareBits[ destIndex ]) == _SquareBits[destIndex] ){
 				updateBitBoards(*_curMove, getPieceAt(_curMove->getX1(),_curMove->getY1())-> getType());
+				std::cout <<"\nboard evaluation: "<< _position->evaluate(_BitBoards);
 				return true;
 			}
 		}
@@ -992,3 +993,88 @@ void Board::setPosition(Position *position)
 	_position = position;
 }
 
+int Board::alphaBetaMax( int alpha, int beta, int depth ) {
+   if ( depth == 0 ) return _position->evaluate(_BitBoards);
+   std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
+   if( moveVector.size() == 0 && _position->bIsCheck(_BitBoards)){
+	   return INT_MAX;
+	}
+   int i = 0; int score;
+   for (i=0;i>moveVector.size();i++) { //käydään moveVectorin kaikki läpi
+	  makeMove(moveVector.at(i));  
+	   if( moveVector.size() == 0 && _position->bIsCheck(_BitBoards)){
+	   score = INT_MAX;
+	}else{
+      score = alphaBetaMin( alpha, beta, depth - 1 );
+	}
+	  takeBack();
+      if( score >= beta )
+         return beta;  
+      if( score > alpha )
+         alpha = score;
+	  
+   }
+   return alpha;
+}
+ 
+int Board::alphaBetaMin( int alpha, int beta, int depth ) {
+   if ( depth == 0 ) return -_position->evaluate(_BitBoards);
+   std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
+   int i = 0; int score;
+   for ( i=0;i>moveVector.size();i++) {
+      makeMove(moveVector.at(i));
+	if( moveVector.size() == 0 && _position->bIsCheck(_BitBoards)){
+	   score = INT_MIN;
+	}else{
+      score = alphaBetaMax( alpha, beta, depth - 1 );
+	}
+	 takeBack();
+      if( score <= alpha )
+         return alpha; 
+      if( score < beta )
+         beta = score; 
+	  
+   }
+	  
+   return beta;
+}
+
+std::vector<UI64> Board::wRootSearch() {
+	int best; int score;
+	std::vector<UI64> bestMove;
+   std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
+   int i; 
+   for ( i=0;i>moveVector.size();i++) {
+      makeMove(moveVector.at(i));
+	   if( moveVector.size() == 0 && _position->bIsCheck(_BitBoards)){
+			score = INT_MAX;		//check mate
+		}else{
+			score = alphaBetaMax(INT_MIN, INT_MAX, 4);
+	   }
+	  takeBack();
+	  if(score > best){
+		bestMove = moveVector.at(i);
+		}
+	}
+   return bestMove;
+}
+
+std::vector<UI64> Board::bRootSearch(){
+	int best;int score;
+	std::vector<UI64> bestMove;
+	std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
+	int i; 
+   for ( i=0;i>moveVector.size();i++) {
+      makeMove(moveVector.at(i));
+	   if( moveVector.size() == 0 && _position->wIsCheck(_BitBoards)){
+			score = INT_MAX;		//check mate
+		}else{
+			score = alphaBetaMin(INT_MIN, INT_MAX, 4);
+	   }
+	  takeBack();
+	  if(score > best){
+		bestMove = moveVector.at(i);
+	  }
+   }
+   return bestMove;
+ }
