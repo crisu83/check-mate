@@ -118,6 +118,6 @@ public:
 	bool bIsCheck(UI64 BitBoards[]);
 
 
-	double evaluate();
+	double evaluate(UI64 BitBoards[]);
 };
 
