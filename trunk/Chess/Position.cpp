@@ -2081,7 +2081,7 @@ UI64 Position::bAllEnemyAttacks(UI64 BitBoards[]){
 	return attacks;
 }
 
-int popCount(UI64 bitboard){
+int Position::popCount(UI64 bitboard){
 	int count = 0;
 	while((bitboard & -bitboard) != 0){ 
 		count++;
@@ -2090,3 +2090,25 @@ int popCount(UI64 bitboard){
 
 	return count;
 }
+
+double Position::evaluate(UI64 BitBoards[]){
+
+	int wqueen = popCount(BitBoards[ W_QUEEN ]);
+	int wrook = popCount(BitBoards[ W_ROOK ]);
+	int wbishop = popCount(BitBoards[ W_BISHOP ]);
+	int wknight = popCount(BitBoards[ W_KNIGHT ]);
+	int wpawns = popCount(BitBoards[ W_PAWN ]);
+
+	int bqueen = popCount(BitBoards[ B_QUEEN ]);
+	int brook = popCount(BitBoards[ B_ROOK ]);
+	int bbishop = popCount(BitBoards[ B_BISHOP ]);
+	int bknight = popCount(BitBoards[ B_KNIGHT ]);
+	int bpawns = popCount(BitBoards[ B_PAWN ]);
+
+	int wking = 1;
+	int bking = 1;
+
+	double material = 1000*(wking-bking) + 9*(wqueen-bqueen) + 5*(wrook-brook) + 3.25*(wbishop-bbishop) + 3*(wknight-bknight) + 1*(wpawns-bpawns);
+
+}
+
