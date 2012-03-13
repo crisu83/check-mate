@@ -1021,7 +1021,7 @@ int Board::alphaBetaMin( int alpha, int beta, int depth ) {
    for ( i=0;i>moveVector.size();i++) {
       makeMove(moveVector.at(i));
 	if( moveVector.size() == 0 && _position->bIsCheck(_BitBoards)){
-	   score = INT_MIN;
+	   score = INT_MAX;
 	}else{
       score = alphaBetaMax( alpha, beta, depth - 1 );
 	}
