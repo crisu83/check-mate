@@ -1,0 +1,17 @@
+Useful links for setting up OGRE SDK with Visual Studio
+=======================================================
+
+Installing the OGRE SDK:
+http://www.ogre3d.org/tikiwiki/Installing+the+Ogre+SDK
+
+CMake quick start guide:
+http://www.ogre3d.org/tikiwiki/CMake+Quick+Start+Guide
+
+Dependencies for OGRE 1.7:
+http://www.ogre3d.org/forums/viewtopic.php?f=1&t=54533
+
+Setting up an application with Visual Studio:
+http://www.ogre3d.org/tikiwiki/Setting+Up+An+Application+-+Visual+Studio
+
+OGRE tutorials:
+http://www.ogre3d.org/tikiwiki/Tutorials&structure=Tutorials
