@@ -36,13 +36,12 @@ private:
 
 	ChessTimer chessTimer;
 
-	void makeBoardBackUp();
+	UI64 *makeBoardBackUp();
 
 	int alphaBetaMax( int alpha, int beta, int depth );
 	int alphaBetaMin( int alpha, int beta, int depth );
-	std::vector<UI64> wRootSearch();
-	std::vector<UI64> bRootSearch();
 
+	int bitScanForward(UI64);
 
 public:
 	Board(void);
@@ -66,6 +65,7 @@ public:
 	std::string getTurn(void) const;
 
 	void BitBoardToMoves();
+	Move *Board::BitBoardToMoves(std::vector<UI64> move);
 	void fiftyMoveRule();
 
 
@@ -74,9 +74,13 @@ public:
 	std::vector<std::vector<UI64>> getLegalMoves();
 	
 	void makeMove(std::vector<UI64> move);
-	void takeBack();
+	void takeBack(UI64 * b);
 	std::vector<std::string> getMoveStrings();
 	std::string movesAsString(int x1, int y1, int x2, int y2);
+
+
+	Move *wRootSearch();
+	Move *bRootSearch();
 
 };
 

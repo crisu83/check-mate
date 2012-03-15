@@ -1,7 +1,4 @@
 #include "StdAfx.h"
-#include "Game.h"
-#include <bitset>
-#include <time.h>
 
 /**
 	Constructor.
@@ -65,40 +62,88 @@ int Game::run(void)
 	_turnNum = 0;
 	_running = true;
 
+	bool input = true;
+	char white,black;
+
+	while(input){
+		std::cout<<"Choose AI player\n";
+		std::cout<<"White is AI (y/n): ";
+		std::cin>>white;
+		std::cout<<"\nBlack is AI (y/n): ";
+		std::cin>>black;
+
+		if(white == 'y' || white=='n'){
+			if(black == 'y' || black=='n'){
+				input = false;
+			}
+		}
+
+	}
+
 	while (_running)
 	{
 		//Check if the move is legal and prompt the user if not
-		while(!_board->moveIsLegal(_curMove)){
+		while(!_board->moveIsLegal(_curMove))
+		{
 
 			_board->fiftyMoveRule();
 
 			// Render the game.
 			render();
 
+			if(_toMove == WHITE){
+				if(white == 'y'){ //AI plays
+					_curMove = _board->wRootSearch();
+
+				}else{ //the user plays
+
+					std::cin >> moveStr;
+					getchar();
+					// Process the move.
+					_curMove = new Move();
+					_curMove->strToMove(moveStr);
+
+				}
+			}
+			else{
+				if(black == 'y'){//AI plays
+					_curMove = _board->bRootSearch();
+
+				}else{//the user plays
+					std::cin >> moveStr;
+					// Wait for a keypress.
+					getchar();
+					// Process the move.
+					_curMove = new Move();
+					_curMove->strToMove(moveStr);
+				}
+			}
+			
+
+			/*
 			std::vector<std::string> muuvit = _board->getMoveStrings();
 			if(muuvit.size() == 5)
-				//getchar();
+				getchar();
 
-				srand(time(0));
+			srand(time(0));
 
-			if(debug){
+			if(debug && _toMove == BLACK){
 				int rands= rand() % muuvit.size();
 				std::string s = muuvit.at(rands);
 
 				for(int i = 0; i <s.length(); i++){
 					moveStr[i] = s.at(i);
 				}
-			}
-
-			if(!debug){
+			}else {
 				std::cin >> moveStr;
 				// Wait for a keypress.
 				getchar();
+				// Process the move.
+				
 			}
+			 _curMove = new Move();
+			 _curMove->strToMove(moveStr);*/
 
-			// Process the move.
-			_curMove = new Move();
-			_curMove->strToMove(moveStr);
 		}
 
 		delete _curMove;
