@@ -729,8 +729,8 @@ void Board::takeBack(UI64 *_backUp){
 	_BitBoards[16] = _backUp[16];
 
 		_position->setToMove(_position->getToMove() == WHITE ? BLACK : WHITE );
-	//	BitBoardToMoves();
-		//memcpy(_BitBoards, _backUp, BITBOARDS);
+	//BitBoardToMoves();
+	//memcpy(_BitBoards, _backUp, BITBOARDS);
 }
 
 
@@ -941,27 +941,19 @@ std::vector<std::string> Board::getMoveStrings(){
 		y2 = 0;
 
 	//For each source piece we look every possible move in list
-	for(int i = 0; i <= bitboards.size()-1; i++){
+	for(int i = 0; i < bitboards.size(); i++){
 
-		UI64 source		  = bitboards.at(i).at(0);
-		UI64 destinations = bitboards.at(i).at(1);
+		int j = bitScanForward( bitboards.at(i).at(0) );
+		int k = bitScanForward( bitboards.at(i).at(1) );
 
-		for(int j = 0; j < SQUARES; j++){
-			if((source & _SquareBits[ j ]) ==  _SquareBits[ j ] ){
-				int x =  j & 7;
-				int y =  j >> 3; 
+		int x =  j & 7;
+		int y =  j >> 3; 
 
-				for(int k = 0; k < SQUARES; k++){
-					if ((destinations & _SquareBits[ k ]) ==  _SquareBits[ k ] ){
+		int x2 =  k & 7;
+		int y2 =  k >> 3; 
 
-						int x2 =  k & 7;
-						int y2 =  k >> 3; 
+		strVector.insert(strVector.end(), movesAsString(x,y,x2,y2)), pointIsSet = false;
 
-						strVector.insert(strVector.end(), movesAsString(x,y,x2,y2)), pointIsSet = false;
-					}
-				}
-			}
-		}
 	}
 	return strVector;
 }
