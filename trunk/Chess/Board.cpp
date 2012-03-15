@@ -742,7 +742,7 @@ void Board::takeBack(UI64 *_backUp){
 	_BitBoards[16] = _backUp[16];
 
 		_position->setToMove(_position->getToMove() == WHITE ? BLACK : WHITE );
-		BitBoardToMoves();
+		//BitBoardToMoves();
 		//memcpy(_BitBoards, _backUp, BITBOARDS);
 }
 
@@ -891,7 +891,7 @@ void Board::makeMove(std::vector<UI64> move){
 
 	_BitBoards[ EMPTYSQUARES ]= ~( _BitBoards[ W_PIECES ] | _BitBoards[ B_PIECES ] );
 
-		BitBoardToMoves();
+	//BitBoardToMoves();
 	//Update enpassant table
 	_BitBoards[ ENPASSANT ] &= toMove == WHITE ? ~SIXTH_RANK : ~THIRD_RANK;
 	_position->setToMove(_position->getToMove() == WHITE ? BLACK : WHITE );
@@ -1111,11 +1111,12 @@ Move *Board::wRootSearch() {
 	std::vector<UI64> bestMove;
 	std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
 	int i; 
+	std::cout<<"moveVector.size() == "<<moveVector.size()<<std::endl;
 	for ( i=0;i<moveVector.size();i++) {
 		UI64 *backuP = makeBoardBackUp();
 		makeMove(moveVector.at(i));
 
-		score = alphaBetaMax(INT_MIN, INT_MAX, 4);
+		score = alphaBetaMax(INT_MIN, INT_MAX, 5);
 		std::cout<<"score: "<<score<<std::endl;
 		takeBack(backuP);
 		delete backuP;
@@ -1132,10 +1133,11 @@ Move *Board::bRootSearch(){
 	std::vector<UI64> bestMove;
 	std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
 	int i; 
+	std::cout<<"moveVector.size() == "<<moveVector.size()<<std::endl;
 	for ( i=0;i<moveVector.size();i++) {
 		UI64 *backuP = makeBoardBackUp();
 		makeMove(moveVector.at(i));
-		score = alphaBetaMin(INT_MAX, INT_MIN, 4);
+		score = alphaBetaMin(INT_MAX, INT_MIN, 5);
 		std::cout<<"score: "<<score<<std::endl;
 		takeBack(backuP);
 		delete backuP;
