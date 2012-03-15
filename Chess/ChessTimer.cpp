@@ -51,6 +51,7 @@ void ChessTimer::StartCounter()
 	if(!QueryPerformanceFrequency(&li))
 		std::cout << "QueryPerformanceFrequency failed!\n";
 
+	CounterStart = 0;
 	PCFreq = double(li.QuadPart)/factor;
 
 	QueryPerformanceCounter(&li);

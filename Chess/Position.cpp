@@ -2130,7 +2130,7 @@ int Position::evaluate(UI64 BitBoards[]){
 	int wking = 1;
 	int bking = 1;
 	//material balance
-	double material = 100000*(wking-bking) + 900*(wqueen-bqueen) + 500*(wrook-brook) + 325*(wbishop-bbishop) + 300*(wknight-bknight) + 100*(wpawns-bpawns);
+	int material = 100000*(wking-bking) + 900*(wqueen-bqueen) + 500*(wrook-brook) + 325*(wbishop-bbishop) + 300*(wknight-bknight) + 100*(wpawns-bpawns);
 
 
 	//mobility

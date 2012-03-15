@@ -590,19 +590,6 @@ UI64 Board::posToSquare(int x, int y){
 	return _SquareBits[8*y+x];
 }
 
-/**
-	Converts the SquareBit to a x,y coordinates
-
-	@author Olli Koskinen, Arttu Nieminen
-	@param square the bit representation of move
-	@return void    ==    PLXFIXME
-*/
-void Board::SquareBitToPos(UI64 square){
-	int x , y;
-	x = square & 7;
-	y = square >> 3;
-	//plx return meeeee!
-}
 
 /**
 	Checks if the move made by user is legal. 
@@ -645,8 +632,8 @@ bool Board::moveIsLegal(Move *_curMove){
 		UI64 source		  = move.at(i).at(0);
 		UI64 destinations = move.at(i).at(1);
 
-		if( (source & _SquareBits[sourceIndex]) == _SquareBits[sourceIndex] ){
-			if( (destinations &  _SquareBits[ destIndex ]) == _SquareBits[destIndex] ){
+		if( (source & _SquareBits[sourceIndex]) != 0 ){
+			if( (destinations &  _SquareBits[ destIndex ]) != 0 ){
 				updateBitBoards(*_curMove, getPieceAt(_curMove->getX1(),_curMove->getY1())-> getType());
 				std::cout <<"\nboard evaluation: "<< _position->evaluate(_BitBoards);
 				return true;
@@ -742,7 +729,7 @@ void Board::takeBack(UI64 *_backUp){
 	_BitBoards[16] = _backUp[16];
 
 		_position->setToMove(_position->getToMove() == WHITE ? BLACK : WHITE );
-		//BitBoardToMoves();
+	//	BitBoardToMoves();
 		//memcpy(_BitBoards, _backUp, BITBOARDS);
 }
 
@@ -910,6 +897,7 @@ std::vector<std::string> Board::getMoveStrings(){
 	std::string str;
 	std::vector<std::vector<UI64>> bitboards = getLegalMoves();
 
+	std::cout<<"LegalMoves size in getMOveStrings = "<<bitboards.size();
 
 	if(bitboards.size() == 0){
 
@@ -1116,11 +1104,11 @@ Move *Board::wRootSearch() {
 		UI64 *backuP = makeBoardBackUp();
 		makeMove(moveVector.at(i));
 
-		score = alphaBetaMax(INT_MIN, INT_MAX, 5);
+		score = alphaBetaMax(INT_MIN, INT_MAX, 6);
 		std::cout<<"score: "<<score<<std::endl;
 		takeBack(backuP);
 		delete backuP;
-		if(score > best){
+		if(score >= best){
 
 			bestMove = moveVector.at(i);
 		}
@@ -1137,11 +1125,11 @@ Move *Board::bRootSearch(){
 	for ( i=0;i<moveVector.size();i++) {
 		UI64 *backuP = makeBoardBackUp();
 		makeMove(moveVector.at(i));
-		score = alphaBetaMin(INT_MAX, INT_MIN, 5);
+		score = alphaBetaMin(INT_MIN, INT_MAX, 6);
 		std::cout<<"score: "<<score<<std::endl;
 		takeBack(backuP);
 		delete backuP;
-		if(score > best){
+		if(score <= best){
 			bestMove = moveVector.at(i);
 		}
 	}
