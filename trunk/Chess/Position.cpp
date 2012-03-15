@@ -2141,7 +2141,7 @@ UI64 Position::allWhite(UI64 BitBoards[]){
 	moves |= AllRookMoves(BitBoards[ W_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
 	moves |= AllBishopMoves(BitBoards[ W_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
 	moves |= queenMoves(BitBoards[ W_QUEEN ], (BitBoards[ EMPTYSQUARES ]), (BitBoards[ W_PIECES ]));
-	moves |= bKingMoves(BitBoards[ W_KING ], BitBoards[ W_PIECES ],BitBoards);
+	moves |= wKingMoves(BitBoards[ W_KING ], BitBoards[ W_PIECES ],BitBoards);
 	return moves;
 }
 
@@ -2169,17 +2169,17 @@ int Position::popCount(UI64 bitboard){
 int Position::evaluate(UI64 BitBoards[]){
 
 	//population counting
-	int wqueen = popCount(BitBoards[ W_QUEEN ]);
-	int wrook = popCount(BitBoards[ W_ROOK ]);
+	int wqueen  = popCount(BitBoards[ W_QUEEN  ]);
+	int wrook   = popCount(BitBoards[ W_ROOK   ]);
 	int wbishop = popCount(BitBoards[ W_BISHOP ]);
 	int wknight = popCount(BitBoards[ W_KNIGHT ]);
-	int wpawns = popCount(BitBoards[ W_PAWN ]);
+	int wpawns  = popCount(BitBoards[ W_PAWN   ]);
 
-	int bqueen = popCount(BitBoards[ B_QUEEN ]);
-	int brook = popCount(BitBoards[ B_ROOK ]);
+	int bqueen  = popCount(BitBoards[ B_QUEEN  ]);
+	int brook   = popCount(BitBoards[ B_ROOK   ]);
 	int bbishop = popCount(BitBoards[ B_BISHOP ]);
 	int bknight = popCount(BitBoards[ B_KNIGHT ]);
-	int bpawns = popCount(BitBoards[ B_PAWN ]);
+	int bpawns  = popCount(BitBoards[ B_PAWN   ]);
 
 	int wking = 1;
 	int bking = 1;

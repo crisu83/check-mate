@@ -40,7 +40,7 @@ private:
 
 	int alphaBetaMax( int alpha, int beta, int depth );
 	int alphaBetaMin( int alpha, int beta, int depth );
-
+	int lsb_64_table[64];
 	int bitScanForward(UI64);
 
 public:
