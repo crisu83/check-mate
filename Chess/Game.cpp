@@ -96,13 +96,11 @@ int Game::run(void)
 					_curMove = _board->wRootSearch();
 
 				}else{ //the user plays
-
 					std::cin >> moveStr;
 					getchar();
 					// Process the move.
 					_curMove = new Move();
 					_curMove->strToMove(moveStr);
-
 				}
 			}
 			else{
