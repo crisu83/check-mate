@@ -310,18 +310,17 @@ void Board::execMove(const Move *m)
 */
 void Board::BitBoardToMoves(){
 	clear();
-	//All the bitboards for pieces
 	for(int i = 1; i <= B_PAWN; i++){
-		UI64 moves = _BitBoards[i];
-		while(moves != 0){
-			int j = bitScanForward((moves& -moves));
-			int x =  j & 7;
-			int y =  j >> 3; 
-			setPieceAt(x,y, new Piece(i));
-			moves = moves &(moves -1);
+		for(int j = 0; j < SQUARES; j++){
+			if((_BitBoards[i] & _SquareBits[ j ]) ==  _SquareBits[ j ] ){
+				int x =  j & 7;
+				int y =  j >> 3;
+				setPieceAt(x,y, new Piece(i));
+			}
 		}
 	}
 }
+
 
 /**
 	Transforms bitboards to Move objects
