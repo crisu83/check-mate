@@ -1,0 +1,9 @@
+Board.cpp
+	-Add Quiescence search to AlphaBeta for better performance.
+	-Optimize the process of converting moves to strings
+	-Optimize the updateBitBoard by changing the loops to LS1B & reseted LS1B loops
+	-Optimize the updateBitBoard by changing the castling check to resemble makeMove
+	-Optimize the takeBack and makeBoardBackUp by changing it to memcopy,std::copy or just plainly assigning different board values to backup board and so forth
+
+Position.cpp
+	-Optimize the genLegalMoves by removing unnecessary branches, take a look at castling.

@@ -2112,7 +2112,7 @@ int Position::popCount(UI64 bitboard){
 	return count;
 }
 
-double Position::evaluate(UI64 BitBoards[]){
+int Position::evaluate(UI64 BitBoards[]){
 
 	//population counting
 	int wqueen = popCount(BitBoards[ W_QUEEN ]);
@@ -2130,14 +2130,13 @@ double Position::evaluate(UI64 BitBoards[]){
 	int wking = 1;
 	int bking = 1;
 	//material balance
-	double material = 1000*(wking-bking) + 9*(wqueen-bqueen) + 5*(wrook-brook) + 3.25*(wbishop-bbishop) + 3*(wknight-bknight) + 1*(wpawns-bpawns);
+	double material = 100000*(wking-bking) + 900*(wqueen-bqueen) + 500*(wrook-brook) + 325*(wbishop-bbishop) + 300*(wknight-bknight) + 100*(wpawns-bpawns);
 
 
 	//mobility
 	int wmoves = popCount(allWhite(BitBoards));
 	int bmoves = popCount(allBlack(BitBoards));
 
-	double value = material + (0,03 * (wmoves-bmoves));
-	return value;
+	return material + (3 * (wmoves-bmoves));
 }
 

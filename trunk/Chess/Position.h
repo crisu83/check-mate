@@ -120,6 +120,6 @@ public:
 	bool bIsCheck(UI64 BitBoards[]);
 
 	//The board evaluation functions
-	double evaluate(UI64 BitBoards[]);
+	int evaluate(UI64 BitBoards[]);
 };
 

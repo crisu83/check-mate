@@ -6,7 +6,7 @@
  */
 Board::Board(void)
 {
-	//chessTimer = ChessTimer();
+	chessTimer = ChessTimer();
 	initBitboards();
 }
 
@@ -62,6 +62,7 @@ void Board::initBitboards(){
 
 	fillSquareBits();
 	fiftyMove = 0;
+
 
 	_BitBoards[ EMPTY	]	= 0x0000;  // Empty board
 	_BitBoards[ W_KING	]	= 0x10;
@@ -239,7 +240,6 @@ void Board::execMove(const Move *m)
 	Transforms bitboards to Move objects
 
 	@author Olli Koskinen, Arttu Nieminen
-	@return pointer to move vector
 */
 void Board::BitBoardToMoves(){
 	clear();
@@ -254,6 +254,59 @@ void Board::BitBoardToMoves(){
 		}
 	}
 }
+
+/**
+	Transforms bitboards to Move objects
+
+	@author Olli Koskinen, Arttu Nieminen
+*/
+Move *Board::BitBoardToMoves(std::vector<UI64> move){
+	//All the bitboards for pieces
+	int x1,y1,x2,y2;
+	UI64 a = move.at(0);
+	UI64 b = move.at(1);
+	//find the index
+	int j = bitScanForward(a);
+	//Convert it to x&y
+	x1 = j & 7;
+	y1 = j >> 3;
+
+	j = bitScanForward(b);
+	x2 = j & 7;
+	y2 = j >> 3;
+	
+	return new Move(x1,y1,x2,y2);
+}
+
+
+/**
+ * bitScanForward
+ * @author Matt Taylor
+ * @param bb bitboard to scan
+ * @precondition bb != 0
+ * @return index (0..63) of least significant one bit
+ */
+int Board::bitScanForward(UI64 bb) {
+	const int lsb_64_table[64] =
+{
+   63, 30,  3, 32, 59, 14, 11, 33,
+   60, 24, 50,  9, 55, 19, 21, 34,
+   61, 29,  2, 53, 51, 23, 41, 18,
+   56, 28,  1, 43, 46, 27,  0, 35,
+   62, 31, 58,  4,  5, 49, 54,  6,
+   15, 52, 12, 40,  7, 42, 45, 16,
+   25, 57, 48, 13, 10, 39,  8, 44,
+   20, 47, 38, 22, 17, 37, 36, 26
+};
+ 
+   unsigned int folded;
+   assert (bb != 0);
+   bb ^= bb - 1;
+   folded = (int) bb ^ (bb >> 32);
+   return lsb_64_table[folded * 0x78291ACF >> 26];
+}
+
+
 
 /**
 	Updates the move to bitboards
@@ -577,16 +630,15 @@ bool Board::moveIsLegal(Move *_curMove){
 	* genLegalMoves and it's timing functions, for performance testing.
 	*/
 
-	//chessTimer.StartCounter();
+	chessTimer.StartCounter();
 	std::vector<std::vector<UI64>> move = _position->genLegalMoves(_BitBoards);
 
-	//std::cout <<"\ngenLegalMoves inclusive time: "<<chessTimer.GetCounter()<<" microseconds\n";
+	std::cout <<"\ngenLegalMoves inclusive time: "<<chessTimer.GetCounter()<<" microseconds\n";
 
 	/**
 	*
 	* END
 	*/
-
 
 
 	for(int i = 0; i <move.size(); i++){
@@ -641,8 +693,27 @@ std::vector<std::vector<UI64>> Board::getLegalMoves(){
 	
 	@Author Olli Koskinen, Arttu Nieminen
 */
-void Board::makeBoardBackUp(){
-	std::copy(_BitBoards, _BitBoards+(BITBOARDS - 1) , _backUp);
+UI64 *Board::makeBoardBackUp(){
+	UI64* b = new UI64[BITBOARDS];
+	b[0]	= 	_BitBoards[0]; 
+	b[1]	= 	_BitBoards[1]; 
+	b[2]	= 	_BitBoards[2]; 
+	b[3]	= 	_BitBoards[3]; 
+	b[4]	= 	_BitBoards[4]; 
+	b[5]	= 	_BitBoards[5]; 
+	b[6]	= 	_BitBoards[6]; 
+	b[7]	= 	_BitBoards[7]; 
+	b[8]	= 	_BitBoards[8]; 
+	b[9]	= 	_BitBoards[9]; 
+	b[10]	= 	_BitBoards[10];
+	b[11]	= 	_BitBoards[11];
+	b[12]	= 	_BitBoards[12];
+	b[13]	= 	_BitBoards[13];
+	b[14]	= 	_BitBoards[14];
+	b[15]	= 	_BitBoards[15];
+	b[16]	= 	_BitBoards[16];
+	//memcpy(*b, _BitBoards , BITBOARDS);
+	return b;
 }
 
 
@@ -651,8 +722,28 @@ void Board::makeBoardBackUp(){
 	
 	@Author Olli Koskinen, Arttu Nieminen
 */
-void Board::takeBack(){
-	std::copy(_backUp, _backUp+(BITBOARDS - 1 ), _BitBoards);
+void Board::takeBack(UI64 *_backUp){
+	_BitBoards[0] =  _backUp[0];
+	_BitBoards[1] =  _backUp[1];
+	_BitBoards[2] =  _backUp[2];
+	_BitBoards[3] =  _backUp[3];
+	_BitBoards[4] =  _backUp[4];
+	_BitBoards[5] =  _backUp[5];
+	_BitBoards[6] =  _backUp[6];
+	_BitBoards[7] =  _backUp[7];
+	_BitBoards[8] =  _backUp[8];
+	_BitBoards[9] =  _backUp[9];
+	_BitBoards[10] = _backUp[10];
+	_BitBoards[11] = _backUp[11];
+	_BitBoards[12] = _backUp[12];
+	_BitBoards[13] = _backUp[13];
+	_BitBoards[14] = _backUp[14];
+	_BitBoards[15] = _backUp[15];
+	_BitBoards[16] = _backUp[16];
+
+		_position->setToMove(_position->getToMove() == WHITE ? BLACK : WHITE );
+		BitBoardToMoves();
+		//memcpy(_BitBoards, _backUp, BITBOARDS);
 }
 
 
@@ -662,14 +753,10 @@ void Board::takeBack(){
 	@Author Olli Koskinen, Arttu Nieminen
 */
 void Board::makeMove(std::vector<UI64> move){
-	//Backup the original state
-	makeBoardBackUp();
 
 	UI64 source = move.at(0);
 	UI64 dest = move.at(1);
 	int toMove = _position->getToMove();
-	int i	= toMove == WHITE ? B_KING : W_KING;
-	int end = toMove == WHITE ? B_PAWN : W_PAWN;
 	int enemyPieces = toMove == WHITE ? B_PIECES : W_PIECES;
 	int ourPieces	= toMove == WHITE ? W_PIECES : B_PIECES;
 
@@ -681,12 +768,12 @@ void Board::makeMove(std::vector<UI64> move){
 			//Set the the dest as a queen, always
 			_BitBoards[ W_QUEEN ] |= dest;
 
-			//Remove the dest from enemy pieces and from our own
+			//Remove the dest from enemy pieces and from our ownF
 			_BitBoards[ W_PAWN   ] &= ~source;
 		}
 		if((source & _BitBoards[ W_KING ]) != 0){
 			//If the king moves right 2 squares, it's castling
-			if((dest == (source<<2)) && (_BitBoards[W_ROOK] & _SquareBits[7]) != 0){
+			if((dest == (source<<2)) && (_BitBoards[W_ROOK] & _SquareBits[7]) != 0 &&((source & _SquareBits[4]) != 0)){
 				//Move the king
 				_BitBoards[ W_KING ] &=  ~source;
 				_BitBoards[ W_KING ] |=  dest;
@@ -697,7 +784,7 @@ void Board::makeMove(std::vector<UI64> move){
 				_BitBoards[ W_ROOK] |=   rooksPlace  >> 2 ;
 
 			}
-			else if((dest == (source>>2) )&&  (_BitBoards[W_ROOK] & _SquareBits[0]) != 0){ //same as above but right
+			else if((dest == (source>>2) )&&  (_BitBoards[W_ROOK] & _SquareBits[0]) != 0 &&((source & _SquareBits[4]) != 0)){ //same as above but right
 				_BitBoards[ W_KING ] &=  ~source;
 				_BitBoards[ W_KING ] |=  dest;
 
@@ -710,7 +797,7 @@ void Board::makeMove(std::vector<UI64> move){
 		//En Passant
 
 		if((source & _BitBoards[ W_PAWN ]) != 0){
-			if( dest == source << 16 ){ //If we do a doublepush with pawn
+			if( dest == (source << 16) ){ //If we do a doublepush with pawn
 				_BitBoards[ ENPASSANT ] |= source << 8; 
 			}
 		}
@@ -728,7 +815,7 @@ void Board::makeMove(std::vector<UI64> move){
 		}
 		if((source & _BitBoards[ B_KING ]) != 0){
 			//If the king moves right 2 squares, it's castling
-			if((dest == (source<<2)) && ( _BitBoards[B_ROOK] & _SquareBits[63]) != 0){
+			if((dest == (source<<2)) && ( _BitBoards[B_ROOK] & _SquareBits[63]) != 0&&((source & _SquareBits[60]) != 0)){
 				//Move the king
 				_BitBoards[ B_KING ] &=  ~source;
 				_BitBoards[ B_KING ] |=  dest;
@@ -739,7 +826,7 @@ void Board::makeMove(std::vector<UI64> move){
 				_BitBoards[ B_ROOK] |=   rooksPlace  >> 2 ;
 
 			}
-			else if((dest == (source>>2) ) && ( _BitBoards[B_ROOK] & _SquareBits[56]) != 0){ //same as above but right
+			else if((dest == (source>>2) ) && ( _BitBoards[B_ROOK] & _SquareBits[56]) != 0&&((source & _SquareBits[60]) != 0)){ //same as above but right
 				_BitBoards[ B_KING ] &=  ~source;
 				_BitBoards[ B_KING ] |=  dest;
 
@@ -752,7 +839,7 @@ void Board::makeMove(std::vector<UI64> move){
 		//En Passant
 
 		if((source & _BitBoards[ B_PAWN ]) != 0){
-			if( dest == source >> 16 ){ //If we do a doublepush with pawn
+			if( (dest == source >> 16) ){ //If we do a doublepush with pawn
 				_BitBoards[ ENPASSANT ] |= source >> 8; 
 			}
 		}
@@ -761,12 +848,6 @@ void Board::makeMove(std::vector<UI64> move){
 	//Attacks
 	//If there is enemy in the dest square
 	if( (_BitBoards[ enemyPieces ]  &  dest) != 0 ){
-		//First, clear the fifty move rule to zero, since we attack
-		fiftyMove = 0;
-
-		_BitBoards[ enemyPieces ]  &=  ~dest;  // Remove the enemy piece from pieces
-		_BitBoards[  ourPieces	]  &=  ~source;	 // remove our piece from pieces
-
 		int i	= toMove == WHITE ? B_KING : W_KING;
 		int end = toMove == WHITE ? B_PAWN : W_PAWN;
 		//And just in case we search every enemy table trhough if there's still someone in our dest square
@@ -788,26 +869,16 @@ void Board::makeMove(std::vector<UI64> move){
 		}
 
 
-		int i	= toMove == WHITE ? B_KING : W_KING;
-		int end = toMove == WHITE ? B_PAWN : W_PAWN;
-		//update the dest table
-		for(i; i<end; i++){
-			if(( _BitBoards[ i ] & dest) != 0 ){
-				_BitBoards[ i ]  &=  ~dest;
-				break;
-			}
-		}
-
-		i	= toMove == WHITE ? W_KING : B_KING;
-		end = toMove == WHITE ? W_PAWN : B_PAWN;
-		//Update the source table
+		int i	= toMove == WHITE ? W_KING : B_KING;
+		int end = toMove == WHITE ? W_PAWN : B_PAWN;
+		//update the dest and source tables
 		for(i; i<end; i++){
 			if(( _BitBoards[ i ] & source) != 0 ){
-				_BitBoards[ i ]   |=  source;
+				_BitBoards[ i ]   &=  ~source;
+				_BitBoards[ i ]  |=  dest;
 				break;
 			}
 		}
-
 	}
 
 	//Update the all the white/black pieces according to turn
@@ -820,9 +891,10 @@ void Board::makeMove(std::vector<UI64> move){
 
 	_BitBoards[ EMPTYSQUARES ]= ~( _BitBoards[ W_PIECES ] | _BitBoards[ B_PIECES ] );
 
-
+		BitBoardToMoves();
 	//Update enpassant table
 	_BitBoards[ ENPASSANT ] &= toMove == WHITE ? ~SIXTH_RANK : ~THIRD_RANK;
+	_position->setToMove(_position->getToMove() == WHITE ? BLACK : WHITE );
 }
 
 
@@ -994,84 +1066,82 @@ void Board::setPosition(Position *position)
 }
 
 int Board::alphaBetaMax( int alpha, int beta, int depth ) {
-   if ( depth == 0 ) return _position->evaluate(_BitBoards);
-   std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
-   int i = 0; int score;
-   for (i=0;i>moveVector.size();i++) { //käydään moveVectorin kaikki läpi
-	  makeMove(moveVector.at(i));  
-	   if( moveVector.size() == 0 && _position->bIsCheck(_BitBoards)){
-	   score = INT_MAX;
-	}else{
-      score = alphaBetaMin( alpha, beta, depth - 1 );
+	if ( depth == 0 ) return _position->evaluate(_BitBoards);
+	std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
+	int i = 0; int score = 0;
+	for (i=0;i<moveVector.size();i++) { //Go through every node in moveVector
+		//Backup the original state
+		UI64 *backuP = makeBoardBackUp();
+
+		makeMove(moveVector.at(i));  
+		score = alphaBetaMin( alpha, beta, depth - 1 );
+		takeBack(backuP);
+		delete backuP;
+		if( score >= beta )
+			return beta;  
+		if( score > alpha )
+			alpha = score;
+
 	}
-	  takeBack();
-      if( score >= beta )
-         return beta;  
-      if( score > alpha )
-         alpha = score;
-	  
-   }
-   return alpha;
+	return alpha;
 }
- 
+
 int Board::alphaBetaMin( int alpha, int beta, int depth ) {
-   if ( depth == 0 ) return -_position->evaluate(_BitBoards);
-   std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
-   int i = 0; int score;
-   for ( i=0;i>moveVector.size();i++) {
-      makeMove(moveVector.at(i));
-	if( moveVector.size() == 0 && _position->bIsCheck(_BitBoards)){
-	   score = INT_MAX;
-	}else{
-      score = alphaBetaMax( alpha, beta, depth - 1 );
+	if ( depth == 0 ) return _position->evaluate(_BitBoards);
+	std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
+	int i = 0; int score = 0;
+	for ( i=0;i<moveVector.size();i++) {
+		UI64 *backuP = makeBoardBackUp();
+		makeMove(moveVector.at(i));
+		score = alphaBetaMax( alpha, beta, depth - 1 );
+
+		takeBack(backuP);
+		delete backuP;
+		if( score <= alpha )
+			return alpha; 
+		if( score < beta )
+			beta = score; 
 	}
-	 takeBack();
-      if( score <= alpha )
-         return alpha; 
-      if( score < beta )
-         beta = score; 
-	  
-   }
-	  
-   return beta;
+
+	return beta;
 }
 
-std::vector<UI64> Board::wRootSearch() {
-	int best; int score;
-	std::vector<UI64> bestMove;
-   std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
-   int i; 
-   for ( i=0;i>moveVector.size();i++) {
-      makeMove(moveVector.at(i));
-	   if( moveVector.size() == 0 && _position->bIsCheck(_BitBoards)){
-			score = INT_MAX;		//check mate
-		}else{
-			score = alphaBetaMax(INT_MIN, INT_MAX, 4);
-	   }
-	  takeBack();
-	  if(score > best){
-		bestMove = moveVector.at(i);
-		}
-	}
-   return bestMove;
-}
-
-std::vector<UI64> Board::bRootSearch(){
-	int best;int score;
+Move *Board::wRootSearch() {
+	int best = 0; int score = 0;
 	std::vector<UI64> bestMove;
 	std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
 	int i; 
-   for ( i=0;i>moveVector.size();i++) {
-      makeMove(moveVector.at(i));
-	   if( moveVector.size() == 0 && _position->wIsCheck(_BitBoards)){
-			score = INT_MAX;		//check mate
-		}else{
-			score = alphaBetaMin(INT_MIN, INT_MAX, 4);
-	   }
-	  takeBack();
-	  if(score > best){
-		bestMove = moveVector.at(i);
-	  }
-   }
-   return bestMove;
- }
+	for ( i=0;i<moveVector.size();i++) {
+		UI64 *backuP = makeBoardBackUp();
+		makeMove(moveVector.at(i));
+
+		score = alphaBetaMax(INT_MIN, INT_MAX, 4);
+		std::cout<<"score: "<<score<<std::endl;
+		takeBack(backuP);
+		delete backuP;
+		if(score > best){
+
+			bestMove = moveVector.at(i);
+		}
+	}
+	return BitBoardToMoves(bestMove);
+}
+
+Move *Board::bRootSearch(){
+	int best = 0;int score = 0;
+	std::vector<UI64> bestMove;
+	std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
+	int i; 
+	for ( i=0;i<moveVector.size();i++) {
+		UI64 *backuP = makeBoardBackUp();
+		makeMove(moveVector.at(i));
+		score = alphaBetaMin(INT_MAX, INT_MIN, 4);
+		std::cout<<"score: "<<score<<std::endl;
+		takeBack(backuP);
+		delete backuP;
+		if(score > best){
+			bestMove = moveVector.at(i);
+		}
+	}
+	return BitBoardToMoves(bestMove);
+}
