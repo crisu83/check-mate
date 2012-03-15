@@ -897,8 +897,6 @@ std::vector<std::string> Board::getMoveStrings(){
 	std::string str;
 	std::vector<std::vector<UI64>> bitboards = getLegalMoves();
 
-	std::cout<<"LegalMoves size in getMOveStrings = "<<bitboards.size();
-
 	if(bitboards.size() == 0){
 
 		if(_position->getToMove() == WHITE){
@@ -1096,7 +1094,7 @@ Move *Board::wRootSearch() {
 		UI64 *backuP = makeBoardBackUp();
 		makeMove(moveVector.at(i));
 
-		score = alphaBetaMax(INT_MIN, INT_MAX, 6);
+		score = alphaBetaMin(INT_MIN, INT_MAX, 4);
 		std::cout<<"score: "<<score<<std::endl;
 		takeBack(backuP);
 		delete backuP;
@@ -1117,7 +1115,7 @@ Move *Board::bRootSearch(){
 	for ( i=0;i<moveVector.size();i++) {
 		UI64 *backuP = makeBoardBackUp();
 		makeMove(moveVector.at(i));
-		score = alphaBetaMin(INT_MIN, INT_MAX, 6);
+		score = alphaBetaMax(INT_MIN, INT_MAX, 4);
 		std::cout<<"score: "<<score<<std::endl;
 		takeBack(backuP);
 		delete backuP;
