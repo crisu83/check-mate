@@ -223,7 +223,10 @@ void Game::printAllPossibleMoves(){
 	int counter = 0;
 	for(int i = 0; i < str.size(); i++){
 		counter++;
-		std::cout<<str.at(i)<<",";
+		if(i == str.size() - 1)
+				std::cout<<str.at(i);
+		else
+			std::cout<<str.at(i)<<",";
 		if(counter == 11)
 			std::cout<<std::endl, counter = 0;
 	}
