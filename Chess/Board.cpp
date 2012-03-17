@@ -83,16 +83,16 @@ void Board::initBitboards(){
 
 
 	//Fill the bitscan table
-	lsb_64_table[0] = 63;
-	lsb_64_table[1] = 30;
-	lsb_64_table[2] =  3;
-	lsb_64_table[3] = 32;
-	lsb_64_table[4] = 59;
-	lsb_64_table[5] = 14;
-	lsb_64_table[6] = 11;
-	lsb_64_table[7] = 33;
-	lsb_64_table[8] = 60;
-	lsb_64_table[9] = 24;
+	lsb_64_table[0] =  63;
+	lsb_64_table[1] =  30;
+	lsb_64_table[2] =   3;
+	lsb_64_table[3] =  32;
+	lsb_64_table[4] =  59;
+	lsb_64_table[5] =  14;
+	lsb_64_table[6] =  11;
+	lsb_64_table[7] =  33;
+	lsb_64_table[8] =  60;
+	lsb_64_table[9] =  24;
 	lsb_64_table[10] = 50;
 	lsb_64_table[11] =  9;
 	lsb_64_table[12] = 55;
@@ -120,9 +120,9 @@ void Board::initBitboards(){
 	lsb_64_table[34] = 58;
 	lsb_64_table[35] =  4; 
 	lsb_64_table[36] =  5;
-	lsb_64_table[37] =4;
-	lsb_64_table[38] =5; 
-	lsb_64_table[39] =6;
+	lsb_64_table[37] =  4;
+	lsb_64_table[38] =  5; 
+	lsb_64_table[39] =  6;
 	lsb_64_table[40] = 15;
 	lsb_64_table[41] = 52;
 	lsb_64_table[42] = 12;
@@ -312,7 +312,7 @@ void Board::BitBoardToMoves(){
 	clear();
 	for(int i = 1; i <= B_PAWN; i++){
 		for(int j = 0; j < SQUARES; j++){
-			if((_BitBoards[i] & _SquareBits[ j ]) ==  _SquareBits[ j ] ){
+			if((_BitBoards[i] & _SquareBits[ j ])!= 0 ){
 				int x =  j & 7;
 				int y =  j >> 3;
 				setPieceAt(x,y, new Piece(i));
@@ -559,7 +559,7 @@ void Board::updateBitBoards(Move move, int type){
 	*
 	*/
 	//We look if there is enemy on our destination
-	if( (_BitBoards[ enemyPieces ]  &  _SquareBits[ destIndex ]) == _SquareBits[ destIndex ] ){
+	if( (_BitBoards[ enemyPieces ]  &  _SquareBits[ destIndex ]) != 0 ){
 
 		//First, clear the fifty move rule to zero, since we attack
 		fiftyMove = 0;
@@ -608,10 +608,6 @@ void Board::updateBitBoards(Move move, int type){
 
 	_BitBoards[ EMPTYSQUARES ]= ~( _BitBoards[ W_PIECES ] | _BitBoards[ B_PIECES ] );
 
-
-
-	if(debug)
-		std::cout<<"Bitboards [ type ] = "<<_BitBoards[ type ]<<"\n"; 
 
 	BitBoardToMoves();
 
@@ -794,131 +790,182 @@ void Board::takeBack(UI64 *_backUp){
 	
 	@Author Olli Koskinen, Arttu Nieminen
 */
-void Board::makeMove(std::vector<UI64> move){
+void Board::makeMove(std::vector<UI64> move)
+{
 
 	UI64 source = move.at(0);
 	UI64 dest = move.at(1);
 	int toMove = _position->getToMove();
+
+	//If the type is one of the Whites, then we look from black pieces
+	//And if the type is one of the blacks, then we look from white pieces
 	int enemyPieces = toMove == WHITE ? B_PIECES : W_PIECES;
 	int ourPieces	= toMove == WHITE ? W_PIECES : B_PIECES;
 
+	//We find what we are against at and with what we are moving
+	int ourType = 0;
+	int enemyType = 0;
 
-	if(toMove == WHITE){
+	
+	int i = 1;
+	int end = B_PAWN;
+
+	for(i; i<=end; i++)
+	{
+		if(( _BitBoards[ i ] & source) != 0 )
+		{
+			ourType = i;
+		}
+		else if((_BitBoards[ i ] & dest) != 0)
+		{
+			enemyType = i;
+		}
+
+		if(enemyType !=0 && ourType != 0)
+		{
+			break;
+		}
+	}
+
+
+	//Attacks
+	//If there is enemy in the dest square
+	if( (_BitBoards[ enemyPieces ]  &  dest) != 0 )
+	{	
+
 		//If we promote
-		if(((dest & EIGHT_RANK) != 0 ) && ((source & _BitBoards[ W_PAWN ]) != 0))
+		if(((dest & EIGHT_RANK) != 0 ) && ((source & _BitBoards[ W_PAWN ]) != 0))			
 		{
 			//Set the the dest as a queen, always
 			_BitBoards[ W_QUEEN ] |= dest;
 
-			//Remove the dest from enemy pieces and from our ownF
-			_BitBoards[ W_PAWN   ] &= ~source;
 		}
-		if((source & _BitBoards[ W_KING ]) != 0){
-			//If the king moves right 2 squares, it's castling
-			if((dest == (source<<2)) && (_BitBoards[W_ROOK] & _SquareBits[7]) != 0 &&((source & _SquareBits[4]) != 0)){
-				//Move the king
-				_BitBoards[ W_KING ] &=  ~source;
-				_BitBoards[ W_KING ] |=  dest;
-
-				//Move the rook
-				UI64 rooksPlace =(_BitBoards[ W_ROOK ] ^(_BitBoards[ W_ROOK ] & -_BitBoards[ W_ROOK ]));
-				_BitBoards[ W_ROOK ] &=  ~ (_BitBoards[ W_ROOK ] ^(_BitBoards[ W_ROOK ] & -_BitBoards[ W_ROOK ]));
-				_BitBoards[ W_ROOK] |=   rooksPlace  >> 2 ;
-
-			}
-			else if((dest == (source>>2) )&&  (_BitBoards[W_ROOK] & _SquareBits[0]) != 0 &&((source & _SquareBits[4]) != 0)){ //same as above but right
-				_BitBoards[ W_KING ] &=  ~source;
-				_BitBoards[ W_KING ] |=  dest;
-
-				//Delete the piece we are going to move and then add it to a new place
-				UI64 rooksPlace = (_BitBoards[ W_ROOK ] & -_BitBoards[ W_ROOK ]);
-				_BitBoards[ W_ROOK ] &=  ~(_BitBoards[ W_ROOK ] & -_BitBoards[ W_ROOK ]);
-				_BitBoards[ W_ROOK ] |=   rooksPlace << 3;
-			}
-		}
-		//En Passant
-
-		if((source & _BitBoards[ W_PAWN ]) != 0){
-			if( dest == (source << 16) ){ //If we do a doublepush with pawn
-				_BitBoards[ ENPASSANT ] |= source << 8; 
-			}
-		}
-
-	}else{
-
-		//If we promote
-		if(((dest & FIRST_RANK) != 0 ) && ((source & _BitBoards[ B_PAWN ]) != 0))
+		else if(((dest & FIRST_RANK) != 0 ) && ((source & _BitBoards[ B_PAWN ]) != 0))
 		{
 			//Set the the dest as a queen, always
 			_BitBoards[ B_QUEEN ] |= dest;
-
-			//Remove the dest from enemy pieces and from our own
-			_BitBoards[ B_PAWN   ] &= ~source;
 		}
-		if((source & _BitBoards[ B_KING ]) != 0){
-			//If the king moves right 2 squares, it's castling
-			if((dest == (source<<2)) && ( _BitBoards[B_ROOK] & _SquareBits[63]) != 0&&((source & _SquareBits[60]) != 0)){
-				//Move the king
-				_BitBoards[ B_KING ] &=  ~source;
-				_BitBoards[ B_KING ] |=  dest;
-
-				//Move the rook
-				UI64 rooksPlace =(_BitBoards[ B_ROOK ] ^(_BitBoards[ B_ROOK ] & -_BitBoards[ B_ROOK ]));
-				_BitBoards[ B_ROOK ] &=  ~ (_BitBoards[ B_ROOK ] ^(_BitBoards[ B_ROOK ] & -_BitBoards[ B_ROOK ]));
-				_BitBoards[ B_ROOK] |=   rooksPlace  >> 2 ;
-
-			}
-			else if((dest == (source>>2) ) && ( _BitBoards[B_ROOK] & _SquareBits[56]) != 0&&((source & _SquareBits[60]) != 0)){ //same as above but right
-				_BitBoards[ B_KING ] &=  ~source;
-				_BitBoards[ B_KING ] |=  dest;
-
-				//Delete the piece we are going to move and then add it to a new place
-				UI64 rooksPlace = (_BitBoards[ B_ROOK ] & -_BitBoards[ B_ROOK ]);
-				_BitBoards[ B_ROOK ] &=  ~(_BitBoards[ B_ROOK ] & -_BitBoards[ B_ROOK ]);
-				_BitBoards[ B_ROOK ] |=   rooksPlace << 3;
-			}
+		else
+		{
+			_BitBoards[ ourType	  ]  |= dest;    //add our type to dests
 		}
-		//En Passant
 
-		if((source & _BitBoards[ B_PAWN ]) != 0){
-			if( (dest == source >> 16) ){ //If we do a doublepush with pawn
-				_BitBoards[ ENPASSANT ] |= source >> 8; 
-			}
-		}
+		_BitBoards[ enemyType ]  &= ~dest;   //Remove the enemy from our dest
+		_BitBoards[ ourType	  ]  &= ~source; //remove our piece from its source
 	}
-
-	//Attacks
-	//If there is enemy in the dest square
-	if( (_BitBoards[ enemyPieces ]  &  dest) != 0 ){
-		int i	= toMove == WHITE ? B_KING : W_KING;
-		int end = toMove == WHITE ? B_PAWN : W_PAWN;
-		//And just in case we search every enemy table trhough if there's still someone in our dest square
-		for( i; i <= end; i++){
-			if(( _BitBoards[ i ] & dest) != 0 ){
-				_BitBoards[ i ]  &=  ~dest;
-				break;
+	else   //Non attacking moves. We read en passant as a non attacking, since we dont directly put our dest to enemy piece
+	{
+		if(toMove == WHITE)
+		{
+			//En Passant
+			if((source & _BitBoards[ W_PAWN ]) != 0)
+			{
+				if( dest == (source << 16) )//If we do a doublepush with pawn
+				{ 
+					_BitBoards[ ENPASSANT ] |= source << 8; 
+				}
 			}
-		}
-	}
-	else{
-		//Delete the piece we are going to move and then add it to a new place
-		//If we have enpassant move
-		if((_BitBoards[ ENPASSANT ]  & dest) != 0){
-			if(toMove == WHITE)
-				_BitBoards[ B_PAWN ] &=  ~dest >> 8;
+			//CASTLING
+			if((source & _BitBoards[ W_KING ]) != 0)
+			{
+				//If the king moves right 2 squares, it's castling
+				if((dest == (source<<2)) && (_BitBoards[W_ROOK] & _SquareBits[7]) != 0 &&((source & _SquareBits[4]) != 0))
+				{
+					//Move the king
+					_BitBoards[ W_KING ] &=  ~source;
+					_BitBoards[ W_KING ] |=  dest;
+
+					//Move the rook
+					UI64 rooksPlace =(_BitBoards[ W_ROOK ] ^(_BitBoards[ W_ROOK ] & -_BitBoards[ W_ROOK ]));
+					_BitBoards[ W_ROOK ] &=  ~ (_BitBoards[ W_ROOK ] ^(_BitBoards[ W_ROOK ] & -_BitBoards[ W_ROOK ]));
+					_BitBoards[ W_ROOK] |=   rooksPlace  >> 2 ;
+				}
+				else if((dest == (source>>2) )&&  (_BitBoards[W_ROOK] & _SquareBits[0]) != 0 &&((source & _SquareBits[4]) != 0))//same as above but right
+				{ 
+					_BitBoards[ W_KING ] &=  ~source;
+					_BitBoards[ W_KING ] |=  dest;
+
+					//Delete the piece we are going to move and then add it to a new place
+					UI64 rooksPlace = (_BitBoards[ W_ROOK ] & -_BitBoards[ W_ROOK ]);
+					_BitBoards[ W_ROOK ] &=  ~(_BitBoards[ W_ROOK ] & -_BitBoards[ W_ROOK ]);
+					_BitBoards[ W_ROOK ] |=   rooksPlace << 3;
+				}
+			}
+
+			else if(((dest & EIGHT_RANK) != 0 ) && ((source & _BitBoards[ W_PAWN ]) != 0))			//If we promote
+			{
+				//Set the the dest as a queen, always
+				_BitBoards[ W_QUEEN ] |= dest;
+				//Remove the dest from enemy pieces and from our ownF
+				_BitBoards[ W_PAWN   ] &= ~source;
+			}
 			else
-				_BitBoards[ W_PAWN ] &=  ~dest << 8;
+			{
+				//If we have enpassant move
+				//Delete the piece we are going to move and then add it to a new place
+				if((_BitBoards[ ENPASSANT ]  & dest) != 0)
+				{
+					_BitBoards[ B_PAWN ] &=  ~dest >> 8;
+				}
+				//We are doing a normal move
+				//update the dest and source tables
+				_BitBoards[ ourType	  ]  |= dest;    //add our type to dest
+				_BitBoards[ ourType	  ]  &= ~source; //remove our piece from its source
+			}
 		}
+		else
+		{
+			//En Passant
+			if((source & _BitBoards[ B_PAWN ]) != 0){
+				if( (dest == source >> 16) ){ //If we do a doublepush with pawn
+					_BitBoards[ ENPASSANT ] |= source >> 8; 
+				}
+			}
+			if((source & _BitBoards[ B_KING ]) != 0)
+			{
+				//If the king moves right 2 squares, it's castling
+				if((dest == (source<<2)) && ( _BitBoards[B_ROOK] & _SquareBits[63]) != 0&&((source & _SquareBits[60]) != 0))
+				{
+					//Move the king
+					_BitBoards[ B_KING ] &=  ~source;
+					_BitBoards[ B_KING ] |=  dest;
 
+					//Move the rook
+					UI64 rooksPlace =(_BitBoards[ B_ROOK ] ^(_BitBoards[ B_ROOK ] & -_BitBoards[ B_ROOK ]));
+					_BitBoards[ B_ROOK ] &=  ~ (_BitBoards[ B_ROOK ] ^(_BitBoards[ B_ROOK ] & -_BitBoards[ B_ROOK ]));
+					_BitBoards[ B_ROOK] |=   rooksPlace  >> 2 ;
 
-		int i	= toMove == WHITE ? W_KING : B_KING;
-		int end = toMove == WHITE ? W_PAWN : B_PAWN;
-		//update the dest and source tables
-		for(i; i<end; i++){
-			if(( _BitBoards[ i ] & source) != 0 ){
-				_BitBoards[ i ]   &=  ~source;
-				_BitBoards[ i ]  |=  dest;
-				break;
+				}
+				else if((dest == (source>>2) ) && ( _BitBoards[B_ROOK] & _SquareBits[56]) != 0&&((source & _SquareBits[60]) != 0))//same as above but right
+				{ 
+					_BitBoards[ B_KING ] &=  ~source;
+					_BitBoards[ B_KING ] |=  dest;
+
+					//Delete the piece we are going to move and then add it to a new place
+					UI64 rooksPlace = (_BitBoards[ B_ROOK ] & -_BitBoards[ B_ROOK ]);
+					_BitBoards[ B_ROOK ] &=  ~(_BitBoards[ B_ROOK ] & -_BitBoards[ B_ROOK ]);
+					_BitBoards[ B_ROOK ] |=   rooksPlace << 3;
+				}
+			}
+			else if(((dest & FIRST_RANK) != 0 ) && ((source & _BitBoards[ B_PAWN ]) != 0))
+			{
+				//Set the the dest as a queen, always
+				_BitBoards[ B_QUEEN ] |= dest;
+				//Remove the dest from enemy pieces and from our own
+				_BitBoards[ B_PAWN   ] &= ~source;
+			}
+			else
+			{ 
+				//If we have enpassant move
+				//Delete the piece we are going to move and then add it to a new place
+				if((_BitBoards[ ENPASSANT ]  & dest) != 0)
+				{
+					_BitBoards[ W_PAWN ] &=  ~dest << 8;
+				}
+				//We are doing a normal move
+				//update the dest and source tables
+				_BitBoards[ ourType	  ]  |= dest;    //add our type to dest
+				_BitBoards[ ourType	  ]  &= ~source; //remove our piece from its source
 			}
 		}
 	}
@@ -1144,17 +1191,16 @@ Move *Board::wRootSearch() {
 	std::vector<UI64> bestMove;
 	std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
 	int i; 
-	std::cout<<"moveVector.size() == "<<moveVector.size()<<std::endl;
-	for ( i=0;i<moveVector.size();i++) {
+	for ( i=0;i<moveVector.size();i++) 
+	{
+
 		UI64 *backuP = makeBoardBackUp();
 		makeMove(moveVector.at(i));
 
-		score = alphaBetaMin(INT_MIN, INT_MAX, 3);
-
+		score = alphaBetaMin(INT_MIN, INT_MAX, 4);
 		if(i == 0)
 			best = score;  //We need a reference point
 
-		std::cout<<"score: "<<score<<std::endl;
 		takeBack(backuP);
 		delete backuP;
 		if(score >= best){
@@ -1162,6 +1208,7 @@ Move *Board::wRootSearch() {
 			bestMove = moveVector.at(i);
 		}
 	}
+	std::cout<<"The Score of this move: "<<best<<"\n";
 	return BitBoardToMoves(bestMove);
 }
 
@@ -1174,13 +1221,11 @@ Move *Board::bRootSearch(){
 	for ( i = 0 ; i < moveVector.size(); i++ ) {
 		UI64 *backuP = makeBoardBackUp();
 		makeMove(moveVector.at(i));
-		score = alphaBetaMax(INT_MIN, INT_MAX, 3);
+		score = alphaBetaMax(INT_MIN, INT_MAX, 4);
 
 		if(i == 0)
 			best = score;  //We need a reference point
 
-
-		std::cout<<"score: "<<score<<std::endl;
 		takeBack(backuP);
 		delete backuP;
 		if(score <= best){
@@ -1188,5 +1233,6 @@ Move *Board::bRootSearch(){
 			bestMove = moveVector.at(i);
 		}
 	}
+	std::cout<<"The Score of this move: "<<best<<"\n";
 	return BitBoardToMoves(bestMove);
 }
