@@ -17,7 +17,7 @@ Piece::Piece(void)
 Piece::Piece(int type)
 {
 	Piece();
-
+	_type = -1;
 	_type = type;
 }
 

@@ -656,7 +656,7 @@ bool Board::moveIsLegal(Move *_curMove){
 		return false;
 	}
 
-	if(getPieceAt(_curMove->getX1(),_curMove->getY1())-> getType() == 0){
+	if(getPieceAt(_curMove->getX1(),_curMove->getY1())-> getType() == -1  || getPieceAt(_curMove->getX1(),_curMove->getY1())-> getType() == 0){
 		return false;
 	}
 
@@ -836,7 +836,7 @@ void Board::makeMove(std::vector<UI64> move)
 		//If we promote
 		if(((dest & EIGHT_RANK) != 0 ) && ((source & _BitBoards[ W_PAWN ]) != 0))			
 		{
-			//Set the the dest as a queen, always
+			//Set the dest as a queen, always
 			_BitBoards[ W_QUEEN ] |= dest;
 
 		}
@@ -878,7 +878,7 @@ void Board::makeMove(std::vector<UI64> move)
 					//Move the rook
 					UI64 rooksPlace =(_BitBoards[ W_ROOK ] ^(_BitBoards[ W_ROOK ] & -_BitBoards[ W_ROOK ]));
 					_BitBoards[ W_ROOK ] &=  ~ (_BitBoards[ W_ROOK ] ^(_BitBoards[ W_ROOK ] & -_BitBoards[ W_ROOK ]));
-					_BitBoards[ W_ROOK] |=   rooksPlace  >> 2 ;
+					_BitBoards[ W_ROOK ] |=   rooksPlace  >> 2 ;
 				}
 				else if((dest == (source>>2) )&&  (_BitBoards[W_ROOK] & _SquareBits[0]) != 0 &&((source & _SquareBits[4]) != 0))//same as above but right
 				{ 
@@ -892,12 +892,13 @@ void Board::makeMove(std::vector<UI64> move)
 				}
 			}
 
-			else if(((dest & EIGHT_RANK) != 0 ) && ((source & _BitBoards[ W_PAWN ]) != 0))			//If we promote
+			//PROMOTE
+			else if(((dest & EIGHT_RANK) != 0 ) && ((source & _BitBoards[ W_PAWN ]) != 0))			
 			{
 				//Set the the dest as a queen, always
 				_BitBoards[ W_QUEEN ] |= dest;
 				//Remove the dest from enemy pieces and from our ownF
-				_BitBoards[ W_PAWN   ] &= ~source;
+				_BitBoards[ W_PAWN  ] &= ~source;
 			}
 			else
 			{
@@ -952,7 +953,8 @@ void Board::makeMove(std::vector<UI64> move)
 				//Set the the dest as a queen, always
 				_BitBoards[ B_QUEEN ] |= dest;
 				//Remove the dest from enemy pieces and from our own
-				_BitBoards[ B_PAWN   ] &= ~source;
+				_BitBoards[ enemyType ] &= ~dest;
+				_BitBoards[ B_PAWN	  ] &= ~source;
 			}
 			else
 			{ 
@@ -1197,7 +1199,7 @@ Move *Board::wRootSearch() {
 		UI64 *backuP = makeBoardBackUp();
 		makeMove(moveVector.at(i));
 
-		score = alphaBetaMin(INT_MIN, INT_MAX, 4);
+		score = alphaBetaMin(INT_MIN, INT_MAX, 2);
 		if(i == 0)
 			best = score;  //We need a reference point
 
@@ -1221,7 +1223,7 @@ Move *Board::bRootSearch(){
 	for ( i = 0 ; i < moveVector.size(); i++ ) {
 		UI64 *backuP = makeBoardBackUp();
 		makeMove(moveVector.at(i));
-		score = alphaBetaMax(INT_MIN, INT_MAX, 4);
+		score = alphaBetaMax(INT_MIN, INT_MAX, 1);
 
 		if(i == 0)
 			best = score;  //We need a reference point
