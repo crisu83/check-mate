@@ -77,9 +77,9 @@ public:
 	std::vector<std::string> getMoveStrings();
 	std::string movesAsString(int x1, int y1, int x2, int y2);
 
-
 	Move *wRootSearch();
 	Move *bRootSearch();
 
+	UI64 Perft(int depth);
 };
 

@@ -63,7 +63,31 @@ int Game::run(void)
 	_running = true;
 
 	bool input = true;
+	char perf;
+	int perfDepth;
 	char white,black;
+
+	//Promt for Perft test (The performance test for AI)
+	std::cout<<"Perform Perft test (y/n): ";
+	std::cin>>perf;
+
+	if(perf == 'y'){
+		std::cout<<"To what depth? (6 max): ";
+		std::cin>>perfDepth;
+
+		if(perfDepth >= 0 && perfDepth <= 6){
+			for(int i = 0; i <= perfDepth; i++){
+				std::cout<<"perft test with depth of "<<i <<" yielded "<<_board->Perft(i)<<"\n";
+			}
+		}else{
+			std::cout<<"The depth must be from 0 to 6. Depth set to 1 by default."<<"\n";
+			std::cout<<"perft test with depth of 1 yielded "<<_board->Perft(1)<<"\n";
+		}
+	}
+
+	/*
+	 *End of PERFT test
+	 */
 
 	while(input){
 		std::cout<<"Choose AI player\n";
@@ -116,31 +140,31 @@ int Game::run(void)
 					_curMove->strToMove(moveStr);
 				}
 			}
-			
+
 
 			/*
 			std::vector<std::string> muuvit = _board->getMoveStrings();
 			if(muuvit.size() == 5)
-				getchar();
+			getchar();
 
 			srand(time(0));
 
 			if(debug && _toMove == BLACK){
-				int rands= rand() % muuvit.size();
-				std::string s = muuvit.at(rands);
+			int rands= rand() % muuvit.size();
+			std::string s = muuvit.at(rands);
 
-				for(int i = 0; i <s.length(); i++){
-					moveStr[i] = s.at(i);
-				}
-			}else {
-				std::cin >> moveStr;
-				// Wait for a keypress.
-				getchar();
-				// Process the move.
-				
+			for(int i = 0; i <s.length(); i++){
+			moveStr[i] = s.at(i);
 			}
-			 _curMove = new Move();
-			 _curMove->strToMove(moveStr);*/
+			}else {
+			std::cin >> moveStr;
+			// Wait for a keypress.
+			getchar();
+			// Process the move.
+
+			}
+			_curMove = new Move();
+			_curMove->strToMove(moveStr);*/
 
 		}
 
