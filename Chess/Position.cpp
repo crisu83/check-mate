@@ -1435,7 +1435,7 @@ bool Position::bIsCheck(UI64 BitBoards[]) {
 	attacks |= AllRookMoves(BitBoards[ W_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
 	attacks |= AllBishopMoves(BitBoards[ W_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
 	attacks |= queenMoves(BitBoards[ W_QUEEN ], BitBoards[ EMPTYSQUARES ], (BitBoards[ W_PIECES ]));
-	if((attacks & BitBoards[ B_KING ]) != BitBoards[ EMPTY ]){
+	if((attacks & BitBoards[ B_KING ]) !=0){
 		return true;
 	}else{
 		return false;

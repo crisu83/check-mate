@@ -1,6 +1,24 @@
 #include "stdafx.h"
 
 
+//A least significant table for bitscan courtecy of Walter Faxon
+const char LSB_64_table[154] =
+{
+#define __ 0
+   22,__,__,__,30,__,__,38,18,__, 16,15,17,__,46, 9,19, 8, 7,10,
+   0, 63, 1,56,55,57, 2,11,__,58, __,__,20,__, 3,__,__,59,__,__,
+   __,__,__,12,__,__,__,__,__,__, 4,__,__,60,__,__,__,__,__,__,
+   __,__,__,__,21,__,__,__,29,__, __,37,__,__,__,13,__,__,45,__,
+   __,__, 5,__,__,61,__,__,__,53, __,__,__,__,__,__,__,__,__,__,
+   28,__,__,36,__,__,__,__,__,__, 44,__,__,__,__,__,27,__,__,35,
+   __,52,__,__,26,__,43,34,25,23, 24,33,31,32,42,39,40,51,41,14,
+   __,49,47,48,__,50, 6,__,__,62, __,__,__,54
+#undef __
+};
+
+
+
+
 /**
 	Constructor.
  */
@@ -80,73 +98,6 @@ void Board::initBitboards(){
 	_BitBoards[ B_PIECES ]  = _BitBoards[ B_PAWN ] | _BitBoards[ B_ROOK ]  |_BitBoards[ B_KNIGHT ] |_BitBoards[ B_BISHOP ]  | _BitBoards[ B_QUEEN ]  | _BitBoards[ B_KING ];
 	_BitBoards[EMPTYSQUARES]= ~(_BitBoards[ W_PIECES ] | _BitBoards[ B_PIECES ]);
 	_BitBoards[ ENPASSANT ] = 0x0000;
-
-
-	//Fill the bitscan table
-	lsb_64_table[0] =  63;
-	lsb_64_table[1] =  30;
-	lsb_64_table[2] =   3;
-	lsb_64_table[3] =  32;
-	lsb_64_table[4] =  59;
-	lsb_64_table[5] =  14;
-	lsb_64_table[6] =  11;
-	lsb_64_table[7] =  33;
-	lsb_64_table[8] =  60;
-	lsb_64_table[9] =  24;
-	lsb_64_table[10] = 50;
-	lsb_64_table[11] =  9;
-	lsb_64_table[12] = 55;
-	lsb_64_table[13] = 19;
-	lsb_64_table[14] = 21;
-	lsb_64_table[15] = 34;
-	lsb_64_table[16] = 61;
-	lsb_64_table[17] = 29;
-	lsb_64_table[18] =  2;
-	lsb_64_table[19] = 53;
-	lsb_64_table[20] = 51;
-	lsb_64_table[21] = 23;
-	lsb_64_table[22] = 41;
-	lsb_64_table[23] = 18;
-	lsb_64_table[24] = 56;
-	lsb_64_table[25] = 28;
-	lsb_64_table[26] =  1;
-	lsb_64_table[27] = 43;
-	lsb_64_table[28] = 46;
-	lsb_64_table[29] = 27;
-	lsb_64_table[30] =  0;
-	lsb_64_table[31] = 35;
-	lsb_64_table[32] = 62;
-	lsb_64_table[33] = 31;
-	lsb_64_table[34] = 58;
-	lsb_64_table[35] =  4; 
-	lsb_64_table[36] =  5;
-	lsb_64_table[37] =  4;
-	lsb_64_table[38] =  5; 
-	lsb_64_table[39] =  6;
-	lsb_64_table[40] = 15;
-	lsb_64_table[41] = 52;
-	lsb_64_table[42] = 12;
-	lsb_64_table[43] = 40;
-	lsb_64_table[44] =  7;
-	lsb_64_table[45] = 42;
-	lsb_64_table[46] = 45;
-	lsb_64_table[47] = 16;
-	lsb_64_table[48] = 25;
-	lsb_64_table[49] = 57;
-	lsb_64_table[50] = 48;
-	lsb_64_table[51] = 13;
-	lsb_64_table[52] = 10;
-	lsb_64_table[53] = 39; 
-	lsb_64_table[54] =  8;
-	lsb_64_table[55] = 44;
-	lsb_64_table[56] = 20;
-	lsb_64_table[57] = 47;
-	lsb_64_table[58] = 38;
-	lsb_64_table[59] = 22;
-	lsb_64_table[60] = 17;
-	lsb_64_table[61] = 37;
-	lsb_64_table[62] = 36;
-	lsb_64_table[63] = 26;
 
 }
 
@@ -310,14 +261,18 @@ void Board::execMove(const Move *m)
 */
 void Board::BitBoardToMoves(){
 	clear();
+	int j ;
+	UI64 tmpMoves;
 	for(int i = 1; i <= B_PAWN; i++){
-		for(int j = 0; j < SQUARES; j++){
-			if((_BitBoards[i] & _SquareBits[ j ])!= 0 ){
+		tmpMoves = _BitBoards[i];
+		while((tmpMoves & -tmpMoves) != 0){
+			j = bitScanForward(tmpMoves &-tmpMoves);
 				int x =  j & 7;
 				int y =  j >> 3;
 				setPieceAt(x,y, new Piece(i));
-			}
+				tmpMoves &= tmpMoves-1;
 		}
+		
 	}
 }
 
@@ -348,17 +303,21 @@ Move *Board::BitBoardToMoves(std::vector<UI64> move){
 
 /**
  * bitScanForward
- * @author Matt Taylor
+ * @author Walter Faxon, slightly modified
  * @param bb bitboard to scan
  * @precondition bb != 0
  * @return index (0..63) of least significant one bit
  */
-int Board::bitScanForward(UI64 bb) { 
-   unsigned int folded;
-   assert (bb != 0);
-   bb ^= bb - 1;
-   folded = (int) bb ^ (bb >> 32);
-   return lsb_64_table[folded * 0x78291ACF >> 26];
+int Board::bitScanForward(UI64 bb)
+{
+   unsigned int t32;
+   assert(bb);
+   bb  ^= bb - 1;
+   t32  = (int)bb ^ (int)(bb >> 32);
+   t32 ^= 0x01C5FC81;
+   t32 +=  t32 >> 16;
+   t32 -= (t32 >> 8) + 51;
+   return LSB_64_table [t32 & 255]; // 0..63
 }
 
 
@@ -1199,7 +1158,7 @@ Move *Board::wRootSearch() {
 		UI64 *backuP = makeBoardBackUp();
 		makeMove(moveVector.at(i));
 
-		score = alphaBetaMin(INT_MIN, INT_MAX, 2);
+		score = alphaBetaMin(INT_MIN, INT_MAX, 3);
 		if(i == 0)
 			best = score;  //We need a reference point
 
@@ -1223,7 +1182,7 @@ Move *Board::bRootSearch(){
 	for ( i = 0 ; i < moveVector.size(); i++ ) {
 		UI64 *backuP = makeBoardBackUp();
 		makeMove(moveVector.at(i));
-		score = alphaBetaMax(INT_MIN, INT_MAX, 1);
+		score = alphaBetaMax(INT_MIN, INT_MAX, 4);
 
 		if(i == 0)
 			best = score;  //We need a reference point
