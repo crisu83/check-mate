@@ -1197,3 +1197,30 @@ Move *Board::bRootSearch(){
 	std::cout<<"The Score of this move: "<<best<<"\n";
 	return BitBoardToMoves(bestMove);
 }
+
+/**
+	Perft function counts all the possible moves to a certain depth
+
+	@author Olli Koskinen, Arttu Nieminen
+	@param int the depth to which ply we go to
+	@return the number of possible moves.
+*/
+
+UI64 Board::Perft(int depth)
+{
+    int n_moves, i;
+   UI64 nodes = 0;
+ 
+    if (depth == 0) return 1;
+	std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
+	n_moves = moveVector.size();
+    for (i = 0; i < n_moves; i++) {
+		UI64 *backuP = makeBoardBackUp();
+        makeMove(moveVector.at(i));
+        nodes += Perft(depth - 1);
+        takeBack(backuP);
+		delete backuP;
+    }
+    return nodes;
+}
+
