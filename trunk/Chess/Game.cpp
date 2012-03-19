@@ -79,6 +79,8 @@ int Game::run(void)
 			for(int i = 0; i <= perfDepth; i++){
 				std::cout<<"perft test with depth of "<<i <<" yielded "<<_board->Perft(i)<<"\n";
 			}
+			std::cout<<"\nStart of divide output: \n";
+			//_board->divide(perfDepth);
 		}else{
 			std::cout<<"The depth must be from 0 to 6. Depth set to 1 by default."<<"\n";
 			std::cout<<"perft test with depth of 1 yielded "<<_board->Perft(1)<<"\n";

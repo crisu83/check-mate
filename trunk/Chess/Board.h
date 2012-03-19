@@ -81,5 +81,6 @@ public:
 	Move *bRootSearch();
 
 	UI64 Perft(int depth);
+	int divide(int depth);
 };
 

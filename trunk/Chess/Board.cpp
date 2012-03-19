@@ -1182,7 +1182,7 @@ Move *Board::bRootSearch(){
 	for ( i = 0 ; i < moveVector.size(); i++ ) {
 		UI64 *backuP = makeBoardBackUp();
 		makeMove(moveVector.at(i));
-		score = alphaBetaMax(INT_MIN, INT_MAX, 4);
+		score = alphaBetaMax(INT_MIN, INT_MAX, 5);
 
 		if(i == 0)
 			best = score;  //We need a reference point
@@ -1210,10 +1210,11 @@ UI64 Board::Perft(int depth)
 {
     int n_moves, i;
    UI64 nodes = 0;
- 
-    if (depth == 0) return 1;
 	std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
 	n_moves = moveVector.size();
+
+    if (depth == 0) return 1;
+	else if(depth == 1) return n_moves;
     for (i = 0; i < n_moves; i++) {
 		UI64 *backuP = makeBoardBackUp();
         makeMove(moveVector.at(i));
@@ -1222,5 +1223,33 @@ UI64 Board::Perft(int depth)
 		delete backuP;
     }
     return nodes;
+}
+
+/**
+	A function that counts all the child moves from the first depth and adds them to a list
+	for debugging purposes.
+	@author Olli Koskinen, Arttu Nieminen
+*/
+int Board::divide(int depth){
+	std::map<std::vector<UI64>,int> divideMap;
+	 int n_moves, i;
+   UI64 nodes = 0;
+	std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
+	n_moves = moveVector.size();
+
+	if(depth == 0) return 1;
+	if(depth == 1)return n_moves;
+    for (i = 0; i < n_moves; i++) {
+		UI64 *backuP = makeBoardBackUp();
+        makeMove(moveVector.at(i));
+       	divideMap[moveVector.at(i)] = divide(depth - 1);
+        takeBack(backuP);
+		delete backuP;
+    }
+
+	std::map<std::vector<UI64>,int>::const_iterator iter;
+	 for (iter =divideMap.begin(); iter != 	divideMap.end(); ++iter) {
+		 std::cout<< iter->first.at(0) <<" "<<iter->second<< std::endl;
+	 }
 }
 

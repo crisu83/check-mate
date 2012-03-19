@@ -36,7 +36,8 @@ typedef unsigned long long UI64;
 #include <limits>
 //This is only for PlaySound. For shits and giggles
 #include <Windows.h>
-#include <assert.h>
+#include <assert.h> //Used in bitscan
+#include <map>
 
 #include "ChessTimer.h"
 #include "Move.h"
