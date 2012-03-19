@@ -1109,6 +1109,7 @@ void Board::setPosition(Position *position)
 int Board::alphaBetaMax( int alpha, int beta, int depth ) {
 	if ( depth == 0 ) return _position->evaluate(_BitBoards);
 	std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
+	if(moveVector.size() == 0 && _position->wIsCheck(_BitBoards)) return INT_MIN;
 	int i = 0; int score = 0;
 	for (i=0;i<moveVector.size();i++) { //Go through every node in moveVector
 		//Backup the original state
@@ -1130,6 +1131,7 @@ int Board::alphaBetaMax( int alpha, int beta, int depth ) {
 int Board::alphaBetaMin( int alpha, int beta, int depth ) {
 	if ( depth == 0 ) return _position->evaluate(_BitBoards);
 	std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
+	if(moveVector.size() == 0 && _position->bIsCheck(_BitBoards)) return INT_MAX;
 	int i = 0; int score = 0;
 	for ( i=0;i<moveVector.size();i++) {
 		UI64 *backuP = makeBoardBackUp();
