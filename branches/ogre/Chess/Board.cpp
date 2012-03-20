@@ -1,6 +1,5 @@
 #include "stdafx.h"
 
-
 /**
 	Constructor.
  */
@@ -502,7 +501,7 @@ void Board::updateBitBoards(Move move, int type){
 
 
 
-	if(debug)
+	if(debugMode)
 		std::cout<<"Bitboards [ type ] = "<<_BitBoards[ type ]<<"\n"; 
 
 	BitBoardToMoves();
@@ -614,7 +613,7 @@ bool Board::moveIsLegal(Move *_curMove){
 */
 void Board::fiftyMoveRule(){
 	if(fiftyMove >= 50 ){
-		PlaySound(L"gameover.wav",NULL,SND_FILENAME|SND_ASYNC); 
+		//PlaySound(L"gameover.wav",NULL,SND_FILENAME|SND_ASYNC); 
 		std::cout<<"Stalemate by 50 move rule!\nThe game ends in draw!";
 		std::cout<<"\ngenLegalMoves average time was: "<<chessTimer.getAverage()<<" microseconds";
 		std::cout<<"\nTimes called genLegalMoves: "<<chessTimer.getTotalCount();
@@ -843,8 +842,8 @@ std::vector<std::string> Board::getMoveStrings(){
 
 		if(_position->getToMove() == WHITE){
 			if(_position->wIsCheck(_BitBoards)){
-			//	system("CLS");
-				PlaySound(L"gameover.wav",NULL,SND_FILENAME|SND_ASYNC); 
+				//	system("CLS");
+				//PlaySound(L"gameover.wav",NULL,SND_FILENAME|SND_ASYNC); 
 				std::cout<<"Checkmate!\nThe game ends in favor of Black!";
 				std::cout<<"\ngenLegalMoves average time was: "<<chessTimer.getAverage()<<" microseconds";
 				std::cout<<"\nTimes called genLegalMoves: "<<chessTimer.getTotalCount();
@@ -855,7 +854,7 @@ std::vector<std::string> Board::getMoveStrings(){
 
 			if(_position->bIsCheck(_BitBoards)){
 				//system("CLS");
-				PlaySound(L"gameover.wav",NULL,SND_FILENAME|SND_ASYNC); 
+				//PlaySound(L"gameover.wav",NULL,SND_FILENAME|SND_ASYNC); 
 				std::cout<<"Checkmate!\nThe game ends in favor of White!";
 				std::cout<<"\ngenLegalMoves average time was: "<<chessTimer.getAverage()<<" microseconds";
 				std::cout<<"\nTimes called genLegalMoves: "<<chessTimer.getTotalCount();
@@ -865,7 +864,7 @@ std::vector<std::string> Board::getMoveStrings(){
 		}
 
 		//system("CLS");
-		PlaySound(L"gameover.wav",NULL,SND_FILENAME|SND_ASYNC); 
+		//PlaySound(L"gameover.wav",NULL,SND_FILENAME|SND_ASYNC); 
 		std::cout<<"Stalemate!\nThe game ends in draw!";
 		std::cout<<"\ngenLegalMoves average time was: "<<chessTimer.getAverage()<<" microseconds";
 		std::cout<<"\nTimes called genLegalMoves: "<<chessTimer.getTotalCount();
