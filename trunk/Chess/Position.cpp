@@ -2186,11 +2186,11 @@ UI64 Position::wAttacks(UI64 BitBoards[]){
 }
 
 UI64 Position::bAttacks(UI64 BitBoards[]){
-	UI64 attacks = wPawnAttacks(BitBoards[ W_PAWN ]);
-	attacks |= wKingMoves(BitBoards[ W_KING ], BitBoards[ W_PIECES ], BitBoards);
-	attacks |= AllWhiteKnightMoves(BitBoards[ W_KNIGHT ], W_PIECES);
-	attacks |= AllRookMoves(BitBoards[ W_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
-	attacks |= AllBishopMoves(BitBoards[ W_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
-	attacks |= queenMoves(BitBoards[ W_QUEEN ], BitBoards[ EMPTYSQUARES ], (BitBoards[ W_PIECES ]));
+	UI64 attacks = bPawnAttacks(BitBoards[ B_PAWN ]);
+	attacks |= bKingMoves(BitBoards[ B_KING ], BitBoards[ B_PIECES ], BitBoards);
+	attacks |= AllBlackKnightMoves(BitBoards[ B_KNIGHT ], B_PIECES);
+	attacks |= AllRookMoves(BitBoards[ B_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]);
+	attacks |= AllBishopMoves(BitBoards[ B_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]);
+	attacks |= queenMoves(BitBoards[ B_QUEEN ], BitBoards[ EMPTYSQUARES ], (BitBoards[ B_PIECES ]));
 	return attacks;
 }
