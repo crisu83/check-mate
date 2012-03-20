@@ -266,7 +266,8 @@ void Board::BitBoardToMoves(){
 	for(int i = 1; i <= B_PAWN; i++){
 		tmpMoves = _BitBoards[i];
 		while((tmpMoves & -tmpMoves) != 0){
-			j = bitScanForward(tmpMoves &-tmpMoves);
+			//j = bitScanForward(tmpMoves & -tmpMoves);
+			j = bitScanForward(tmpMoves & -tmpMoves);
 				int x =  j & 7;
 				int y =  j >> 3;
 				setPieceAt(x,y, new Piece(i));
@@ -319,8 +320,6 @@ int Board::bitScanForward(UI64 bb)
    t32 -= (t32 >> 8) + 51;
    return LSB_64_table [t32 & 255]; // 0..63
 }
-
-
 
 /**
 	Updates the move to bitboards

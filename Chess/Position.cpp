@@ -2175,3 +2175,22 @@ int Position::evaluate(UI64 BitBoards[]){
 	return material + (3 * (wmoves-bmoves));
 }
 
+UI64 Position::wAttacks(UI64 BitBoards[]){
+	UI64 attacks = wPawnAttacks(BitBoards[ W_PAWN ]);
+	attacks |= wKingMoves(BitBoards[ W_KING ], BitBoards[ W_PIECES ], BitBoards);
+	attacks |= AllWhiteKnightMoves(BitBoards[ W_KNIGHT ], W_PIECES);
+	attacks |= AllRookMoves(BitBoards[ W_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
+	attacks |= AllBishopMoves(BitBoards[ W_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
+	attacks |= queenMoves(BitBoards[ W_QUEEN ], BitBoards[ EMPTYSQUARES ], (BitBoards[ W_PIECES ]));
+	return attacks;
+}
+
+UI64 Position::bAttacks(UI64 BitBoards[]){
+	UI64 attacks = wPawnAttacks(BitBoards[ W_PAWN ]);
+	attacks |= wKingMoves(BitBoards[ W_KING ], BitBoards[ W_PIECES ], BitBoards);
+	attacks |= AllWhiteKnightMoves(BitBoards[ W_KNIGHT ], W_PIECES);
+	attacks |= AllRookMoves(BitBoards[ W_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
+	attacks |= AllBishopMoves(BitBoards[ W_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
+	attacks |= queenMoves(BitBoards[ W_QUEEN ], BitBoards[ EMPTYSQUARES ], (BitBoards[ W_PIECES ]));
+	return attacks;
+}

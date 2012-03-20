@@ -40,7 +40,7 @@ private:
 
 	int alphaBetaMax( int alpha, int beta, int depth );
 	int alphaBetaMin( int alpha, int beta, int depth );
-	int bitScanForward(UI64);
+	int bitScanForward(UI64 bb);
 
 public:
 	Board(void);
