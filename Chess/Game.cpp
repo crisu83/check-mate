@@ -81,7 +81,7 @@ int Game::run(void)
 
 				srand(time(0));
 
-			if(debug){
+			if(debugMode){
 				int rands= rand() % muuvit.size();
 				std::string s = muuvit.at(rands);
 
@@ -90,7 +90,7 @@ int Game::run(void)
 				}
 			}
 
-			if(!debug){
+			if(!debugMode){
 				std::cin >> moveStr;
 				// Wait for a keypress.
 				getchar();
@@ -133,7 +133,7 @@ void Game::update(void)
 void Game::render(void)
 {
 	// Empty the screen.
-	if(!debug)
+	if(!debugMode)
 		system("cls");
 
 	// Render the board.

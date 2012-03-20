@@ -8,9 +8,11 @@
 	@param argv argument values
 	@return exit code
 */
-int _tmain(int argc, _TCHAR* argv[])
+/*
+INT WINAPI WinMain( HINSTANCE hInst, HINSTANCE, LPSTR strCmdLine, INT )
 {
 	Game *game = new Game();
 	return game->run();
 }
+*/
 
