@@ -119,6 +119,9 @@ public:
 	bool wIsCheck(UI64 BitBoards[]);
 	bool bIsCheck(UI64 BitBoards[]);
 
+	UI64 wAttacks(UI64 BitBoards[]);
+	UI64 bAttacks(UI64 BitBoards[]);
+
 	//The board evaluation functions
 	int evaluate(UI64 BitBoards[]);
 };
