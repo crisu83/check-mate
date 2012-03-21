@@ -80,6 +80,11 @@ void Board::initBitboards(){
 
 	fillSquareBits();
 	fiftyMove = 0;
+	historyIndex = 0;
+
+	for(int i = 0; i<  10 ; i++){
+		historyTable[i] = 0;
+	}
 
 	_BitBoards[ EMPTY	]	= 0x0000;  // Empty board
 	_BitBoards[ W_KING	]	= 0x10;
@@ -178,6 +183,35 @@ void Board::initPos()
 	setPieceAt(4, 0, new Piece(W_KING));
 	setPieceAt(4, 7, new Piece(B_KING));
 }
+
+
+void Board::superHiddenRenderEmptySquares(int board){
+	UI64 value;
+	switch(board){
+
+	case 30:
+		value = _position->wAttacks(_BitBoards);
+		break;
+	case 40:
+		value = _position->bAttacks(_BitBoards);
+		break;
+	case 50:
+		break;
+	default:
+		value = _BitBoards[board];
+		break;
+		}
+
+
+   for (int i = SQUARES -1 ; i>=0; i-- ) 
+   {
+	   std::cout<<(((value & _SquareBits[i]) == 0) ? '0' : '1');
+      if ( i % 8 == 0 )
+         std::cout <<std::endl;
+   }
+}
+
+
 
 /**
 	Renders the board.
@@ -544,10 +578,10 @@ void Board::updateBitBoards(Move move, int type){
 		//Delete the piece we are going to move and then add it to a new place
 		if(!move.promoting()){
 			//If we have enpassant move
-			if((_BitBoards[ ENPASSANT ]  & _SquareBits[destIndex]) == _SquareBits[destIndex] ){
-				if(toMove == WHITE)
+			if((_BitBoards[ ENPASSANT ]  & _SquareBits[destIndex]) != 0   ){
+				if(toMove == WHITE && (_SquareBits[sourceIndex] & W_PAWN) != 0)
 					_BitBoards[ B_PAWN ] &=  ~_SquareBits[ destIndex ] >> 8;
-				else
+				else if((toMove == BLACK && (_SquareBits[sourceIndex] & B_PAWN) != 0))
 					_BitBoards[ W_PAWN ] &=  ~_SquareBits[ destIndex ] << 8;
 			}
 			_BitBoards[ type ] &=  ~_SquareBits[ sourceIndex ];
@@ -737,6 +771,7 @@ void Board::takeBack(UI64 *_backUp){
 	_BitBoards[15] = _backUp[15];
 	_BitBoards[16] = _backUp[16];
 
+	historyIndex--;
 		_position->setToMove(_position->getToMove() == WHITE ? BLACK : WHITE );
 	//BitBoardToMoves();
 	//memcpy(_BitBoards, _backUp, BITBOARDS);
@@ -750,7 +785,7 @@ void Board::takeBack(UI64 *_backUp){
 */
 void Board::makeMove(std::vector<UI64> move)
 {
-
+	
 	UI64 source = move.at(0);
 	UI64 dest = move.at(1);
 	int toMove = _position->getToMove();
@@ -785,7 +820,7 @@ void Board::makeMove(std::vector<UI64> move)
 		}
 	}
 
-
+	historyTable[historyIndex] = 0;
 	//Attacks
 	//If there is enemy in the dest square
 	if( (_BitBoards[ enemyPieces ]  &  dest) != 0 )
@@ -795,12 +830,16 @@ void Board::makeMove(std::vector<UI64> move)
 		if(((dest & EIGHT_RANK) != 0 ) && ((source & _BitBoards[ W_PAWN ]) != 0))			
 		{
 			//Set the dest as a queen, always
+			historyTable[historyIndex] = 0;
+			historyTable[historyIndex] +=PROMO;
 			_BitBoards[ W_QUEEN ] |= dest;
 
 		}
 		else if(((dest & FIRST_RANK) != 0 ) && ((source & _BitBoards[ B_PAWN ]) != 0))
 		{
 			//Set the the dest as a queen, always
+			historyTable[historyIndex] = 0;
+			historyTable[historyIndex] +=PROMO;
 			_BitBoards[ B_QUEEN ] |= dest;
 		}
 		else
@@ -808,11 +847,13 @@ void Board::makeMove(std::vector<UI64> move)
 			_BitBoards[ ourType	  ]  |= dest;    //add our type to dests
 		}
 
+		historyTable[historyIndex] +=CAPT + enemyType;
 		_BitBoards[ enemyType ]  &= ~dest;   //Remove the enemy from our dest
 		_BitBoards[ ourType	  ]  &= ~source; //remove our piece from its source
 	}
 	else   //Non attacking moves. We read en passant as a non attacking, since we dont directly put our dest to enemy piece
-	{
+	{			
+		historyTable[historyIndex] = 0;
 		if(toMove == WHITE)
 		{
 			//En Passant
@@ -829,6 +870,8 @@ void Board::makeMove(std::vector<UI64> move)
 				//If the king moves right 2 squares, it's castling
 				if((dest == (source<<2)) && (_BitBoards[W_ROOK] & _SquareBits[7]) != 0 &&((source & _SquareBits[4]) != 0))
 				{
+					historyTable[historyIndex] = 0;
+					historyTable[historyIndex] +=CASTL;
 					//Move the king
 					_BitBoards[ W_KING ] &=  ~source;
 					_BitBoards[ W_KING ] |=  dest;
@@ -840,6 +883,8 @@ void Board::makeMove(std::vector<UI64> move)
 				}
 				else if((dest == (source>>2) )&&  (_BitBoards[W_ROOK] & _SquareBits[0]) != 0 &&((source & _SquareBits[4]) != 0))//same as above but right
 				{ 
+					historyTable[historyIndex] = 0;
+					historyTable[historyIndex] +=CASTL;
 					_BitBoards[ W_KING ] &=  ~source;
 					_BitBoards[ W_KING ] |=  dest;
 
@@ -853,6 +898,8 @@ void Board::makeMove(std::vector<UI64> move)
 			//PROMOTE
 			else if(((dest & EIGHT_RANK) != 0 ) && ((source & _BitBoards[ W_PAWN ]) != 0))			
 			{
+				historyTable[historyIndex] = 0;
+				historyTable[historyIndex] +=PROMO;
 				//Set the the dest as a queen, always
 				_BitBoards[ W_QUEEN ] |= dest;
 				//Remove the dest from enemy pieces and from our ownF
@@ -862,8 +909,10 @@ void Board::makeMove(std::vector<UI64> move)
 			{
 				//If we have enpassant move
 				//Delete the piece we are going to move and then add it to a new place
-				if((_BitBoards[ ENPASSANT ]  & dest) != 0)
+				if((_BitBoards[ ENPASSANT ]  & dest) != 0&& (ourType == W_PAWN))
 				{
+					historyTable[historyIndex] = 0;
+					historyTable[historyIndex] +=ENPASS;
 					_BitBoards[ B_PAWN ] &=  ~dest >> 8;
 				}
 				//We are doing a normal move
@@ -885,6 +934,8 @@ void Board::makeMove(std::vector<UI64> move)
 				//If the king moves right 2 squares, it's castling
 				if((dest == (source<<2)) && ( _BitBoards[B_ROOK] & _SquareBits[63]) != 0&&((source & _SquareBits[60]) != 0))
 				{
+					historyTable[historyIndex] = 0;
+					historyTable[historyIndex] +=CASTL;
 					//Move the king
 					_BitBoards[ B_KING ] &=  ~source;
 					_BitBoards[ B_KING ] |=  dest;
@@ -897,6 +948,8 @@ void Board::makeMove(std::vector<UI64> move)
 				}
 				else if((dest == (source>>2) ) && ( _BitBoards[B_ROOK] & _SquareBits[56]) != 0&&((source & _SquareBits[60]) != 0))//same as above but right
 				{ 
+					historyTable[historyIndex] = 0;
+					historyTable[historyIndex] +=CASTL;
 					_BitBoards[ B_KING ] &=  ~source;
 					_BitBoards[ B_KING ] |=  dest;
 
@@ -908,6 +961,8 @@ void Board::makeMove(std::vector<UI64> move)
 			}
 			else if(((dest & FIRST_RANK) != 0 ) && ((source & _BitBoards[ B_PAWN ]) != 0))
 			{
+				historyTable[historyIndex] = 0;
+				historyTable[historyIndex] +=PROMO;
 				//Set the the dest as a queen, always
 				_BitBoards[ B_QUEEN ] |= dest;
 				//Remove the dest from enemy pieces and from our own
@@ -918,8 +973,10 @@ void Board::makeMove(std::vector<UI64> move)
 			{ 
 				//If we have enpassant move
 				//Delete the piece we are going to move and then add it to a new place
-				if((_BitBoards[ ENPASSANT ]  & dest) != 0)
+				if((_BitBoards[ ENPASSANT ]  & dest) != 0 && (ourType == B_PAWN))
 				{
+					historyTable[historyIndex] = 0;
+					historyTable[historyIndex] +=ENPASS;
 					_BitBoards[ W_PAWN ] &=  ~dest << 8;
 				}
 				//We are doing a normal move
@@ -940,10 +997,10 @@ void Board::makeMove(std::vector<UI64> move)
 
 	_BitBoards[ EMPTYSQUARES ]= ~( _BitBoards[ W_PIECES ] | _BitBoards[ B_PIECES ] );
 
-	//BitBoardToMoves();
 	//Update enpassant table
 	_BitBoards[ ENPASSANT ] &= toMove == WHITE ? ~SIXTH_RANK : ~THIRD_RANK;
 	_position->setToMove(_position->getToMove() == WHITE ? BLACK : WHITE );
+	historyIndex++;
 }
 
 
@@ -995,11 +1052,6 @@ std::vector<std::string> Board::getMoveStrings(){
 
 	bool pointIsSet = false;
 
-	int x = 0,
-		y = 0,
-		x2 = 0,
-		y2 = 0;
-
 	//For each source piece we look every possible move in list
 	for(int i = 0; i < bitboards.size(); i++){
 
@@ -1024,6 +1076,33 @@ std::vector<std::string> Board::getMoveStrings(){
 	@retrun std::string
 */
 std::string Board::movesAsString(int x1, int y1, int x2, int y2){
+
+	std::string str;
+	str += LETTERS[x1];
+	str += '0' + (y1 +1 ); // amazing logic! Modified by Olli, The +1 is because we subtracted 1 
+	str += '-';			  //from the y coord for better indexin with arrays
+	str += LETTERS[x2];
+	str += '0' + (y2 + 1); // amazing logic again! And a gain, same as above.
+	return str;
+}
+
+/**
+	Prints the move as a human-readable string from bitboards.
+
+	@author Christoffer Niska, Mikko Malmari, Olli Koskinen, Arttu Nieminen
+	@retrun std::string
+*/
+std::string Board::movesAsString(std::vector<UI64> move){
+	int x1,y1,x2,y2;
+	int j;
+	j = bitScanForward(move.at(0));
+
+		 x1 =  j & 7;
+		 y1 =  j >> 3; 
+
+		 j = bitScanForward(move.at(1));
+		 x2 =  j & 7;
+		 y2 =  j >> 3; 
 
 	std::string str;
 	str += LETTERS[x1];
@@ -1220,6 +1299,7 @@ UI64 Board::Perft(int depth)
 		UI64 *backuP = makeBoardBackUp();
         makeMove(moveVector.at(i));
         nodes += Perft(depth - 1);
+		//unMake(moveVector.at(i));
         takeBack(backuP);
 		delete backuP;
     }
@@ -1228,11 +1308,28 @@ UI64 Board::Perft(int depth)
 
 /**
 	A function that counts all the child moves from the first depth and adds them to a list
-	for debugging purposes.
+	for DEBUGging purposes.
 	@author Olli Koskinen, Arttu Nieminen
 */
-int Board::divide(int depth){
-	std::map<std::vector<UI64>,int> divideMap;
+void Board::divided(int depth){
+	 int n_moves, i;
+   UI64 nodes = 0;
+	std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
+	n_moves = moveVector.size();
+	if(depth == 0) return;
+    for (i = 0; i < n_moves; i++) {
+		UI64 *backuP = makeBoardBackUp();
+        makeMove(moveVector.at(i));
+		UI64 b =divide(depth - 1);
+		std::cout<<movesAsString(moveVector.at(i))<<": "<< b<<"\n";
+		nodes +=b;
+        takeBack(backuP);
+		delete backuP;
+    }
+	std::cout<<"Moves: "<<n_moves<<"\nNodes: "<<nodes<<std::endl;
+}
+
+UI64 Board::divide(int depth){
 	 int n_moves, i;
    UI64 nodes = 0;
 	std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
@@ -1243,14 +1340,157 @@ int Board::divide(int depth){
     for (i = 0; i < n_moves; i++) {
 		UI64 *backuP = makeBoardBackUp();
         makeMove(moveVector.at(i));
-       	divideMap[moveVector.at(i)] = divide(depth - 1);
+		nodes+= divide(depth - 1);
         takeBack(backuP);
 		delete backuP;
     }
-
-	std::map<std::vector<UI64>,int>::const_iterator iter;
-	 for (iter =divideMap.begin(); iter != 	divideMap.end(); ++iter) {
-		 std::cout<< iter->first.at(0) <<" "<<iter->second<< std::endl;
-	 }
+	return nodes;
 }
 
+
+void Board::unMake(std::vector<UI64> move){
+	historyIndex--;
+	_position->setToMove(_position->getToMove() == WHITE ? BLACK : WHITE );
+
+	UI64 source = move.at(0);
+	UI64 dest = move.at(1);
+	int toMove = _position->getToMove();
+
+	//If the type is one of the Whites, then we look from black pieces
+	//And if the type is one of the blacks, then we look from white pieces
+	int enemyPieces = toMove == WHITE ? B_PIECES : W_PIECES;
+	int ourPieces	= toMove == WHITE ? W_PIECES : B_PIECES;
+
+	//We find what we are against at and with what we are moving
+	int ourType = 0;
+	int enemyType = 0;
+
+	int i = 1;
+	int end = B_PAWN;
+
+	for(i; i<=end; i++)
+	{
+		if(( _BitBoards[ i ] & dest) != 0 )
+		{
+			ourType = i;
+			break;
+		}
+	}
+
+	if(historyTable[historyIndex] > PROMO+CAPT){
+
+		enemyType = historyTable[historyIndex] - (PROMO+CAPT);
+		historyTable[historyIndex] = 0;
+		if(toMove ==WHITE){
+			//remove the queen from the dest
+			_BitBoards[ W_QUEEN ] &= ~dest;
+		}
+		else
+		{
+			//remove the queen from the dest
+			_BitBoards[ B_QUEEN ] &= ~dest;
+		}
+		_BitBoards[ enemyType ] |= dest; 
+		_BitBoards[ ourType	  ]  |= source; //remove our piece from its source
+
+	}else if (historyTable[historyIndex] >= CAPT && historyTable[historyIndex] < PROMO){
+
+		enemyType = historyTable[historyIndex] - (CAPT);
+		historyTable[historyIndex] = 0;
+		_BitBoards[ ourType	  ]  |= source;    
+		_BitBoards[ enemyType ]  |= dest;   
+		_BitBoards[ ourType	  ]  &= ~dest; 
+
+	}else
+	{
+		switch(historyTable[historyIndex]){
+		case CASTL:{
+			historyTable[historyIndex] = 0;
+			int rookToMove = toMove == WHITE ? W_ROOK: B_ROOK;
+			int kingToMove = toMove == WHITE ? W_KING: B_KING;
+			//We HAVE castled, so we look if the rook is on our left side or on our right side to determine which castling we did
+			if((_BitBoards[rookToMove] & source>>1) != 0 )
+			{
+
+				//Move the king
+				_BitBoards[ kingToMove ] &=  ~dest;
+				_BitBoards[ kingToMove ] |=  source;
+
+				//Move the rook
+				UI64 rooksPlace =(_BitBoards[ rookToMove ] ^(_BitBoards[ rookToMove ] & -_BitBoards[ rookToMove ]));
+				_BitBoards[ rookToMove ] &=  ~ (_BitBoards[ rookToMove ] ^(_BitBoards[ rookToMove ] & -_BitBoards[ rookToMove ]));
+				_BitBoards[ rookToMove ] |=   rooksPlace  << 2;
+			}
+			else if((_BitBoards[rookToMove] & source<<1) != 0)//same as above but right
+			{ 
+				_BitBoards[ kingToMove ] &=  ~dest;
+				_BitBoards[ kingToMove ] |=  source;
+
+				//Delete the piece we are going to move and then add it to a new place
+				UI64 rooksPlace = (_BitBoards[ rookToMove ] & -_BitBoards[ rookToMove ]);
+				_BitBoards[ rookToMove ] &=  ~(_BitBoards[ rookToMove ] & -_BitBoards[ rookToMove ]);
+				_BitBoards[ rookToMove ] |=   rooksPlace >> 3;
+			}
+			break;
+					  }
+		case ENPASS:{
+			historyTable[historyIndex] = 0;
+			if(toMove == WHITE)
+			{
+				_BitBoards[ B_PAWN ] |=  dest >> 8;
+				//We are doing a normal move
+				//update the dest and source tables
+				_BitBoards[ W_PAWN	  ]  &= ~dest;    //Remove our piece from dest
+				_BitBoards[ W_PAWN	  ]  |= source; //ad our piece to source
+			}
+			else{
+				_BitBoards[ W_PAWN ] |=  dest << 8;
+				//We are doing a normal move
+				//update the dest and source tables
+				_BitBoards[ B_PAWN	  ]  |= source;    //add our type to dest
+				_BitBoards[ B_PAWN	  ]  &= ~dest; //remove our piece from its source
+
+
+			}
+			break;
+					   }
+
+		case PROMO:{
+			historyTable[historyIndex] = 0;
+			if(toMove == WHITE)
+			{
+				_BitBoards[ W_QUEEN ] &= ~dest;
+				_BitBoards[ W_PAWN  ] |= source;
+			}
+			else
+			{
+				_BitBoards[ B_QUEEN ] &= ~dest;
+				_BitBoards[ B_PAWN  ] |= source;
+			}
+			break;
+			 }
+
+		case 0:{
+			historyTable[historyIndex] = 0;
+			_BitBoards[ ourType	  ]  |= source;    //add our type to source
+			_BitBoards[ ourType	  ]  &= ~dest; //remove our piece from its dest
+			break;
+			   }
+		}
+	}
+
+
+
+	//Update the all the white/black pieces according to turn
+	_BitBoards[ W_PIECES ]  = _BitBoards[ W_PAWN ] | _BitBoards[ W_ROOK ] 
+	| _BitBoards[ W_KNIGHT ] | _BitBoards[ W_BISHOP ]  | _BitBoards[ W_QUEEN ]  | _BitBoards[ W_KING ];
+	
+	_BitBoards[ B_PIECES ]  = _BitBoards[ B_PAWN ] | _BitBoards[ B_ROOK ] 
+	| _BitBoards[ B_KNIGHT ] | _BitBoards[ B_BISHOP ]  | _BitBoards[ B_QUEEN ]  | _BitBoards[ B_KING ];
+
+
+	_BitBoards[ EMPTYSQUARES ]= ~( _BitBoards[ W_PIECES ] | _BitBoards[ B_PIECES ] );
+
+	//Update enpassant table
+	_BitBoards[ ENPASSANT ] &= toMove == WHITE ? ~SIXTH_RANK : ~THIRD_RANK;
+}

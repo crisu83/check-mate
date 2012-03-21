@@ -13,6 +13,9 @@ private:
 	Position *_position;
 	Move *_curMove;
 
+	void debugBitboardPrinter();
+	void debugPerfPrint();
+
 public:
 	Game(void);
 	~Game(void);

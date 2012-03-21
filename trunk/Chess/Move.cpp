@@ -144,7 +144,7 @@ void Move::strToMove(const char* str)
 	}
 	
 	// Free the memory.
-	delete copy;
+	delete[] copy;
 	delete res;
 }
 

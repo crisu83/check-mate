@@ -5,7 +5,7 @@
  *
  * ChessTimer is a class for high precission function timing
  * with 1 microseconds precission.
- * This class is mainly for debugging purposes only.
+ * This class is mainly for DEBUGging purposes only.
  * @Author Olli Koskinen, Arttu Nieminen
  */
 

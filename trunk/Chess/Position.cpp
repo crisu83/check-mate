@@ -171,8 +171,9 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			UI64 w_pawn = BitBoards[ W_PAWN ];
 			while((w_pawn & -w_pawn) != BitBoards[ EMPTY ]){ //while we have pawns to go through
 				
-				UI64 moves = wAllPawnMoves(w_pawn & -w_pawn, BitBoards[ EMPTYSQUARES ], BitBoards);
+				
 				if( !wIsPinned(w_pawn & -w_pawn, BitBoards) ){
+					UI64 moves = wAllPawnMoves(w_pawn & -w_pawn, BitBoards[ EMPTYSQUARES ], BitBoards);
 					while((moves) != BitBoards[ EMPTY ]){
 						std::vector<UI64> tempMove;
 						tempMove.insert(tempMove.end(), w_pawn & -w_pawn); //LS1B
@@ -1325,7 +1326,7 @@ UI64 Position::AllRookMoves(UI64 rooks, UI64 emptysquares, UI64 ownpieces){
 	@return All bishops South East moves
  */
  UI64 Position::bishopSouthEast(UI64 bishop, UI64 emptysquares) {
-   emptysquares  = emptysquares & ~H_FILE;
+   emptysquares  = emptysquares & ~A_FILE;
    bishop |= emptysquares & (bishop >> 7); 
    bishop |= emptysquares & (bishop >> 7); 
    bishop |= emptysquares & (bishop >> 7); 
@@ -1569,7 +1570,7 @@ bool Position::bIsPinned(UI64 ownpiece, UI64 BitBoards[]){
 	attacks |= AllRookMoves(BitBoards[ W_ROOK ], BitBoards[ EMPTYSQUARES ] | ownpiece, BitBoards[ W_PIECES ]);
 	attacks |= AllBishopMoves(BitBoards[ W_BISHOP ], BitBoards[ EMPTYSQUARES ] | ownpiece, BitBoards[ W_PIECES ]);
 	attacks |= queenMoves(BitBoards[ W_QUEEN ], (BitBoards[ EMPTYSQUARES ] | ownpiece), BitBoards[ W_PIECES ]);
-	if((attacks & BitBoards[ W_KING ]) != BitBoards[ EMPTY ]){
+	if((attacks & BitBoards[ B_KING ]) != BitBoards[ EMPTY ]){
 		return true;
 	}else{
 		return false;

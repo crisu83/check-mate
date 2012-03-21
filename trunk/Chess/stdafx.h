@@ -19,8 +19,8 @@
 
 typedef unsigned long long UI64;
 
-//A boolean for various debug outputs
-#define debug true
+//A boolean for various DEBUG outputs
+#define DEBUG true
 
 #include "targetver.h"
 
