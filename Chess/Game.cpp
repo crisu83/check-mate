@@ -287,6 +287,10 @@ void Game::debugBitboardPrinter(){
 			std::cout<<"bAttack bitboard:\n";
 			_board->superHiddenRenderEmptySquares(40);
 			break;}
+		case 27:{
+			std::cout<<"En Passant bitboard:\n";
+			_board->superHiddenRenderEmptySquares(16);
+			break;}
 		}
 	}
 }
