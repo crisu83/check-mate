@@ -218,14 +218,12 @@ void ChessApplication::createScene(void)
 	whiteKnightNode->attachObject(whiteKnightEntity);
 	whiteKnightNode->setScale(scale, scale, scale);
 	whiteKnightNode->setPosition(delta, y, z);
-	whiteKnightNode->yaw(Ogre::Degree(180));
 
 	Ogre::SceneNode* whiteBishopNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("WhiteBishopNode");
 	Ogre::Entity* whiteBishopEntity = mSceneMgr->createEntity("WhiteBishop", "bishop_white.mesh");
 	whiteBishopNode->attachObject(whiteBishopEntity);
 	whiteBishopNode->setScale(scale, scale, scale);
 	whiteBishopNode->setPosition(delta * 2, y, z);
-	whiteBishopNode->yaw(Ogre::Degree(180));
 
 	Ogre::SceneNode* whiteQueenNode = mSceneMgr->getRootSceneNode()->createChildSceneNode("WhiteQueenNode");
 	Ogre::Entity* whiteQueenEntity = mSceneMgr->createEntity("WhiteQueen", "queen_white.mesh");
@@ -244,14 +242,12 @@ void ChessApplication::createScene(void)
 	whiteBishopNode2->attachObject(whiteBishopEntity2);
 	whiteBishopNode2->setScale(scale, scale, scale);
 	whiteBishopNode2->setPosition(delta * 5, y, z);
-	whiteBishopNode2->yaw(Ogre::Degree(180));
 
 	Ogre::SceneNode* whiteKnightNode2 = mSceneMgr->getRootSceneNode()->createChildSceneNode("WhiteKnightNode2");
 	Ogre::Entity* whiteKnightEntity2 = mSceneMgr->createEntity("WhiteKnight2", "knight_white.mesh");
 	whiteKnightNode2->attachObject(whiteKnightEntity2);
 	whiteKnightNode2->setScale(scale, scale, scale);
 	whiteKnightNode2->setPosition(delta * 6, y, z);
-	whiteKnightNode2->yaw(Ogre::Degree(180));
 
 	Ogre::SceneNode* whiteRookNode2 = mSceneMgr->getRootSceneNode()->createChildSceneNode("WhiteRookNode2");
 	Ogre::Entity* whiteRookEntity2 = mSceneMgr->createEntity("WhiteRook2", "rook_white.mesh");
