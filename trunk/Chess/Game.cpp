@@ -171,7 +171,6 @@ void Game::debugPerfPrint(){
 			for(int i = 0; i <= perfDepth; i++){
 				std::cout<<"perft test with depth of "<<i <<" yielded "<<_board->Perft(i)<<"\n";
 				_board->BitBoardToMoves();
-
 				_board->render();
 			}
 		}else{
@@ -188,11 +187,11 @@ void Game::debugPerfPrint(){
 
 
 /**
-Performs the printing of different bitboards
-for debugging purposes.
+  Performs the printing of different bitboards
+  for debugging purposes.
 
-@author Olli Koskinen, Arttu Nieminen
-@return void
+  @author Olli Koskinen, Arttu Nieminen
+  @return void
 */
 void Game::debugBitboardPrinter(){
 	int perfDepth = -1;

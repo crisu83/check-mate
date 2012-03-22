@@ -672,8 +672,8 @@ bool Board::moveIsLegal(Move *_curMove){
 
 
 	for(int i = 0; i <move.size(); i++){
-		UI64 source		  = move.at(i).at(0);
-		UI64 destinations = move.at(i).at(1);
+		UI64 source		  = move[i].at(0);
+		UI64 destinations = move[i].at(1);
 
 		if( (source & _SquareBits[sourceIndex]) != 0 ){
 			if( (destinations &  _SquareBits[ destIndex ]) != 0 ){
@@ -786,8 +786,8 @@ void Board::takeBack(UI64 *_backUp){
 void Board::makeMove(std::vector<UI64> move)
 {
 	
-	UI64 source = move.at(0);
-	UI64 dest = move.at(1);
+	UI64 source = move[0];
+	UI64 dest = move[1];
 	int toMove = _position->getToMove();
 
 	//If the type is one of the Whites, then we look from black pieces
@@ -1055,8 +1055,8 @@ std::vector<std::string> Board::getMoveStrings(){
 	//For each source piece we look every possible move in list
 	for(int i = 0; i < bitboards.size(); i++){
 
-		int j = bitScanForward( bitboards.at(i).at(0) );
-		int k = bitScanForward( bitboards.at(i).at(1) );
+		int j = bitScanForward( bitboards[i].at(0) );
+		int k = bitScanForward( bitboards[i].at(1) );
 
 		int x =  j & 7;
 		int y =  j >> 3; 
@@ -1193,7 +1193,7 @@ int Board::alphaBetaMax( int alpha, int beta, int depth ) {
 		//Backup the original state
 		UI64 *backuP = makeBoardBackUp();
 
-		makeMove(moveVector.at(i));  
+		makeMove(moveVector[i]);  
 		score = alphaBetaMin( alpha, beta, depth - 1 );
 		takeBack(backuP);
 		delete backuP;
@@ -1213,7 +1213,7 @@ int Board::alphaBetaMin( int alpha, int beta, int depth ) {
 	int i = 0; int score = 0;
 	for ( i=0;i<moveVector.size();i++) {
 		UI64 *backuP = makeBoardBackUp();
-		makeMove(moveVector.at(i));
+		makeMove(moveVector[i]);
 		score = alphaBetaMax( alpha, beta, depth - 1 );
 
 		takeBack(backuP);
@@ -1236,9 +1236,9 @@ Move *Board::wRootSearch() {
 	{
 
 		UI64 *backuP = makeBoardBackUp();
-		makeMove(moveVector.at(i));
+		makeMove(moveVector[i]);
 
-		score = alphaBetaMin(INT_MIN, INT_MAX, 3);
+		score = alphaBetaMin(INT_MIN, INT_MAX, 4);
 		if(i == 0)
 			best = score;  //We need a reference point
 
@@ -1246,7 +1246,7 @@ Move *Board::wRootSearch() {
 		delete backuP;
 		if(score >= best){
 			best = score;
-			bestMove = moveVector.at(i);
+			bestMove = moveVector[i];
 		}
 	}
 	std::cout<<"The Score of this move: "<<best<<"\n";
@@ -1261,8 +1261,8 @@ Move *Board::bRootSearch(){
 
 	for ( i = 0 ; i < moveVector.size(); i++ ) {
 		UI64 *backuP = makeBoardBackUp();
-		makeMove(moveVector.at(i));
-		score = alphaBetaMax(INT_MIN, INT_MAX, 5);
+		makeMove(moveVector[i]);
+		score = alphaBetaMax(INT_MIN, INT_MAX, 3);
 
 		if(i == 0)
 			best = score;  //We need a reference point
@@ -1271,7 +1271,7 @@ Move *Board::bRootSearch(){
 		delete backuP;
 		if(score <= best){
 			best = score;
-			bestMove = moveVector.at(i);
+			bestMove = moveVector[i];
 		}
 	}
 	std::cout<<"The Score of this move: "<<best<<"\n";
@@ -1296,12 +1296,12 @@ UI64 Board::Perft(int depth)
     if (depth == 0) return 1;
 	else if(depth == 1) return n_moves;
     for (i = 0; i < n_moves; i++) {
-		UI64 *backuP = makeBoardBackUp();
-        makeMove(moveVector.at(i));
+	//	UI64 *backuP = makeBoardBackUp();
+        makeMove(moveVector[i]);
         nodes += Perft(depth - 1);
-		//unMake(moveVector.at(i));
-        takeBack(backuP);
-		delete backuP;
+		unMake(moveVector[i]);
+     //   takeBack(backuP);
+	//	delete backuP;
     }
     return nodes;
 }
@@ -1319,9 +1319,9 @@ void Board::divided(int depth){
 	if(depth == 0) return;
     for (i = 0; i < n_moves; i++) {
 		UI64 *backuP = makeBoardBackUp();
-        makeMove(moveVector.at(i));
+        makeMove(moveVector[i]);
 		UI64 b =divide(depth - 1);
-		std::cout<<movesAsString(moveVector.at(i))<<": "<< b<<"\n";
+		std::cout<<movesAsString(moveVector[i])<<": "<< b<<"\n";
 		nodes +=b;
         takeBack(backuP);
 		delete backuP;
@@ -1339,7 +1339,7 @@ UI64 Board::divide(int depth){
 	if(depth == 1)return n_moves;
     for (i = 0; i < n_moves; i++) {
 		UI64 *backuP = makeBoardBackUp();
-        makeMove(moveVector.at(i));
+        makeMove(moveVector[i]);
 		nodes+= divide(depth - 1);
         takeBack(backuP);
 		delete backuP;
