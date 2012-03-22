@@ -5,7 +5,7 @@
  *
  * ChessTimer is a class for high precission function timing
  * with 1 microseconds precission.
- * This class is mainly for DEBUGging purposes only.
+ * This class is mainly for debugging purposes only.
  * @Author Olli Koskinen, Arttu Nieminen
  */
 
@@ -51,7 +51,6 @@ void ChessTimer::StartCounter()
 	if(!QueryPerformanceFrequency(&li))
 		std::cout << "QueryPerformanceFrequency failed!\n";
 
-	CounterStart = 0;
 	PCFreq = double(li.QuadPart)/factor;
 
 	QueryPerformanceCounter(&li);

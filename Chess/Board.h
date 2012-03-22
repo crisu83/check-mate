@@ -1,10 +1,6 @@
 #pragma once
 
 //some constants
-#define CASTL  100
-#define ENPASS 200
-#define CAPT   300
-#define PROMO  400
 #define SQUARES 64
 #define BITBOARDS 17
 #define A_FILE		0x0101010101010101
@@ -32,68 +28,55 @@ private:
 	Position *_position;
 	UI64 _BitBoards[BITBOARDS];
 	UI64 _backUp[ BITBOARDS ];
-	int historyTable[10];
-	int historyIndex;
-	ChessTimer chessTimer;
-	std::vector<UI64[2]> moves;
-	int fiftyMove;
 
 	//Private functions
 	void initBitboards();
-	std::string Board::movesAsString(std::vector<UI64> move);
-	UI64 *makeBoardBackUp();
+	std::vector<UI64[2]> moves;
+	int fiftyMove;
+
+	ChessTimer chessTimer;
+
+	void makeBoardBackUp();
+
 	int alphaBetaMax( int alpha, int beta, int depth );
 	int alphaBetaMin( int alpha, int beta, int depth );
-	int bitScanForward(UI64 bb);
+	std::vector<UI64> wRootSearch();
+	std::vector<UI64> bRootSearch();
+
 
 public:
 	Board(void);
 	~Board(void);
 
-
-	//General helper functions
 	void clear();
 	void initPos();
 	void render();
 	void execMove(const Move *m);
 	void fillSquareBits();
-	void SquareBitToPos(UI64 square);
-	void updateBitBoards(Move move, int type);
-	void BitBoardToMoves();
-	void fiftyMoveRule();
-	bool moveIsLegal(Move* _curMove);
 	UI64 posToSquare(int x, int y);
-	std::string movesAsString(int x1, int y1, int x2, int y2);
-
-
-	//Getters
-	std::vector<std::vector<UI64>> getLegalMoves();
-	std::vector<std::string> getMoveStrings();
-	Piece *getPieceAt(int x, int y);
-	Square *getSquareAt(int x, int y);
-	std::string getTurn(void) const;
+	//TODO: Return something plx |
+	//							 V
+	void SquareBitToPos(UI64 square);
+	bool moveIsLegal(Move* _curMove);
+	void updateBitBoards(Move move, int type);
 	int  getPieceTypeAt(int x, int y);
 	UI64 getBitBoard( int type );
+	void setPieceAt(int x, int y, Piece *piece);
+	Square *getSquareAt(int x, int y);
+	std::string getTurn(void) const;
+
+	void BitBoardToMoves();
+	void fiftyMoveRule();
 
 
-	//Setters
+	Piece *getPieceAt(int x, int y);
 	void setPosition(Position *position);
-    void setPieceAt(int x, int y, Piece *piece);
-
-
-	//Functions for AI
-	void unMake(std::vector<UI64> move);
-	Move *wRootSearch();
-	Move *bRootSearch();
-	void takeBack(UI64 * b);
+	std::vector<std::vector<UI64>> getLegalMoves();
+	
 	void makeMove(std::vector<UI64> move);
-	Move *Board::BitBoardToMoves(std::vector<UI64> move);
+	void takeBack();
+	std::vector<std::string> getMoveStrings();
+	std::string movesAsString(int x1, int y1, int x2, int y2);
 
-
-	//Functions for debugging
-	UI64 Perft(int depth);
-	UI64 divide(int depth);
-	void divided(int depth);
-	void superHiddenRenderEmptySquares(int);
 };
 

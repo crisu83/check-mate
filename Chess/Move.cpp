@@ -26,13 +26,7 @@ Move::Move(void)
 */
 Move::Move(int x1, int y1, int x2, int y2)
 {
-	
-	promote = false;
-	_castleLong = false;
-	_castleShort = false;
-	_enPassant = false;
-	_promoteTo = -1;
-
+	Move();
 
 	_x1 = x1;
 	_y1 = y1;
@@ -66,6 +60,8 @@ void Move::strToMove(const char* str)
 
 	while (res != NULL)
 	{
+		// todo: en passant
+
 		// source
 		if (i == 0)
 		{
@@ -144,7 +140,7 @@ void Move::strToMove(const char* str)
 	}
 	
 	// Free the memory.
-	delete[] copy;
+	delete copy;
 	delete res;
 }
 
