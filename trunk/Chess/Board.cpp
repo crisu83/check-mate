@@ -202,7 +202,6 @@ void Board::superHiddenRenderEmptySquares(int board){
 		break;
 		}
 
-
    for (int i = SQUARES -1 ; i>=0; i-- ) 
    {
 	   std::cout<<(((value & _SquareBits[i]) == 0) ? '0' : '1');
@@ -579,10 +578,10 @@ void Board::updateBitBoards(Move move, int type){
 		if(!move.promoting()){
 			//If we have enpassant move
 			if((_BitBoards[ ENPASSANT ]  & _SquareBits[destIndex]) != 0   ){
-				if(toMove == WHITE && (_SquareBits[sourceIndex] & W_PAWN) != 0)
-					_BitBoards[ B_PAWN ] &=  ~_SquareBits[ destIndex ] >> 8;
-				else if((toMove == BLACK && (_SquareBits[sourceIndex] & B_PAWN) != 0))
-					_BitBoards[ W_PAWN ] &=  ~_SquareBits[ destIndex ] << 8;
+				if(toMove == WHITE && (_SquareBits[sourceIndex] & _BitBoards[ W_PAWN ]) != 0)
+					_BitBoards[ B_PAWN ] &=  ~(_SquareBits[ destIndex ] >> 8);
+				else if((toMove == BLACK && (_SquareBits[sourceIndex] & _BitBoards[ B_PAWN ]) != 0))
+					_BitBoards[ W_PAWN ] &=  ~(_SquareBits[ destIndex ] << 8);
 			}
 			_BitBoards[ type ] &=  ~_SquareBits[ sourceIndex ];
 			_BitBoards[ type ] |=   _SquareBits[ destIndex   ];
@@ -725,6 +724,7 @@ std::vector<std::vector<UI64>> Board::getLegalMoves(){
 */
 UI64 *Board::makeBoardBackUp(){
 	UI64* b = new UI64[BITBOARDS];
+
 	b[0]	= 	_BitBoards[0]; 
 	b[1]	= 	_BitBoards[1]; 
 	b[2]	= 	_BitBoards[2]; 
@@ -742,6 +742,7 @@ UI64 *Board::makeBoardBackUp(){
 	b[14]	= 	_BitBoards[14];
 	b[15]	= 	_BitBoards[15];
 	b[16]	= 	_BitBoards[16];
+
 	//memcpy(*b, _BitBoards , BITBOARDS);
 	return b;
 }
@@ -787,8 +788,8 @@ void Board::makeMove(std::vector<UI64> move)
 {
 	
 	UI64 source = move[0];
-	UI64 dest = move[1];
-	int toMove = _position->getToMove();
+	UI64 dest   = move[1];
+	int toMove  = _position->getToMove();
 
 	//If the type is one of the Whites, then we look from black pieces
 	//And if the type is one of the blacks, then we look from white pieces
@@ -913,7 +914,7 @@ void Board::makeMove(std::vector<UI64> move)
 				{
 					historyTable[historyIndex] = 0;
 					historyTable[historyIndex] +=ENPASS;
-					_BitBoards[ B_PAWN ] &=  ~dest >> 8;
+					_BitBoards[ B_PAWN ] &=  ~(dest >> 8);
 				}
 				//We are doing a normal move
 				//update the dest and source tables
@@ -973,11 +974,11 @@ void Board::makeMove(std::vector<UI64> move)
 			{ 
 				//If we have enpassant move
 				//Delete the piece we are going to move and then add it to a new place
-				if((_BitBoards[ ENPASSANT ]  & dest) != 0 && (ourType == B_PAWN))
+				if((_BitBoards[ ENPASSANT ] & dest) != 0 && (ourType == B_PAWN))
 				{
 					historyTable[historyIndex] = 0;
 					historyTable[historyIndex] +=ENPASS;
-					_BitBoards[ W_PAWN ] &=  ~dest << 8;
+					_BitBoards[ W_PAWN ] &=  ~(dest << 8); //82799
 				}
 				//We are doing a normal move
 				//update the dest and source tables
@@ -999,6 +1000,7 @@ void Board::makeMove(std::vector<UI64> move)
 
 	//Update enpassant table
 	_BitBoards[ ENPASSANT ] &= toMove == WHITE ? ~SIXTH_RANK : ~THIRD_RANK;
+
 	_position->setToMove(_position->getToMove() == WHITE ? BLACK : WHITE );
 	historyIndex++;
 }
@@ -1244,6 +1246,7 @@ Move *Board::wRootSearch() {
 
 		takeBack(backuP);
 		delete backuP;
+
 		if(score >= best){
 			best = score;
 			bestMove = moveVector[i];
@@ -1296,12 +1299,12 @@ UI64 Board::Perft(int depth)
     if (depth == 0) return 1;
 	else if(depth == 1) return n_moves;
     for (i = 0; i < n_moves; i++) {
-	//	UI64 *backuP = makeBoardBackUp();
+		UI64 *backuP = makeBoardBackUp();
         makeMove(moveVector[i]);
         nodes += Perft(depth - 1);
-		unMake(moveVector[i]);
-     //   takeBack(backuP);
-	//	delete backuP;
+		//unMake(moveVector[i]);
+		takeBack(backuP);
+		delete backuP;
     }
     return nodes;
 }
