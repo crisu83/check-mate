@@ -598,7 +598,7 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 			}
 			
 			UI64 b_rook = BitBoards[ B_ROOK ];
-			while((b_rook & -b_rook) != BitBoards[ EMPTY ]){
+			while(b_rook != 0){
 				UI64 moves = bBlockCheck(b_rook & -b_rook, AllRookMoves(b_rook & -b_rook, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]), BitBoards);
 				while(moves!= 0){
 					std::vector<UI64> tempMove;
@@ -610,7 +610,7 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 				b_rook = b_rook & (b_rook-1);
 			}
 			UI64 b_bishop = BitBoards[ B_BISHOP ];
-			while((b_bishop & -b_bishop) != BitBoards[ EMPTY ]){
+			while(b_bishop != 0){
 				UI64 moves = bBlockCheck(b_bishop & -b_bishop, AllBishopMoves(b_bishop & -b_bishop, BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]), BitBoards);
 				while(moves != 0){
 					std::vector<UI64> tempMove;
@@ -2146,17 +2146,17 @@ UI64 Position::wAllEnemyAttacks(UI64 BitBoards[]){
 */
 UI64 Position::bAllEnemyAttacks(UI64 BitBoards[]){
 	UI64 attacks = wPawnAttacks(BitBoards[ W_PAWN ]);
-	attacks |= AllBlackKnightMoves(BitBoards[ W_KNIGHT ], BitBoards[ W_PIECES ]);
+	attacks |= AllWhiteKnightMoves(BitBoards[ W_KNIGHT ], BitBoards[ W_PIECES ]);
 	attacks |= AllRookMoves(BitBoards[ W_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
 	attacks |= AllBishopMoves(BitBoards[ W_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
 	attacks |= queenMoves(BitBoards[ W_QUEEN ], (BitBoards[ EMPTYSQUARES ]), (BitBoards[ W_PIECES ]));
-	attacks |= bKingMoves(BitBoards[ W_KING ], BitBoards[ W_PIECES ],BitBoards);
+	attacks |= wKingMoves(BitBoards[ W_KING ], BitBoards[ W_PIECES ],BitBoards);
 	return attacks;
 }
 
 UI64 Position::allWhite(UI64 BitBoards[]){
 	UI64 moves = wAllPawnMoves(BitBoards[ W_PAWN ], BitBoards[ EMPTYSQUARES ], BitBoards);
-	moves |= AllBlackKnightMoves(BitBoards[ W_KNIGHT ], BitBoards[ W_PIECES ]);
+	moves |= AllWhiteKnightMoves(BitBoards[ W_KNIGHT ], BitBoards[ W_PIECES ]);
 	moves |= AllRookMoves(BitBoards[ W_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
 	moves |= AllBishopMoves(BitBoards[ W_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
 	moves |= queenMoves(BitBoards[ W_QUEEN ], (BitBoards[ EMPTYSQUARES ]), (BitBoards[ W_PIECES ]));
