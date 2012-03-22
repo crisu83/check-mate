@@ -978,7 +978,7 @@ void Board::makeMove(std::vector<UI64> move)
 				{
 					historyTable[historyIndex] = 0;
 					historyTable[historyIndex] +=ENPASS;
-					_BitBoards[ W_PAWN ] &=  ~(dest << 8);
+					_BitBoards[ W_PAWN ] &=  ~(dest << 8); //82799
 				}
 				//We are doing a normal move
 				//update the dest and source tables
