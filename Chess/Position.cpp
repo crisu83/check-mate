@@ -13,7 +13,6 @@ Position::Position(void)
 	_whiteCastleLongAllowed = true;
 	_blackCastleShortAllowed = true;
 	_blackCastleLongAllowed = true;
-
 	// Initialize the positions.
 	initPos();
 }
@@ -2207,12 +2206,48 @@ int Position::evaluate(UI64 BitBoards[]){
 	//material balance
 	int material = 100000*(wking-bking) + 900*(wqueen-bqueen) + 500*(wrook-brook) + 325*(wbishop-bbishop) + 300*(wknight-bknight) + 100*(wpawns-bpawns);
 
-
 	//mobility
 	int wmoves = popCount(allWhite(BitBoards));
 	int bmoves = popCount(allBlack(BitBoards));
+	int mobility = wmoves-bmoves;
+	//doubled pawns
+	int wdp = 0;
+	if(popCount(BitBoards[ W_PAWN ] & A_FILE) >= 2) wdp++;
+	if(popCount(BitBoards[ W_PAWN ] & B_FILE) >= 2) wdp++;
+	if(popCount(BitBoards[ W_PAWN ] & C_FILE) >= 2) wdp++;
+	if(popCount(BitBoards[ W_PAWN ] & D_FILE) >= 2) wdp++;	
+	if(popCount(BitBoards[ W_PAWN ] & E_FILE) >= 2) wdp++;
+	if(popCount(BitBoards[ W_PAWN ] & F_FILE) >= 2) wdp++;
+	if(popCount(BitBoards[ W_PAWN ] & G_FILE) >= 2) wdp++;
+	if(popCount(BitBoards[ W_PAWN ] & H_FILE) >= 2) wdp++;
 
-	return material + (3 * (wmoves-bmoves));
+	int bdp = 0;
+	if(popCount(BitBoards[ B_PAWN ] & A_FILE) >= 2) bdp++;
+	if(popCount(BitBoards[ B_PAWN ] & B_FILE) >= 2) bdp++;
+	if(popCount(BitBoards[ B_PAWN ] & C_FILE) >= 2) bdp++;
+	if(popCount(BitBoards[ B_PAWN ] & D_FILE) >= 2) bdp++;	
+	if(popCount(BitBoards[ B_PAWN ] & E_FILE) >= 2) bdp++;
+	if(popCount(BitBoards[ B_PAWN ] & F_FILE) >= 2) bdp++;
+	if(popCount(BitBoards[ B_PAWN ] & G_FILE) >= 2) bdp++;
+	if(popCount(BitBoards[ B_PAWN ] & H_FILE) >= 2) bdp++;
+
+	int doubled = wdp - bdp;
+	//isolated pawns
+	UI64 nowest = BitBoards[ W_PAWN ] & ~((northFill(BitBoards[ W_PAWN ]) | southFill(BitBoards[ W_PAWN ])) >> 1);
+	UI64 noeast = BitBoards[ W_PAWN ] & ~((northFill(BitBoards[ W_PAWN ]) | southFill(BitBoards[ W_PAWN ])) << 1);
+	int wisolated = popCount(nowest & noeast);
+
+	nowest = BitBoards[ B_PAWN ] & ~((northFill(BitBoards[ B_PAWN ]) | southFill(BitBoards[ B_PAWN ])) >> 1);
+	noeast = BitBoards[ B_PAWN ] & ~((northFill(BitBoards[ B_PAWN ]) | southFill(BitBoards[ B_PAWN ])) << 1);
+	int bisolated = popCount(nowest & noeast);
+	
+	int isolated = wisolated - bisolated;
+	
+	//development TODO
+
+
+	//FIX this
+	return material + (3 * mobility) - 50*(doubled + isolated);
 }
 
 UI64 Position::wAttacks(UI64 BitBoards[]){
@@ -2233,4 +2268,18 @@ UI64 Position::bAttacks(UI64 BitBoards[]){
 	attacks |= AllBishopMoves(BitBoards[ B_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]);
 	attacks |= queenMoves(BitBoards[ B_QUEEN ], BitBoards[ EMPTYSQUARES ], (BitBoards[ B_PIECES ]));
 	return attacks;
+}
+
+UI64 Position::northFill(UI64 gen) {
+   gen |= (gen <<  8);
+   gen |= (gen << 16);
+   gen |= (gen << 32);
+   return gen;
+}
+ 
+UI64 Position::southFill(UI64 gen) {
+   gen |= (gen >>  8);
+   gen |= (gen >> 16);
+   gen |= (gen >> 32);
+   return gen;
 }
