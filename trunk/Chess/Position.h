@@ -82,7 +82,9 @@ private:
 	UI64 bMovesForPinned(UI64 ownpiece, UI64 moves, UI64 BitBoards[]);
 	UI64 wBlockCheck(UI64 ownpiece, UI64 moves, UI64 BitBoards[]);
 	UI64 bBlockCheck(UI64 ownpiece, UI64 moves, UI64 BitBoards[]);
-
+	//fills for getting isolated pawns
+	UI64 northFill(UI64 gen);
+	UI64 southFill(UI64 gen);
 	//Castling
 	UI64 wAllEnemyAttacks(UI64 BitBoards[]);
 	UI64 bAllEnemyAttacks(UI64 BitBoards[]);
