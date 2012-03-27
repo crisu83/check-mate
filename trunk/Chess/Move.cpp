@@ -38,6 +38,8 @@ Move::Move(int x1, int y1, int x2, int y2)
 	_y1 = y1;
 	_x2 = x2;
 	_y2 = y2;
+
+	checkCastling();
 }
 
 /**
@@ -129,6 +131,15 @@ void Move::strToMove(const char* str)
 		i++;
 	}
 
+	checkCastling();
+	
+	// Free the memory.
+	delete[] copy;
+	delete res;
+}
+
+void Move::checkCastling(){
+	
 	//castling flags for whites
 	if((_x1 == 4 && _x2 == 2) && (_y1 == 0 && _y2 == 0)){
 		_castleLong = true;
@@ -142,11 +153,8 @@ void Move::strToMove(const char* str)
 	else if ((_x1== 4 && _x2 ==6) && (_y1 == 7 && _y2 == 7)){
 		_castleShort = true;
 	}
-	
-	// Free the memory.
-	delete[] copy;
-	delete res;
 }
+
 
 /**
 	Prints the move as a human-readable string.
