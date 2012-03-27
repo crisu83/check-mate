@@ -141,20 +141,21 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 	if(this->_toMove == WHITE){
 		if( !wIsCheck(BitBoards)){
 
-			//Castling
-			if(_whiteCastleLongAllowed){
+		//Castling
+			if(BitBoards[CASTLING] & 1ULL ){
 				if( !(D1C1B1_MASK & ~BitBoards[ EMPTYSQUARES ])) //if the area between rook and king is empty
 					if( !(wAllEnemyAttacks(BitBoards) & D1C1B1_MASK) ){
 						std::vector<UI64> tempMove, tempmove;
-						//move the king
+							//move the king
 						tempMove.insert(tempMove.end(), BitBoards[ W_KING ]);
 						tempMove.insert(tempMove.end(), BitBoards[ W_KING ] >> 2 );
 						
 						moveVector.insert(moveVector.end(), tempMove);
+						 
 					}
 			}
 
-			if(_whiteCastleShortAllowed){
+			if(BitBoards[CASTLING] & 128ULL){
 				if(!(F1G1_MASK  & ~BitBoards[ EMPTYSQUARES ])) //if the area between rook and king is empty
 					if( !(wAllEnemyAttacks(BitBoards) & F1G1_MASK) ){ // if somebody attacks the area we are going to move
 						std::vector<UI64> tempMove, tempmove;
@@ -163,8 +164,10 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 						tempMove.insert(tempMove.end(), BitBoards[ W_KING ] << 2 );
 						
 						moveVector.insert(moveVector.end(), tempMove);
+						 
 					}
 			}
+
 
 			//pawn moves
 			UI64 w_pawn = BitBoards[ W_PAWN ];
@@ -395,11 +398,12 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 	}else if(_toMove == BLACK){
 		if( !bIsCheck(BitBoards)){
 
-			//Castling
-			if(_blackCastleLongAllowed){
+				//Castling Queen side rook
+			if(BitBoards[CASTLING] & 0x0100000000000000){
 				if(!(D8C8B8_MASK & ~BitBoards[ EMPTYSQUARES ])) //if the area between rook and king is empty
 					if( !(bAllEnemyAttacks(BitBoards) & D8C8B8_MASK) ){
-						std::vector<UI64> tempMove, tempmove;
+
+							std::vector<UI64> tempMove, tempmove;
 						//move the king
 						tempMove.insert(tempMove.end(), BitBoards[ B_KING ]);
 						tempMove.insert(tempMove.end(), (BitBoards[ B_KING ]) << 2 );
@@ -407,13 +411,14 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 					
 						
 						moveVector.insert(moveVector.end(), tempMove);
+						 
 					}
 			}
-
-			if(_blackCastleShortAllowed){
+			//King side rook
+			if(BitBoards[CASTLING] & 0x8000000000000000){
 				if(!(F8G8_MASK  & ~BitBoards[ EMPTYSQUARES ])) //if the area between rook and king is empty
 					if( !(bAllEnemyAttacks(BitBoards) & F8G8_MASK) ){ // if somebody attacks the area we are going to move
-						std::vector<UI64> tempMove, tempmove;
+							std::vector<UI64> tempMove, tempmove;
 						//move the king
 						tempMove.insert(tempMove.end(), BitBoards[ B_KING ]);
 						tempMove.insert(tempMove.end(), (BitBoards[ B_KING ]) << 2 );

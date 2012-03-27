@@ -6,7 +6,7 @@
 #define CAPT   300
 #define PROMO  400
 #define SQUARES 64
-#define BITBOARDS 17
+#define BITBOARDS 18
 #define A_FILE		0x0101010101010101
 #define B_FILE		0x202020202020202
 #define C_FILE		0x404040404040404
@@ -37,6 +37,8 @@ private:
 	ChessTimer chessTimer;
 	std::vector<UI64[2]> moves;
 	int fiftyMove;
+
+	UI64 legalMoves[256];
 
 	//Private functions
 	void initBitboards();

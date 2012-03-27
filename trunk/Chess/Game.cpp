@@ -48,7 +48,7 @@ void Game::init(void)
 }
 
 /**
-	Runs the game.
+	Runs the game. 
 
 	@author Christoffer Niska
 	@return exit code
@@ -158,6 +158,10 @@ int Game::run(void)
 	@return void
 */
 void Game::debugPerfPrint(){
+	//We get some timings from the PERFT. in Milliseconds.
+	ChessTimer ct;
+	ct.changeTimerResolution(MILLISECONDS);
+
 	char perf;
 	int perfDepth;
 	std::cout<<"Perform Perft test (y/n): ";
@@ -169,10 +173,14 @@ void Game::debugPerfPrint(){
 
 		if(perfDepth >= 0 && perfDepth <= 6){
 			for(int i = 0; i <= perfDepth; i++){
+				ct.StartCounter();
 				std::cout<<"perft test with depth of "<<i <<" yielded "<<_board->Perft(i)<<"\n";
+				std::cout<<ct.GetCounter();
 				_board->BitBoardToMoves();
 				_board->render();
 			}
+
+			std::cout<<ct.getAverage();
 		}else{
 			std::cout<<"The depth must be from 0 to 6. Depth set to 1 by default."<<"\n";
 			std::cout<<"perft test with depth of 1 yielded "<<_board->Perft(1)<<"\n";
@@ -205,10 +213,12 @@ void Game::debugBitboardPrinter(){
 		case 0:
 			perfDepth = 0;
 			break;
-		default:
+		default:{
 			std::cout<<"\nStart of divide output: \n";
 			_board->divided(perfDepth);
+			std::cout<<"tomove: "<<_position->getToMove();
 			break;
+				}
 		case 10: {
 			std::cout<<"Emptysquares bitboard:\n";
 			_board->superHiddenRenderEmptySquares(15);
