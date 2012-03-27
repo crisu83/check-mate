@@ -37,7 +37,7 @@ private:
 	ChessTimer chessTimer;
 	std::vector<UI64[2]> moves;
 	int fiftyMove;
-	int captures, enpassants, cheks;
+	int captures, enpassants, castlings,promotions,cheks,checkmates;
 
 	UI64 legalMoves[256];
 
@@ -96,8 +96,10 @@ public:
 	//Functions for debugging
 	UI64 Perft(int depth);
 	void PerftResults();
+	void resetPerftCounters();
 	UI64 divide(int depth);
 	void divided(int depth);
 	void superHiddenRenderEmptySquares(int);
+
 };
 

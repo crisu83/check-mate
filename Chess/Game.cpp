@@ -172,12 +172,16 @@ void Game::debugPerfPrint(){
 		std::cin>>perfDepth;
 
 		if(perfDepth >= 0 && perfDepth <= 6){
-			for(int i = 0; i <= perfDepth; i++){
+			for(int i = 1; i <= perfDepth; i++){
 				ct.StartCounter();
 				std::cout<<"perft test with depth of "<<i <<" yielded "<<_board->Perft(i)<<"\n";
-				std::cout<<ct.GetCounter();
-				_board->BitBoardToMoves();
-				_board->render();
+				_board->PerftResults();
+
+				std::cout<<ct.GetCounter()<<" ms\n";
+
+
+				//_board->BitBoardToMoves();
+				//_board->render();
 			}
 
 			std::cout<<ct.getAverage();

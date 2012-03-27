@@ -81,6 +81,8 @@ void Board::initBitboards(){
 	fiftyMove = 0;
 	historyIndex = 0;
 
+	resetPerftCounters();
+
 	for(int i = 0; i<  10 ; i++){
 		historyTable[i] = 0;
 	}
@@ -851,7 +853,6 @@ void Board::makeMove(std::vector<UI64> move)
 		_BitBoards[CASTLING] &= ~_SquareBits[63];
 	}
 
-
 	//If we move one of the rooks, then it will not be able to castle anymore
 	if(ourType == W_ROOK){
 		//LS1B
@@ -876,6 +877,7 @@ void Board::makeMove(std::vector<UI64> move)
 		//If we promote
 		if((dest & EIGHT_RANK) &&(source & _BitBoards[ W_PAWN ]))			
 		{
+			promotions++;
 			//Set the dest as a queen, always
 			historyTable[historyIndex] = 0;
 			historyTable[historyIndex] +=PROMO;
@@ -883,6 +885,7 @@ void Board::makeMove(std::vector<UI64> move)
 		}
 		else if((dest & FIRST_RANK )&&(source & _BitBoards[ B_PAWN ]))
 		{
+			promotions++;
 			//Set the the dest as a queen, always
 			historyTable[historyIndex] = 0;
 			historyTable[historyIndex] +=PROMO;
@@ -893,6 +896,7 @@ void Board::makeMove(std::vector<UI64> move)
 			_BitBoards[ ourType	  ]  |= dest;    //add our type to dests
 		}
 
+		captures++;
 		historyTable[historyIndex] +=CAPT + enemyType;
 		_BitBoards[ enemyType ]  &= ~dest;   //Remove the enemy from our dest
 		_BitBoards[ ourType	  ]  &= ~source; //remove our piece from its source
@@ -916,6 +920,7 @@ void Board::makeMove(std::vector<UI64> move)
 				//If the king moves right 2 squares, it's castling
 				if((dest == (source<<2)) && (_BitBoards[W_ROOK] & _SquareBits[7]) )
 				{
+					castlings++;
 					historyTable[historyIndex] = 0;
 					historyTable[historyIndex] +=CASTL;
 					//Move the king
@@ -929,6 +934,7 @@ void Board::makeMove(std::vector<UI64> move)
 				}
 				else if((dest == (source>>2) )&&(_BitBoards[W_ROOK] & _SquareBits[0]))//same as above but right
 				{ 
+					castlings++;
 					historyTable[historyIndex] = 0;
 					historyTable[historyIndex] +=CASTL;
 					_BitBoards[ W_KING ] &=  ~source;
@@ -944,6 +950,7 @@ void Board::makeMove(std::vector<UI64> move)
 			//PROMOTE
 			else if((dest & EIGHT_RANK) && (source & _BitBoards[ W_PAWN ]))			
 			{
+				promotions++;
 				historyTable[historyIndex] = 0;
 				historyTable[historyIndex] +=PROMO;
 				//Set the the dest as a queen, always
@@ -957,6 +964,7 @@ void Board::makeMove(std::vector<UI64> move)
 				//Delete the piece we are going to move and then add it to a new place
 				if((_BitBoards[ ENPASSANT ]  & dest)&& (ourType == W_PAWN))
 				{
+					enpassants++;
 					historyTable[historyIndex] = 0;
 					historyTable[historyIndex] +=ENPASS;
 					_BitBoards[ B_PAWN ] &=  ~(dest >> 8);
@@ -980,6 +988,7 @@ void Board::makeMove(std::vector<UI64> move)
 				//If the king moves right 2 squares, it's castling
 				if((dest == (source<<2))&&( _BitBoards[B_ROOK] & _SquareBits[63]))
 				{
+					castlings++;
 					historyTable[historyIndex] = 0;
 					historyTable[historyIndex] +=CASTL;
 					//Move the king
@@ -994,6 +1003,7 @@ void Board::makeMove(std::vector<UI64> move)
 				}
 				else if((dest == (source>>2) ) && ( _BitBoards[B_ROOK] & _SquareBits[56]))//same as above but right
 				{ 
+					castlings++;
 					historyTable[historyIndex] = 0;
 					historyTable[historyIndex] +=CASTL;
 					_BitBoards[ B_KING ] &=  ~source;
@@ -1007,6 +1017,7 @@ void Board::makeMove(std::vector<UI64> move)
 			}
 			else if((dest & FIRST_RANK) && (source & _BitBoards[ B_PAWN ]))
 			{
+				promotions++;
 				historyTable[historyIndex] = 0;
 				historyTable[historyIndex] +=PROMO;
 				//Set the the dest as a queen, always
@@ -1021,6 +1032,7 @@ void Board::makeMove(std::vector<UI64> move)
 				//Delete the piece we are going to move and then add it to a new place
 				if((_BitBoards[ ENPASSANT ] & dest)  && (ourType == B_PAWN))
 				{
+					enpassants++;
 					historyTable[historyIndex] = 0;
 					historyTable[historyIndex] +=ENPASS;
 					_BitBoards[ W_PAWN ] &=  ~(dest << 8);
@@ -1339,14 +1351,14 @@ Move *Board::bRootSearch(){
 
 UI64 Board::Perft(int depth)
 {
-	
     int n_moves, i;
    UI64 nodes = 0;
 	std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
 	n_moves = moveVector.size();
+	if(n_moves == 0)
+		checkmates++;
 
     if (depth == 0) return 1;
-	else if(depth == 1) return n_moves;
     for (i = 0; i < n_moves; i++) {
 		UI64 *backuP = makeBoardBackUp();
         makeMove(moveVector[i]);
@@ -1359,9 +1371,17 @@ UI64 Board::Perft(int depth)
 }
 
 void Board::PerftResults(){
-	std::cout<<std::endl;
+	std::cout<<"Captures: "<<captures<<std::endl;
+	std::cout<<"En Passants: "<<enpassants<<std::endl;
+	std::cout<<"Castlings: "<<castlings<<std::endl;
+	std::cout<<"CheckMates: "<<checkmates<<std::endl;
 
+	resetPerftCounters();
 }
+
+void Board::resetPerftCounters(){
+	captures = 0, enpassants = 0,promotions = 0, cheks =0, checkmates =0 ,castlings = 0;
+};
 
 
 
@@ -1395,7 +1415,6 @@ UI64 Board::divide(int depth){
 	n_moves = moveVector.size();
 
 	if(depth == 0) return 1;
-	if(depth == 1)return n_moves;
     for (i = 0; i < n_moves; i++) {
 		UI64 *backuP = makeBoardBackUp();
         makeMove(moveVector[i]);
