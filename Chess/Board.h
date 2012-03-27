@@ -44,8 +44,8 @@ private:
 	void initBitboards();
 	std::string Board::movesAsString(std::vector<UI64> move);
 	UI64 *makeBoardBackUp();
-	int alphaBetaMax( int alpha, int beta, int depth );
-	int alphaBetaMin( int alpha, int beta, int depth );
+	double alphaBetaMax( double alpha, double beta, int depth );
+	double alphaBetaMin( double alpha, double beta, int depth );
 	int bitScanForward(UI64 bb);
 
 public:

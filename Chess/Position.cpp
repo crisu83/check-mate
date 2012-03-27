@@ -2037,7 +2037,7 @@ UI64 Position::bBlockCheck(UI64 ownpiece, UI64 moves, UI64 BitBoards[]){
 		}
 		UI64 knight = BitBoards[ W_KNIGHT ];
 		while(knight != 0){ //while we have pawns to go through
-			if(((AllWhiteKnightMoves(knight & -knight, BitBoards[ W_PIECES ]) & BitBoards[ W_KING ]) != BitBoards[ EMPTY ])){
+			if(((AllWhiteKnightMoves(knight & -knight, BitBoards[ W_PIECES ]) & BitBoards[ B_KING ]) != BitBoards[ EMPTY ])){
 				attacks |= knight & -knight;
 				attackers++;
 			}
@@ -2191,7 +2191,7 @@ int Position::popCount(UI64 bitboard){
 	return count;
 }
 
-int Position::evaluate(UI64 BitBoards[]){
+double Position::evaluate(UI64 BitBoards[]){
 
 	//population counting
 	int wqueen  = popCount(BitBoards[ W_QUEEN  ]);
@@ -2209,7 +2209,7 @@ int Position::evaluate(UI64 BitBoards[]){
 	int wking = 1;
 	int bking = 1;
 	//material balance
-	int material = 100000*(wking-bking) + 900*(wqueen-bqueen) + 500*(wrook-brook) + 325*(wbishop-bbishop) + 300*(wknight-bknight) + 100*(wpawns-bpawns);
+	double material = 1000*(wking-bking) + 9*(wqueen-bqueen) + 5*(wrook-brook) + 3.25*(wbishop-bbishop) + 3.00*(wknight-bknight) + 1*(wpawns-bpawns);
 
 	//mobility
 	int wmoves = popCount(allWhite(BitBoards));
@@ -2252,7 +2252,7 @@ int Position::evaluate(UI64 BitBoards[]){
 
 
 	//FIX this
-	return material + (3 * mobility) - 50*(doubled + isolated);
+	return material + (0.3 * mobility) - 0.5*(doubled + isolated);
 }
 
 UI64 Position::wAttacks(UI64 BitBoards[]){

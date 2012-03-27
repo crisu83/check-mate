@@ -125,6 +125,6 @@ public:
 	UI64 bAttacks(UI64 BitBoards[]);
 
 	//The board evaluation functions
-	int evaluate(UI64 BitBoards[]);
+	double evaluate(UI64 BitBoards[]);
 };
 
