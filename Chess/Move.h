@@ -23,6 +23,8 @@ private:
 	int _promoteTo;		// which piece we promoted to?
 	bool promote;
 
+	void Move::checkCastling();
+
 public:
 	Move(void);
 	Move(int x1, int y1, int x2, int y2);

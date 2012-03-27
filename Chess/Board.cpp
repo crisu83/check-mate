@@ -1358,6 +1358,13 @@ UI64 Board::Perft(int depth)
     return nodes;
 }
 
+void Board::PerftResults(){
+	std::cout<<std::endl;
+
+}
+
+
+
 /**
 	A function that counts all the child moves from the first depth and adds them to a list
 	for DEBUGging purposes.
