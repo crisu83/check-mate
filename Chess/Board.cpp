@@ -823,6 +823,14 @@ void Board::makeMove(std::vector<UI64> move)
 	int enemyType = 0;
 
 	
+	if(toMove == WHITE){
+		if(_position->wIsCheck(_BitBoards))
+			cheks++;
+	}else{
+		if(_position->bIsCheck(_BitBoards))
+			cheks++;
+	}
+
 	int i = 1;
 	int end = B_PAWN;
 
@@ -1355,8 +1363,14 @@ UI64 Board::Perft(int depth)
    UI64 nodes = 0;
 	std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
 	n_moves = moveVector.size();
-	if(n_moves == 0)
+	if(n_moves == 0){
+		if(_position->getToMove() == WHITE && _position->wIsCheck(_BitBoards)){
 		checkmates++;
+		}
+		else if(_position->getToMove() == BLACK && _position->bIsCheck(_BitBoards)){
+			checkmates++;
+		}
+	}
 
     if (depth == 0) return 1;
     for (i = 0; i < n_moves; i++) {
@@ -1374,6 +1388,7 @@ void Board::PerftResults(){
 	std::cout<<"Captures: "<<captures<<std::endl;
 	std::cout<<"En Passants: "<<enpassants<<std::endl;
 	std::cout<<"Castlings: "<<castlings<<std::endl;
+	std::cout<<"Checks: "<<cheks<<std::endl;
 	std::cout<<"CheckMates: "<<checkmates<<std::endl;
 
 	resetPerftCounters();
