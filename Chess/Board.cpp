@@ -24,7 +24,6 @@ const char LSB_64_table[154] =
  */
 Board::Board(void)
 {
-	chessTimer = ChessTimer();
 	initBitboards();
 }
 
@@ -86,6 +85,10 @@ void Board::initBitboards(){
 		historyTable[i] = 0;
 	}
 
+	for(int i = 0; i < 256; i++){
+		legalMoves[i] = -1;
+	}
+
 	_BitBoards[ EMPTY	]	= 0x0000;  // Empty board
 	_BitBoards[ W_KING	]	= 0x10;
 	_BitBoards[ W_QUEEN ]	= 0x8;
@@ -103,6 +106,8 @@ void Board::initBitboards(){
 	_BitBoards[ B_PIECES ]  = _BitBoards[ B_PAWN ] | _BitBoards[ B_ROOK ]  |_BitBoards[ B_KNIGHT ] |_BitBoards[ B_BISHOP ]  | _BitBoards[ B_QUEEN ]  | _BitBoards[ B_KING ];
 	_BitBoards[EMPTYSQUARES]= ~(_BitBoards[ W_PIECES ] | _BitBoards[ B_PIECES ]);
 	_BitBoards[ ENPASSANT ] = 0x0000;
+	_BitBoards[ CASTLING ] = 0x8100000000000081;
+
 
 }
 
@@ -195,18 +200,27 @@ void Board::superHiddenRenderEmptySquares(int board){
 	case 40:
 		value = _position->bAttacks(_BitBoards);
 		break;
-	case 50:
-		break;
+	case 50:{
+		value = ~_BitBoards[EMPTYSQUARES];
+		break;}
 	default:
-		value = _BitBoards[board];
+		if(board >= 0 && board <= 16)
+			value = _BitBoards[board];
+		else
+			value = _BitBoards[0];
 		break;
 		}
 
+	std::string tempString = "";
+
    for (int i = SQUARES -1 ; i>=0; i-- ) 
    {
-	   std::cout<<(((value & _SquareBits[i]) == 0) ? '0' : '1');
-      if ( i % 8 == 0 )
-         std::cout <<std::endl;
+	   tempString.append((((value & _SquareBits[i]) == 0) ? "0" : "1"));
+      if ( i % 8 == 0 ){
+		  std::reverse(tempString.begin(),tempString.end());
+         std::cout <<tempString<<std::endl;
+		 tempString ="";
+	  }
    }
 }
 
@@ -410,27 +424,29 @@ void Board::updateBitBoards(Move move, int type){
 
 	//If we move the king, we cant do castling anymore
 	if(type == W_KING){
-		_position->setWhiteCastlingFalse();
+		_BitBoards[CASTLING] &= ~_SquareBits[0];
+		_BitBoards[CASTLING] &= ~_SquareBits[7];
 	}
 	else if(type == B_KING){
-		_position->setBlackCastlingFalse();
+		_BitBoards[CASTLING] &= ~_SquareBits[56];
+		_BitBoards[CASTLING] &= ~_SquareBits[63];
 	}
 
 
 	//If we move one of the rooks, then it will not be able to castle anymore
 	if(type == W_ROOK){
 		//LS1B
-		if((_BitBoards[W_ROOK] & -_BitBoards[W_ROOK]) & _SquareBits[0] ) //White queen side rook
-			_position->wLongCastleFalse();
+		if((_SquareBits[sourceIndex] & _SquareBits[0]) ) //White queen side rook
+			_BitBoards[CASTLING] &= ~_SquareBits[0];
 		//Reseted LS1B
-		if( !( (_BitBoards[W_ROOK] ^(_BitBoards[W_ROOK] & -_BitBoards[W_ROOK])) & _SquareBits[7])) //White king side rook
-			_position->wShortCastleFalse();
+		if( ( _SquareBits[sourceIndex] & _SquareBits[7])) //White king side rook
+			_BitBoards[CASTLING] &= ~_SquareBits[7];
 	}
 	else if(type == B_ROOK){
-		if((_BitBoards[B_ROOK] & -_BitBoards[B_ROOK]) & _SquareBits[63] ) //Black queen side rook
-			_position->bShortCastleFalse();
-		if(  (_BitBoards[B_ROOK] ^(_BitBoards[B_ROOK] & -_BitBoards[B_ROOK])) & _SquareBits[56])  //Black king side rook
-			_position->bShortCastleFalse();
+		if(_SquareBits[sourceIndex] & _SquareBits[63] ) //Black queen side rook
+			_BitBoards[CASTLING] &= ~_SquareBits[63];
+		if(  _SquareBits[sourceIndex] & _SquareBits[56])  //Black king side rook
+			_BitBoards[CASTLING] &= ~_SquareBits[56];
 	}
 
 	//If we have a castling situation
@@ -742,6 +758,7 @@ UI64 *Board::makeBoardBackUp(){
 	b[14]	= 	_BitBoards[14];
 	b[15]	= 	_BitBoards[15];
 	b[16]	= 	_BitBoards[16];
+	b[17]   =   _BitBoards[17];
 
 	//memcpy(*b, _BitBoards , BITBOARDS);
 	return b;
@@ -754,6 +771,8 @@ UI64 *Board::makeBoardBackUp(){
 	@Author Olli Koskinen, Arttu Nieminen
 */
 void Board::takeBack(UI64 *_backUp){
+
+
 	_BitBoards[0] =  _backUp[0];
 	_BitBoards[1] =  _backUp[1];
 	_BitBoards[2] =  _backUp[2];
@@ -771,6 +790,7 @@ void Board::takeBack(UI64 *_backUp){
 	_BitBoards[14] = _backUp[14];
 	_BitBoards[15] = _backUp[15];
 	_BitBoards[16] = _backUp[16];
+	_BitBoards[17] = _backUp[17];
 
 	historyIndex--;
 		_position->setToMove(_position->getToMove() == WHITE ? BLACK : WHITE );
@@ -821,22 +841,47 @@ void Board::makeMove(std::vector<UI64> move)
 		}
 	}
 
+	//If we move the king, we cant do castling anymore
+	if(ourType == W_KING){
+		_BitBoards[CASTLING] &= ~_SquareBits[0];
+		_BitBoards[CASTLING] &= ~_SquareBits[7];
+	}
+	else if(ourType == B_KING){
+		_BitBoards[CASTLING] &= ~_SquareBits[56];
+		_BitBoards[CASTLING] &= ~_SquareBits[63];
+	}
+
+
+	//If we move one of the rooks, then it will not be able to castle anymore
+	if(ourType == W_ROOK){
+		//LS1B
+		if((source & _SquareBits[0]) ) //White queen side rook
+			_BitBoards[CASTLING] &= ~_SquareBits[0];
+		//Reseted LS1B
+		if( ( source & _SquareBits[7])) //White king side rook
+			_BitBoards[CASTLING] &= ~_SquareBits[7];
+	}
+	else if(ourType == B_ROOK){
+		if(source & _SquareBits[63] ) //Black queen side rook
+			_BitBoards[CASTLING] &= ~_SquareBits[63];
+		if(  source & _SquareBits[56])  //Black king side rook
+			_BitBoards[CASTLING] &= ~_SquareBits[56];
+	}
+
 	historyTable[historyIndex] = 0;
 	//Attacks
 	//If there is enemy in the dest square
-	if( (_BitBoards[ enemyPieces ]  &  dest) != 0 )
+	if(_BitBoards[ enemyPieces ] & dest)
 	{	
-
 		//If we promote
-		if(((dest & EIGHT_RANK) != 0 ) && ((source & _BitBoards[ W_PAWN ]) != 0))			
+		if((dest & EIGHT_RANK) &&(source & _BitBoards[ W_PAWN ]))			
 		{
 			//Set the dest as a queen, always
 			historyTable[historyIndex] = 0;
 			historyTable[historyIndex] +=PROMO;
 			_BitBoards[ W_QUEEN ] |= dest;
-
 		}
-		else if(((dest & FIRST_RANK) != 0 ) && ((source & _BitBoards[ B_PAWN ]) != 0))
+		else if((dest & FIRST_RANK )&&(source & _BitBoards[ B_PAWN ]))
 		{
 			//Set the the dest as a queen, always
 			historyTable[historyIndex] = 0;
@@ -858,7 +903,7 @@ void Board::makeMove(std::vector<UI64> move)
 		if(toMove == WHITE)
 		{
 			//En Passant
-			if((source & _BitBoards[ W_PAWN ]) != 0)
+			if(source & _BitBoards[ W_PAWN ])
 			{
 				if( dest == (source << 16) )//If we do a doublepush with pawn
 				{ 
@@ -866,10 +911,10 @@ void Board::makeMove(std::vector<UI64> move)
 				}
 			}
 			//CASTLING
-			if((source & _BitBoards[ W_KING ]) != 0)
+			if((source & _BitBoards[ W_KING ]) &&(source & _SquareBits[4]))
 			{
 				//If the king moves right 2 squares, it's castling
-				if((dest == (source<<2)) && (_BitBoards[W_ROOK] & _SquareBits[7]) != 0 &&((source & _SquareBits[4]) != 0))
+				if((dest == (source<<2)) && (_BitBoards[W_ROOK] & _SquareBits[7]) )
 				{
 					historyTable[historyIndex] = 0;
 					historyTable[historyIndex] +=CASTL;
@@ -882,7 +927,7 @@ void Board::makeMove(std::vector<UI64> move)
 					_BitBoards[ W_ROOK ] &=  ~ (_BitBoards[ W_ROOK ] ^(_BitBoards[ W_ROOK ] & -_BitBoards[ W_ROOK ]));
 					_BitBoards[ W_ROOK ] |=   rooksPlace  >> 2 ;
 				}
-				else if((dest == (source>>2) )&&  (_BitBoards[W_ROOK] & _SquareBits[0]) != 0 &&((source & _SquareBits[4]) != 0))//same as above but right
+				else if((dest == (source>>2) )&&(_BitBoards[W_ROOK] & _SquareBits[0]))//same as above but right
 				{ 
 					historyTable[historyIndex] = 0;
 					historyTable[historyIndex] +=CASTL;
@@ -897,7 +942,7 @@ void Board::makeMove(std::vector<UI64> move)
 			}
 
 			//PROMOTE
-			else if(((dest & EIGHT_RANK) != 0 ) && ((source & _BitBoards[ W_PAWN ]) != 0))			
+			else if((dest & EIGHT_RANK) && (source & _BitBoards[ W_PAWN ]))			
 			{
 				historyTable[historyIndex] = 0;
 				historyTable[historyIndex] +=PROMO;
@@ -910,7 +955,7 @@ void Board::makeMove(std::vector<UI64> move)
 			{
 				//If we have enpassant move
 				//Delete the piece we are going to move and then add it to a new place
-				if((_BitBoards[ ENPASSANT ]  & dest) != 0&& (ourType == W_PAWN))
+				if((_BitBoards[ ENPASSANT ]  & dest)&& (ourType == W_PAWN))
 				{
 					historyTable[historyIndex] = 0;
 					historyTable[historyIndex] +=ENPASS;
@@ -925,15 +970,15 @@ void Board::makeMove(std::vector<UI64> move)
 		else
 		{
 			//En Passant
-			if((source & _BitBoards[ B_PAWN ]) != 0){
+			if(source & _BitBoards[ B_PAWN ]){
 				if( (dest == source >> 16) ){ //If we do a doublepush with pawn
 					_BitBoards[ ENPASSANT ] |= source >> 8; 
 				}
 			}
-			if((source & _BitBoards[ B_KING ]) != 0)
+			if((source & _BitBoards[ B_KING ])&&(source & _SquareBits[60]) )
 			{
 				//If the king moves right 2 squares, it's castling
-				if((dest == (source<<2)) && ( _BitBoards[B_ROOK] & _SquareBits[63]) != 0&&((source & _SquareBits[60]) != 0))
+				if((dest == (source<<2))&&( _BitBoards[B_ROOK] & _SquareBits[63]))
 				{
 					historyTable[historyIndex] = 0;
 					historyTable[historyIndex] +=CASTL;
@@ -947,7 +992,7 @@ void Board::makeMove(std::vector<UI64> move)
 					_BitBoards[ B_ROOK] |=   rooksPlace  >> 2 ;
 
 				}
-				else if((dest == (source>>2) ) && ( _BitBoards[B_ROOK] & _SquareBits[56]) != 0&&((source & _SquareBits[60]) != 0))//same as above but right
+				else if((dest == (source>>2) ) && ( _BitBoards[B_ROOK] & _SquareBits[56]))//same as above but right
 				{ 
 					historyTable[historyIndex] = 0;
 					historyTable[historyIndex] +=CASTL;
@@ -960,7 +1005,7 @@ void Board::makeMove(std::vector<UI64> move)
 					_BitBoards[ B_ROOK ] |=   rooksPlace << 3;
 				}
 			}
-			else if(((dest & FIRST_RANK) != 0 ) && ((source & _BitBoards[ B_PAWN ]) != 0))
+			else if((dest & FIRST_RANK) && (source & _BitBoards[ B_PAWN ]))
 			{
 				historyTable[historyIndex] = 0;
 				historyTable[historyIndex] +=PROMO;
@@ -974,11 +1019,11 @@ void Board::makeMove(std::vector<UI64> move)
 			{ 
 				//If we have enpassant move
 				//Delete the piece we are going to move and then add it to a new place
-				if((_BitBoards[ ENPASSANT ] & dest) != 0 && (ourType == B_PAWN))
+				if((_BitBoards[ ENPASSANT ] & dest)  && (ourType == B_PAWN))
 				{
 					historyTable[historyIndex] = 0;
 					historyTable[historyIndex] +=ENPASS;
-					_BitBoards[ W_PAWN ] &=  ~(dest << 8); //82799
+					_BitBoards[ W_PAWN ] &=  ~(dest << 8);
 				}
 				//We are doing a normal move
 				//update the dest and source tables
@@ -1001,6 +1046,7 @@ void Board::makeMove(std::vector<UI64> move)
 	//Update enpassant table
 	_BitBoards[ ENPASSANT ] &= toMove == WHITE ? ~SIXTH_RANK : ~THIRD_RANK;
 
+		
 	_position->setToMove(_position->getToMove() == WHITE ? BLACK : WHITE );
 	historyIndex++;
 }
@@ -1250,6 +1296,7 @@ Move *Board::wRootSearch() {
 		if(score >= best){
 			best = score;
 			bestMove = moveVector[i];
+
 		}
 	}
 	std::cout<<"The Score of this move: "<<best<<"\n";
@@ -1275,6 +1322,7 @@ Move *Board::bRootSearch(){
 		if(score <= best){
 			best = score;
 			bestMove = moveVector[i];
+
 		}
 	}
 	std::cout<<"The Score of this move: "<<best<<"\n";
@@ -1291,6 +1339,7 @@ Move *Board::bRootSearch(){
 
 UI64 Board::Perft(int depth)
 {
+	
     int n_moves, i;
    UI64 nodes = 0;
 	std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
