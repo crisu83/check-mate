@@ -34,6 +34,7 @@ typedef unsigned long long UI64;
 #include <vector>
 #include <time.h>
 #include <limits>
+#include <ios>
 #include <assert.h> //Used in bitscan
 #include <map>
 //This is only for PlaySound. For shits and giggles

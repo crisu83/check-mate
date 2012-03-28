@@ -103,11 +103,10 @@ int Game::run(void)
 				else//the user plays
 				{ 
 
-					if(DEBUG)
-						debugBitboardPrinter();
-
 					std::cin >> moveStr;
-					getchar();
+					
+					if(*moveStr == '0')
+						debugBitboardPrinter();
 
 					// Process the move.
 					_curMove = new Move();
@@ -123,12 +122,11 @@ int Game::run(void)
 				else
 				{//the user plays
 
-					if(DEBUG)
+					std::cin >> moveStr;
+
+					if(*moveStr == '0')
 						debugBitboardPrinter();
 
-					std::cin >> moveStr;
-					// Wait for a keypress.
-					getchar();
 					// Process the move.
 					_curMove = new Move();
 					_curMove->strToMove(moveStr);
@@ -213,98 +211,108 @@ void Game::debugBitboardPrinter(){
 			<< " 25:wAttack, 26:bAttack: ";
 		std::cin>>perfDepth;
 
-		switch(perfDepth){
-		case 0:
-			perfDepth = 0;
-			break;
-		default:{
-			std::cout<<"\nStart of divide output: \n";
-			_board->divided(perfDepth);
-			std::cout<<"tomove: "<<_position->getToMove();
-			break;
-				}
-		case 10: {
-			std::cout<<"Emptysquares bitboard:\n";
-			_board->superHiddenRenderEmptySquares(15);
-			break;}
-		case 11:{
-			std::cout<<"B_PIECES bitboard:\n";
-			_board->superHiddenRenderEmptySquares(14);
-			break;}
-		case 12:{
-			std::cout<<"W_PIECES bitboard:\n";
-			_board->superHiddenRenderEmptySquares(13);
-			break;}
-		case 13:{
-			std::cout<<"B_QUEEN bitboard:\n";
-			_board->superHiddenRenderEmptySquares(8);
-			break;}
-		case 14:{
-			std::cout<<"W_QUEEN bitboard:\n";
-			_board->superHiddenRenderEmptySquares(2);
-			break;}
-		case 15:{
-			std::cout<<"B_KING bitboard:\n";
-			_board->superHiddenRenderEmptySquares(7);
-			break;
-				}
-		case 16:{
-			std::cout<<"W_KING bitboard:\n";
-			_board->superHiddenRenderEmptySquares(1);
-			break;
-				}
-		case 17:{
-			std::cout<<"B_ROOK bitboard:\n";
-			_board->superHiddenRenderEmptySquares(9);
-			break;
-				}
-		case 18:{
-			std::cout<<"W_ROOK bitboard:\n";
-			_board->superHiddenRenderEmptySquares(3);
-			break;
-				}
-		case 19:{
-			std::cout<<"B_BISHOP bitboard:\n";
-			_board->superHiddenRenderEmptySquares(10);
-			break;
-				}
-		case 20:{
-			std::cout<<"W_BISHOP bitboard:\n";
-			_board->superHiddenRenderEmptySquares(4);
-			break;
-				}
-		case 21:{
-			std::cout<<"B_KNIGHT bitboard:\n";
-			_board->superHiddenRenderEmptySquares(11);
-			break;
-				}
-		case 22:{
-			std::cout<<"W_KNIGHT bitboard:\n";
-			_board->superHiddenRenderEmptySquares(5);
-			break;
-				}
-		case 23:{
-			std::cout<<"B_PAWN bitboard:\n";
-			_board->superHiddenRenderEmptySquares(12);
-			break;
-				}
-		case 24:{
-			std::cout<<"W_PAWN bitboard:\n";
-			_board->superHiddenRenderEmptySquares(6);
-			break;
-				}
-		case 25:{
-			std::cout<<"wAttack bitboard:\n";
-			_board->superHiddenRenderEmptySquares(30);
-			break;}
-		case 26:{
-			std::cout<<"bAttack bitboard:\n";
-			_board->superHiddenRenderEmptySquares(40);
-			break;}
-		case 27:{
-			std::cout<<"En Passant bitboard:\n";
-			_board->superHiddenRenderEmptySquares(16);
-			break;}
+		while ( !( std::cin>>perfDepth ) ) {
+			std::cerr<<"Invalid input detected\n";
+			// Clean up the mess by discarding the entire line
+			std::cin.clear();
+			std::cin.ignore ( sizeof(long long) , '\n' );
+		}
+
+
+		if(perfDepth >= 0 && perfDepth <= 50){
+			switch(perfDepth){
+			case 0:
+				perfDepth = 0;
+				break;
+			default:{
+				std::cout<<"\nStart of divide output: \n";
+				_board->divided(perfDepth);
+				std::cout<<"tomove: "<<_position->getToMove();
+				break;
+					}
+			case 10: {
+				std::cout<<"Emptysquares bitboard:\n";
+				_board->superHiddenRenderEmptySquares(15);
+				break;}
+			case 11:{
+				std::cout<<"B_PIECES bitboard:\n";
+				_board->superHiddenRenderEmptySquares(14);
+				break;}
+			case 12:{
+				std::cout<<"W_PIECES bitboard:\n";
+				_board->superHiddenRenderEmptySquares(13);
+				break;}
+			case 13:{
+				std::cout<<"B_QUEEN bitboard:\n";
+				_board->superHiddenRenderEmptySquares(8);
+				break;}
+			case 14:{
+				std::cout<<"W_QUEEN bitboard:\n";
+				_board->superHiddenRenderEmptySquares(2);
+				break;}
+			case 15:{
+				std::cout<<"B_KING bitboard:\n";
+				_board->superHiddenRenderEmptySquares(7);
+				break;
+					}
+			case 16:{
+				std::cout<<"W_KING bitboard:\n";
+				_board->superHiddenRenderEmptySquares(1);
+				break;
+					}
+			case 17:{
+				std::cout<<"B_ROOK bitboard:\n";
+				_board->superHiddenRenderEmptySquares(9);
+				break;
+					}
+			case 18:{
+				std::cout<<"W_ROOK bitboard:\n";
+				_board->superHiddenRenderEmptySquares(3);
+				break;
+					}
+			case 19:{
+				std::cout<<"B_BISHOP bitboard:\n";
+				_board->superHiddenRenderEmptySquares(10);
+				break;
+					}
+			case 20:{
+				std::cout<<"W_BISHOP bitboard:\n";
+				_board->superHiddenRenderEmptySquares(4);
+				break;
+					}
+			case 21:{
+				std::cout<<"B_KNIGHT bitboard:\n";
+				_board->superHiddenRenderEmptySquares(11);
+				break;
+					}
+			case 22:{
+				std::cout<<"W_KNIGHT bitboard:\n";
+				_board->superHiddenRenderEmptySquares(5);
+				break;
+					}
+			case 23:{
+				std::cout<<"B_PAWN bitboard:\n";
+				_board->superHiddenRenderEmptySquares(12);
+				break;
+					}
+			case 24:{
+				std::cout<<"W_PAWN bitboard:\n";
+				_board->superHiddenRenderEmptySquares(6);
+				break;
+					}
+			case 25:{
+				std::cout<<"wAttack bitboard:\n";
+				_board->superHiddenRenderEmptySquares(30);
+				break;}
+			case 26:{
+				std::cout<<"bAttack bitboard:\n";
+				_board->superHiddenRenderEmptySquares(40);
+				break;}
+			case 27:{
+				std::cout<<"En Passant bitboard:\n";
+				_board->superHiddenRenderEmptySquares(16);
+				break;}
+			}
 		}
 	}
 }

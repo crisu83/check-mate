@@ -87,10 +87,6 @@ void Board::initBitboards(){
 		historyTable[i] = 0;
 	}
 
-	for(int i = 0; i < 256; i++){
-		legalMoves[i] = -1;
-	}
-
 	_BitBoards[ EMPTY	]	= 0x0000;  // Empty board
 	_BitBoards[ W_KING	]	= 0x10;
 	_BitBoards[ W_QUEEN ]	= 0x8;
@@ -665,9 +661,12 @@ bool Board::moveIsLegal(Move *_curMove){
 		return false;
 	}
 
-	if(getPieceAt(_curMove->getX1(),_curMove->getY1())-> getType() == -1  || getPieceAt(_curMove->getX1(),_curMove->getY1())-> getType() == 0){
+	if(getSquareAt(_curMove->getX1(),_curMove->getY1()) == NULL  || getSquareAt(_curMove->getX1(),_curMove->getY1())->isEmpty()){
 		return false;
 	}
+
+	if(getPieceAt(_curMove->getX1(),_curMove->getY1())-> getType() == 0)
+		return false;
 
 	int sourceIndex =	(_curMove->getX1()) + (_curMove->getY1()<<3);
 	int destIndex	=	(_curMove->getX2()) + (_curMove->getY2()<<3); 
@@ -1210,7 +1209,7 @@ Piece *Board::getPieceAt(int x, int y)
 	
 	square = getSquareAt(x, y);
 
-	if (square != NULL)
+	if (square != NULL && !square->isEmpty())
 	{
 		return square->getPiece();
 	}
@@ -1332,7 +1331,7 @@ Move *Board::bRootSearch(){
 	for ( i = 0 ; i < moveVector.size(); i++ ) {
 		UI64 *backuP = makeBoardBackUp();
 		makeMove(moveVector[i]);
-		score = alphaBetaMax(INT_MIN, INT_MAX, 3);
+		score = alphaBetaMax(INT_MIN, INT_MAX, 4);
 
 		if(i == 0)
 			best = score;  //We need a reference point
