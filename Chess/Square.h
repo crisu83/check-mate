@@ -17,6 +17,7 @@ public:
 
 	// Getters and setters
 	int getColor();
+	bool isEmpty();
 	void setColor(int color);
 	Piece *getPiece();
 	void setPiece(Piece *piece);

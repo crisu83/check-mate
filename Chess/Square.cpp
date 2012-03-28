@@ -85,3 +85,7 @@ Piece *Square::getPiece()
 	return _piece;
 }
 
+bool Square::isEmpty(){
+	return _empty;
+}
+
