@@ -149,7 +149,6 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 							//move the king
 						tempMove.insert(tempMove.end(), BitBoards[ W_KING ]);
 						tempMove.insert(tempMove.end(), BitBoards[ W_KING ] >> 2 );
-						
 						moveVector.insert(moveVector.end(), tempMove);
 						 
 					}
@@ -162,7 +161,6 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 						//move the king
 						tempMove.insert(tempMove.end(), BitBoards[ W_KING ]);
 						tempMove.insert(tempMove.end(), BitBoards[ W_KING ] << 2 );
-						
 						moveVector.insert(moveVector.end(), tempMove);
 						 
 					}
@@ -221,7 +219,6 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 						moveVector.insert(moveVector.end(), tempMove);
 						moves = moves & (moves-1);
 					}
-					
 				}
 				w_knight = w_knight &  (w_knight-1); //reset the LS1B so we can get the next knight
 			}
@@ -1772,9 +1769,9 @@ UI64 Position::wEscapeMoves(UI64 king, UI64 BitBoards[]){
 	UI64 attacks = bPawnAttacks(BitBoards[ B_PAWN ]);
 	attacks |= bKingMoves(BitBoards[ B_KING ], BitBoards[ B_PIECES ], BitBoards);
 	attacks |= AllBlackKnightMovesForEscaping(BitBoards[ B_KNIGHT ]);
-	attacks |= AllRookMoves(BitBoards[ B_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]& ~kingmoves);
-	attacks |= AllBishopMoves(BitBoards[ B_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]& ~kingmoves);
-	attacks |= queenMoves(BitBoards[ B_QUEEN ], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]& ~kingmoves );
+	attacks |= AllRookMoves(BitBoards[ B_ROOK ], BitBoards[ EMPTYSQUARES ] | king, BitBoards[ B_PIECES ]& ~kingmoves);
+	attacks |= AllBishopMoves(BitBoards[ B_BISHOP ], BitBoards[ EMPTYSQUARES ] | king, BitBoards[ B_PIECES ]& ~kingmoves);
+	attacks |= queenMoves(BitBoards[ B_QUEEN ], BitBoards[ EMPTYSQUARES ] | king, BitBoards[ B_PIECES ]& ~kingmoves);
 	
 	return kingmoves & ~attacks;
 }
@@ -1792,9 +1789,9 @@ UI64 Position::bEscapeMoves(UI64 king, UI64 BitBoards[]){
 	UI64 attacks = wPawnAttacks(BitBoards[ W_PAWN ]);
 	attacks |= wKingMoves(BitBoards[ W_KING ], BitBoards[ W_PIECES ], BitBoards);
 	attacks |= AllWhiteKnightMovesForEscaping(BitBoards[ W_KNIGHT ]);
-	attacks |= AllRookMoves(BitBoards[ W_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]& ~kingmoves);
-	attacks |= AllBishopMoves(BitBoards[ W_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]& ~kingmoves);
-	attacks |= queenMoves(BitBoards[ W_QUEEN ], BitBoards[ EMPTYSQUARES ], (BitBoards[ W_PIECES ]& ~kingmoves));
+	attacks |= AllRookMoves(BitBoards[ W_ROOK ], BitBoards[ EMPTYSQUARES ] | king, BitBoards[ W_PIECES ]& ~kingmoves);
+	attacks |= AllBishopMoves(BitBoards[ W_BISHOP ], BitBoards[ EMPTYSQUARES ] | king, BitBoards[ W_PIECES ]& ~kingmoves);
+	attacks |= queenMoves(BitBoards[ W_QUEEN ], BitBoards[ EMPTYSQUARES ] | king, (BitBoards[ W_PIECES ]& ~kingmoves));
 	
 	return kingmoves & ~attacks;
 }
