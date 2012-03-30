@@ -1305,7 +1305,7 @@ Move *Board::wRootSearch() {
 		UI64 *backuP = makeBoardBackUp();
 		makeMove(moveVector[i]);
 
-		score = alphaBetaMin(INT_MIN, INT_MAX, 4);
+		score = alphaBetaMin(INT_MIN, INT_MAX, 3);
 		if(i == 0)
 			best = score;  //We need a reference point
 
