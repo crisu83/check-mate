@@ -377,7 +377,7 @@ void Board::updateBitBoards(Move move, int type){
 	//Find the index for the squareBits array from the coords.
 	int sourceIndex =	(move.getX1()) + (move.getY1()<<3);
 	int destIndex	=	(move.getX2()) + (move.getY2()<<3);
-	int toMove = _position->getToMove();
+	int toMove = _position->getTurn();
 
 	//If the type is one of the Whites, then we look from black pieces
 	//And if the type is one of the blacks, then we look from white pieces
@@ -794,7 +794,7 @@ void Board::takeBack(UI64 *_backUp){
 	_BitBoards[17] = _backUp[17];
 
 	historyIndex--;
-		_position->setToMove(_position->getToMove() == WHITE ? BLACK : WHITE );
+		_position->setTurn(_position->getTurn() == WHITE ? BLACK : WHITE );
 	//BitBoardToMoves();
 	//memcpy(_BitBoards, _backUp, BITBOARDS);
 }
@@ -810,7 +810,7 @@ void Board::makeMove(std::vector<UI64> move)
 	
 	UI64 source = move[0];
 	UI64 dest   = move[1];
-	int toMove  = _position->getToMove();
+	int toMove  = _position->getTurn();
 
 	//If the type is one of the Whites, then we look from black pieces
 	//And if the type is one of the blacks, then we look from white pieces
@@ -822,13 +822,6 @@ void Board::makeMove(std::vector<UI64> move)
 	int enemyType = 0;
 
 	
-	if(toMove == WHITE){
-		if(_position->wIsCheck(_BitBoards))
-			cheks++;
-	}else{
-		if(_position->bIsCheck(_BitBoards))
-			cheks++;
-	}
 
 	int i = 1;
 	int end = B_PAWN;
@@ -1066,7 +1059,7 @@ void Board::makeMove(std::vector<UI64> move)
 	_BitBoards[ ENPASSANT ] &= toMove == WHITE ? ~SIXTH_RANK : ~THIRD_RANK;
 
 		
-	_position->setToMove(_position->getToMove() == WHITE ? BLACK : WHITE );
+	_position->setTurn(_position->getTurn() == WHITE ? BLACK : WHITE );
 	historyIndex++;
 }
 
@@ -1085,8 +1078,8 @@ std::vector<std::string> Board::getMoveStrings(){
 
 	if(bitboards.size() == 0){
 
-		if(_position->getToMove() == WHITE){
-			if(_position->wIsCheck(_BitBoards)){
+		if(_position->getTurn() == WHITE){
+			if(_position->whiteChecked(_BitBoards)){
 			//	system("CLS");
 				PlaySound(L"gameover.wav",NULL,SND_FILENAME|SND_ASYNC); 
 				std::cout<<"Checkmate!\nThe game ends in favor of Black!";
@@ -1097,7 +1090,7 @@ std::vector<std::string> Board::getMoveStrings(){
 			}
 		}else{
 
-			if(_position->bIsCheck(_BitBoards)){
+			if(_position->blackChecked(_BitBoards)){
 				//system("CLS");
 				PlaySound(L"gameover.wav",NULL,SND_FILENAME|SND_ASYNC); 
 				std::cout<<"Checkmate!\nThe game ends in favor of White!";
@@ -1254,9 +1247,11 @@ void Board::setPosition(Position *position)
 double Board::alphaBetaMax( double alpha, double beta, int depth ) {
 	if ( depth == 0 ) return _position->evaluate(_BitBoards);
 	std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
-	if(moveVector.size() == 0 && _position->wIsCheck(_BitBoards)) return INT_MIN;
-	int i = 0; double score = 0;
-	for (i=0;i<moveVector.size();i++) { //Go through every node in moveVector
+	if(moveVector.size() == 0 && _position->whiteChecked(_BitBoards)) return INT_MIN;
+	int i = 0;
+	int len = 0;
+	double score = 0;
+	for (i=0, len =moveVector.size() ;i<len;i++) { //Go through every node in moveVector
 		//Backup the original state
 		UI64 *backuP = makeBoardBackUp();
 
@@ -1276,9 +1271,12 @@ double Board::alphaBetaMax( double alpha, double beta, int depth ) {
 double Board::alphaBetaMin( double alpha, double beta, int depth ) {
 	if ( depth == 0 ) return _position->evaluate(_BitBoards);
 	std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
-	if(moveVector.size() == 0 && _position->bIsCheck(_BitBoards)) return INT_MAX;
-	int i = 0; double score = 0;
-	for ( i=0;i<moveVector.size();i++) {
+	if(moveVector.size() == 0 && _position->blackChecked(_BitBoards)) return INT_MAX;
+	int i = 0; 
+	int len = 0;
+	double score = 0;
+
+	for ( i=0, len = moveVector.size();i<len;i++) {
 		UI64 *backuP = makeBoardBackUp();
 		makeMove(moveVector[i]);
 		score = alphaBetaMax( alpha, beta, depth - 1 );
@@ -1298,7 +1296,7 @@ Move *Board::wRootSearch() {
 	double best = 0; double score = 0;
 	std::vector<UI64> bestMove;
 	std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
-	int i; 
+	int i;  
 	for ( i=0;i<moveVector.size();i++) 
 	{
 
@@ -1331,7 +1329,7 @@ Move *Board::bRootSearch(){
 	for ( i = 0 ; i < moveVector.size(); i++ ) {
 		UI64 *backuP = makeBoardBackUp();
 		makeMove(moveVector[i]);
-		score = alphaBetaMax(INT_MIN, INT_MAX, 4);
+		score = alphaBetaMax(INT_MIN, INT_MAX, 3);
 
 		if(i == 0)
 			best = score;  //We need a reference point
@@ -1363,13 +1361,20 @@ UI64 Board::Perft(int depth)
 	std::vector<std::vector<UI64>> moveVector = _position->genLegalMoves(_BitBoards);
 	n_moves = moveVector.size();
 	if(n_moves == 0){
-		if(_position->getToMove() == WHITE && _position->wIsCheck(_BitBoards)){
+		if(_position->getTurn() == WHITE && _position->whiteChecked(_BitBoards)){
 		checkmates++;
 		}
-		else if(_position->getToMove() == BLACK && _position->bIsCheck(_BitBoards)){
+		else if(_position->getTurn() == BLACK && _position->blackChecked(_BitBoards)){
 			checkmates++;
 		}
+
 	}
+	if(_position->getTurn() == WHITE && _position->whiteChecked(_BitBoards)){
+		checks++;
+		}
+		else if(_position->getTurn() == BLACK && _position->blackChecked(_BitBoards)){
+			checks++;
+		}
 
     if (depth == 0) return 1;
     for (i = 0; i < n_moves; i++) {
@@ -1387,14 +1392,14 @@ void Board::PerftResults(){
 	std::cout<<"Captures: "<<captures<<std::endl;
 	std::cout<<"En Passants: "<<enpassants<<std::endl;
 	std::cout<<"Castlings: "<<castlings<<std::endl;
-	std::cout<<"Checks: "<<cheks<<std::endl;
+	std::cout<<"Checks: "<<checks<<std::endl;
 	std::cout<<"CheckMates: "<<checkmates<<std::endl;
 
 	resetPerftCounters();
 }
 
 void Board::resetPerftCounters(){
-	captures = 0, enpassants = 0,promotions = 0, cheks =0, checkmates =0 ,castlings = 0;
+	captures = 0, enpassants = 0,promotions = 0, checks =0, checkmates =0 ,castlings = 0;
 };
 
 
@@ -1442,11 +1447,11 @@ UI64 Board::divide(int depth){
 
 void Board::unMake(std::vector<UI64> move){
 	historyIndex--;
-	_position->setToMove(_position->getToMove() == WHITE ? BLACK : WHITE );
+	_position->setTurn(_position->getTurn() == WHITE ? BLACK : WHITE );
 
 	UI64 source = move.at(0);
 	UI64 dest = move.at(1);
-	int toMove = _position->getToMove();
+	int toMove = _position->getTurn();
 
 	//If the type is one of the Whites, then we look from black pieces
 	//And if the type is one of the blacks, then we look from white pieces
