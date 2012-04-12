@@ -44,7 +44,7 @@ void Game::init(void)
 
 	// White always starts the game.
 	_toMove = WHITE;
-	_position->setToMove(_toMove);
+	_position->setTurn(_toMove);
 }
 
 /**
@@ -227,7 +227,7 @@ void Game::debugBitboardPrinter(){
 			default:{
 				std::cout<<"\nStart of divide output: \n";
 				_board->divided(perfDepth);
-				std::cout<<"tomove: "<<_position->getToMove();
+				std::cout<<"tomove: "<<_position->getTurn();
 				break;
 					}
 			case 10: {
@@ -367,7 +367,7 @@ void Game::render(void)
 void Game::endTurn()
 {
 	_toMove = _toMove == WHITE ? BLACK : WHITE;
-	_position->setToMove(_toMove);
+	_position->setTurn(_toMove);
 }
 
 

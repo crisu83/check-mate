@@ -139,7 +139,7 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 	int count = 0;
 
 	if(this->_toMove == WHITE){
-		if( !wIsCheck(BitBoards)){
+		if( !whiteChecked(BitBoards)){
 
 		//Castling
 			if(BitBoards[CASTLING] & 1ULL ){
@@ -395,7 +395,7 @@ std::vector<std::vector<UI64>> Position::genLegalMoves(UI64 BitBoards[])
 		}
 
 	}else if(_toMove == BLACK){
-		if( !bIsCheck(BitBoards)){
+		if( !blackChecked(BitBoards)){
 
 				//Castling Queen side rook
 			if(BitBoards[CASTLING] & 0x0100000000000000){
@@ -658,11 +658,11 @@ int *Position::getMap()
 	return *_map;
 }
 
-void Position::setToMove(int i){
+void Position::setTurn(int i){
 	Position::_toMove = i;
 }
 
-int Position::getToMove() const{
+int Position::getTurn() const{
 	return _toMove;
 }
 
@@ -1389,10 +1389,10 @@ UI64 Position::queenMovesForEscaping(UI64 queen, UI64 emptysquares){
 	@param Bitboards
 	@return true if White is in check
  */
-bool Position::wIsCheck(UI64 BitBoards[]) {
+bool Position::whiteChecked(UI64 BitBoards[]) {
 	UI64 attacks = bPawnAttacks(BitBoards[ B_PAWN ]);
 	attacks |= bKingMoves(BitBoards[ B_KING ], BitBoards[ B_PIECES ], BitBoards);
-	attacks |= AllBlackKnightMoves(BitBoards[ B_KNIGHT ], B_PIECES);
+	attacks |= AllBlackKnightMoves(BitBoards[ B_KNIGHT ], BitBoards[ B_PIECES ]);
 	attacks |= AllRookMoves(BitBoards[ B_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]);
 	attacks |= AllBishopMoves(BitBoards[ B_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]);
 	attacks |= queenMoves(BitBoards[ B_QUEEN ], BitBoards[ EMPTYSQUARES ], (BitBoards[ B_PIECES ]));
@@ -1410,10 +1410,10 @@ bool Position::wIsCheck(UI64 BitBoards[]) {
 	@param Bitboards
 	@return true if black is in check
  */
-bool Position::bIsCheck(UI64 BitBoards[]) {
+bool Position::blackChecked(UI64 BitBoards[]) {
 	UI64 attacks = wPawnAttacks(BitBoards[ W_PAWN ]);
 	attacks |= wKingMoves(BitBoards[ W_KING ], BitBoards[ W_PIECES ], BitBoards);
-	attacks |= AllWhiteKnightMoves(BitBoards[ W_KNIGHT ], W_PIECES);
+	attacks |= AllWhiteKnightMoves(BitBoards[ W_KNIGHT ], BitBoards[ W_PIECES ]);
 	attacks |= AllRookMoves(BitBoards[ W_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
 	attacks |= AllBishopMoves(BitBoards[ W_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
 	attacks |= queenMoves(BitBoards[ W_QUEEN ], BitBoards[ EMPTYSQUARES ], (BitBoards[ W_PIECES ]));
@@ -1586,6 +1586,13 @@ UI64 Position::wMovesForPinned(UI64 ownpiece, UI64 moves, UI64 BitBoards[]){
 		UI64 attacks = 0;
 		UI64 rook = BitBoards[ B_ROOK ];
 		while(rook != 0){
+			UI64 a = rNorth(rook & -rook, BitBoards[ EMPTYSQUARES ] | ownpiece);
+			
+			if(((a & BitBoards[ W_KING ]) != 0)){
+				attacks |= (rook & -rook) | a;
+			}
+
+
 			if(((rNorth(rook & -rook, BitBoards[ EMPTYSQUARES ] | ownpiece) & BitBoards[ W_KING ]) != 0)){
 				attacks |= rook & -rook;
 				attacks |= rNorth(rook & -rook, BitBoards[ EMPTYSQUARES ] | ownpiece);
@@ -2136,7 +2143,7 @@ void Position::bLongCastleFalse(){
 */
 UI64 Position::wAllEnemyAttacks(UI64 BitBoards[]){
 	UI64 attacks = bPawnAttacks(BitBoards[ B_PAWN ]);
-	attacks |= AllBlackKnightMoves(BitBoards[ B_KNIGHT ], BitBoards[ B_PIECES ]);
+	attacks |= AllBlackKnightMoves(BitBoards[ B_KNIGHT ],BitBoards[B_PIECES] );
 	attacks |= AllRookMoves(BitBoards[ B_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]);
 	attacks |= AllBishopMoves(BitBoards[ B_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]);
 	attacks |= queenMoves(BitBoards[ B_QUEEN ], (BitBoards[ EMPTYSQUARES ]), (BitBoards[ B_PIECES ]));
@@ -2154,7 +2161,7 @@ UI64 Position::wAllEnemyAttacks(UI64 BitBoards[]){
 */
 UI64 Position::bAllEnemyAttacks(UI64 BitBoards[]){
 	UI64 attacks = wPawnAttacks(BitBoards[ W_PAWN ]);
-	attacks |= AllWhiteKnightMoves(BitBoards[ W_KNIGHT ], BitBoards[ W_PIECES ]);
+	attacks |= AllWhiteKnightMoves(BitBoards[ W_KNIGHT ],  BitBoards[W_PIECES] );
 	attacks |= AllRookMoves(BitBoards[ W_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
 	attacks |= AllBishopMoves(BitBoards[ W_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
 	attacks |= queenMoves(BitBoards[ W_QUEEN ], (BitBoards[ EMPTYSQUARES ]), (BitBoards[ W_PIECES ]));
@@ -2253,24 +2260,25 @@ double Position::evaluate(UI64 BitBoards[]){
 	//development TODO
 
 
-	//FIX this
 	return material + (0.3 * mobility) - 0.5*(doubled + isolated);
 }
 
 UI64 Position::wAttacks(UI64 BitBoards[]){
 	UI64 attacks = wPawnAttacks(BitBoards[ W_PAWN ]);
 	attacks |= wKingMoves(BitBoards[ W_KING ], BitBoards[ W_PIECES ], BitBoards);
-	attacks |= AllWhiteKnightMoves(BitBoards[ W_KNIGHT ], W_PIECES);
+	attacks |= AllWhiteKnightMoves(BitBoards[ W_KNIGHT ], BitBoards[ W_PIECES ]);
 	attacks |= AllRookMoves(BitBoards[ W_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
 	attacks |= AllBishopMoves(BitBoards[ W_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ W_PIECES ]);
 	attacks |= queenMoves(BitBoards[ W_QUEEN ], BitBoards[ EMPTYSQUARES ], (BitBoards[ W_PIECES ]));
+
+
 	return attacks;
 }
 
 UI64 Position::bAttacks(UI64 BitBoards[]){
 	UI64 attacks = bPawnAttacks(BitBoards[ B_PAWN ]);
 	attacks |= bKingMoves(BitBoards[ B_KING ], BitBoards[ B_PIECES ], BitBoards);
-	attacks |= AllBlackKnightMoves(BitBoards[ B_KNIGHT ], B_PIECES);
+	attacks |= AllBlackKnightMoves(BitBoards[ B_KNIGHT ], BitBoards[ B_PIECES ]);
 	attacks |= AllRookMoves(BitBoards[ B_ROOK ], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]);
 	attacks |= AllBishopMoves(BitBoards[ B_BISHOP ], BitBoards[ EMPTYSQUARES ], BitBoards[ B_PIECES ]);
 	attacks |= queenMoves(BitBoards[ B_QUEEN ], BitBoards[ EMPTYSQUARES ], (BitBoards[ B_PIECES ]));
